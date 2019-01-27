@@ -23,7 +23,8 @@ scalacOptions ++= Seq(
                       "-Ywarn-unused-import",
                       "-Ywarn-infer-any",
                       "-Ywarn-nullary-override",
-                      "-Ywarn-nullary-unit"
+                      "-Ywarn-nullary-unit",
+                      "-language:implicitConversions"
                      )
 
 scalacOptions in (Compile, console) --= Seq("-Xfatal-warnings", "-Ywarn-unused-import")
