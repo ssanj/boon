@@ -1,4 +1,4 @@
-package com.example.picotest
+package boon
 
 trait StringRep[A] {
   def strRep(a: A): String

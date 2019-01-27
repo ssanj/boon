@@ -1,4 +1,4 @@
-package com.example.picotest
+package boon
 
 trait Difference[A] {
   def diff(a1: A, a2: A): String

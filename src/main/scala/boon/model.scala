@@ -1,4 +1,4 @@
-package com.example.picotest
+package boon
 
 final case class Test(name: String, testable: Testable)
 

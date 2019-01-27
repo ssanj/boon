@@ -1,4 +1,4 @@
-package com.example.picotest.syntax
+package boon.syntax
 
 final case class EqSyntax[A](value1: A) {
   def =?=(value2: A): (A, A) = (value1, value2)

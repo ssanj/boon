@@ -1,4 +1,4 @@
-package com.example.picotest
+package boon
 
 trait Equality[A] {
   def eql(a1: A, a2: A): Boolean

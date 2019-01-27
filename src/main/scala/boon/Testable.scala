@@ -1,4 +1,4 @@
-package com.example.picotest
+package boon
 
 trait Testable {
   type Actual
