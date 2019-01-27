@@ -21,8 +21,8 @@ object Boon {
       val testable = test.testable
       val value1 = testable.value1
       val value2 = testable.value2
-      if (testable.equality.eql(value1, value2)) TestSuccess(Success(test.name))
-      else TestFailure(Failure(test.name, testable.difference.diff(value1, value2)))
+      if (testable.equality.eql(value1, value2)) TestSuccess(TestResult.Success(test.name))
+      else TestFailure(TestResult.Failure(test.name, testable.difference.diff(value1, value2)))
   }
 
   private def partitionWith[A, S, F](xs: Seq[A], pfs: PartialFunction[A, S], pff: PartialFunction[A, F]): (Seq[S], Seq[F]) = {
@@ -40,7 +40,7 @@ object Boon {
     val tests = suite.tests
     val results = tests.map(runTest)
 
-    val (passed, failed) = partitionWith[TestResult, Success, Failure](results,
+    val (passed, failed) = partitionWith[TestResult, TestResult.Success, TestResult.Failure](results,
       { case TestSuccess(success) => success },
       { case TestFailure(failure) => failure })
 
