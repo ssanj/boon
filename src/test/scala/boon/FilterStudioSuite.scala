@@ -1,5 +1,7 @@
 package boon
 
+import example.FilterStudio
+
 import syntax.EqSyntax._
 
 final class FilterStudioSuite extends SuiteLike("FilterStudio") {

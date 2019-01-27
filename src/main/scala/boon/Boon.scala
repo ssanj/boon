@@ -11,18 +11,35 @@ object Boon {
   }
 
   def defineTest[A](name: String, gen: => (A, A))(implicit E: Equality[A], D: Difference[A]): Test =
-    Test(name, {
+    //TODO: Can we do without the duplicate 'name' in Test and Assertion
+    SingleAssertionTest(
+      name,
+      Assertion(name, {
+        val (a1, a2) = gen
+        testable[A](a1, a2)
+      })
+    )
+
+  def defineAssertion[A](name: String, gen: => (A, A))(implicit E: Equality[A], D: Difference[A]): Assertion =
+    Assertion(name, {
       val (a1, a2) = gen
       testable[A](a1, a2)
     })
 
 
-  def runTest(test: Test): TestResult = {
-      val testable = test.testable
-      val value1 = testable.value1
-      val value2 = testable.value2
-      if (testable.equality.eql(value1, value2)) TestSuccess(TestResult.Success(test.name))
-      else TestFailure(TestResult.Failure(test.name, testable.difference.diff(value1, value2)))
+  //TODO: We need something like 'SuiteResult' here as well.
+  //Try and unify it to get a common result type
+  def runTest(test: Test): TestResult = test match {
+      case SingleAssertionTest(name, assertion) => runAssertion(assertion)
+      case MultiAssertionTest(name, assertions) => assertions.map(runAssertion)
+  }
+
+  def runAssertion(assertion: Assertion): TestResult = {
+    val testable = assertion.testable
+    val value1 = testable.value1
+    val value2 = testable.value2
+    if (testable.equality.eql(value1, value2)) TestSuccess(TestResult.Success(assertion.name))
+    else TestFailure(TestResult.Failure(assertion.name, testable.difference.diff(value1, value2)))
   }
 
   private def partitionWith[A, S, F](xs: Seq[A], pfs: PartialFunction[A, S], pff: PartialFunction[A, F]): (Seq[S], Seq[F]) = {
