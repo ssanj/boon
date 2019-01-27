@@ -1,6 +1,6 @@
 package com.example.picotest
 
-import PicoTest1._
+import Boon._
 import EqSyntax._
 
 final class FilterStudioSuite extends SuiteLike("FilterStudio") {

@@ -2,7 +2,7 @@ package com.example.picotest
 
 import scala.language.implicitConversions
 
-object PicoTest1 {
+object Boon {
 
   trait Testable {
     type Actual
