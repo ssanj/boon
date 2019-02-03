@@ -7,9 +7,11 @@ abstract class SuiteLike(val suiteName: String) {
 
   private val testRegister = new ListBuffer[Test]
 
-  lazy val allTests: Seq[Test] = testRegister
+  def suite: Suite = Suite(suiteName, testRegister)
 
   def test[A](name: String)(gen: => (A, A))(implicit E: Equality[A], D: Difference[A]): Unit = {
     testRegister += defineTest[A](name, gen)
   }
+
+  //we need another test method for multi assertion tests
 }
