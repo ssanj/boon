@@ -14,9 +14,28 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def toSeq: Seq[A] = head +: tail
 
-  //add partition method that returns a These - that way we don't handle the double empty case
+  def partition[B, C](f: A => Either[B, C]): These[NonEmptySeq[B], NonEmptySeq[C]] = {
+    val eitherSeq: NonEmptySeq[Either[B, C]] = self.map(f)
+
+    val (lefts, rights) = boon.partitionWith[Either[B, C], NonEmptySeq.L[B], NonEmptySeq.R[C]](
+      eitherSeq.toSeq,
+      { case Left(value) => NonEmptySeq.L[B](value) },
+      { case Right(value) => NonEmptySeq.R[C](value)}
+    )
+
+    (lefts, rights) match {
+      case (Seq(), Seq()) => ??? //fix
+      case (x +: xs, Seq()) => OnlyLeft(NonEmptySeq[B](x.value, xs.map(_.value)))
+      case (Seq(), y +: ys) => OnlyRight(NonEmptySeq[C](y.value, ys.map(_.value)))
+      case (x +: xs, y +: ys) => Both(NonEmptySeq[B](x.value, xs.map(_.value)), NonEmptySeq[C](y.value, ys.map(_.value)))
+    }
+  }
 }
 
 object NonEmptySeq {
+
+  final case class R[A](value: A)
+  final case class L[A](value: A)
+
   def nes[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
 }
