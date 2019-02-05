@@ -2,6 +2,7 @@ package boon
 
 //Minimal implementation of NonEmptySeq
 //Do we need to use Vector instead for performance?
+
 final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def map[B](f: A => B): NonEmptySeq[B] = NonEmptySeq(f(head), tail.map(f))
@@ -12,23 +13,32 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def concat(other: NonEmptySeq[A]): NonEmptySeq[A] = self.copy(tail = self.tail ++ other.toSeq)
 
+  def reverse: NonEmptySeq[A] = {
+    val reversed = toSeq.reverse //we know this is not empty
+    NonEmptySeq(reversed.head, reversed.tail)
+  }
+
   def toSeq: Seq[A] = head +: tail
 
+  def +:(newHead: A): NonEmptySeq[A] = NonEmptySeq[A](newHead, self.head +: tail)
+
   def partition[B, C](f: A => Either[B, C]): These[NonEmptySeq[B], NonEmptySeq[C]] = {
-    val eitherSeq: NonEmptySeq[Either[B, C]] = self.map(f)
+    val eitherSeq: NonEmptySeq[Either[B, C]] = self.map(f).reverse
 
-    val (lefts, rights) = boon.partitionWith[Either[B, C], NonEmptySeq.L[B], NonEmptySeq.R[C]](
-      eitherSeq.toSeq,
-      { case Left(value) => NonEmptySeq.L[B](value) },
-      { case Right(value) => NonEmptySeq.R[C](value)}
-    )
-
-    (lefts, rights) match {
-      case (Seq(), Seq()) => ??? //fix
-      case (x +: xs, Seq()) => OnlyLeft(NonEmptySeq[B](x.value, xs.map(_.value)))
-      case (Seq(), y +: ys) => OnlyRight(NonEmptySeq[C](y.value, ys.map(_.value)))
-      case (x +: xs, y +: ys) => Both(NonEmptySeq[B](x.value, xs.map(_.value)), NonEmptySeq[C](y.value, ys.map(_.value)))
+    val headResult: These[NonEmptySeq[B], NonEmptySeq[C]] = eitherSeq.head match {
+      case Left(value) => These.OnlyLeft(NonEmptySeq.one(value))
+      case Right(value) => These.OnlyRight(NonEmptySeq.one(value))
     }
+
+    eitherSeq.tail.foldLeft(headResult) {
+      case (These.OnlyLeft(lacc), Left(l))    => These.OnlyLeft(l +: lacc)
+      case (These.OnlyLeft(lacc), Right(r))   => These.Both(lacc, NonEmptySeq.one(r))
+      case (These.OnlyRight(racc), Left(l))   => These.Both(NonEmptySeq.one(l), racc)
+      case (These.OnlyRight(racc), Right(r))  => These.OnlyRight(r +: racc)
+      case (These.Both(lacc, racc), Left(l))  => These.Both(l +: lacc, racc)
+      case (These.Both(lacc, racc), Right(r)) => These.Both(lacc, r +: racc)
+    }
+
   }
 
   def partition2[B, C, D](f: A => Either[B, Either[C, D]]): Triple[NonEmptySeq[B], NonEmptySeq[C], NonEmptySeq[D]] = ???

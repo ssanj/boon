@@ -18,5 +18,7 @@ package object boon {
       else acc
     }
   }
+
+  def initOption[A](xs: Seq[A]): Option[Seq[A]] = if (xs.nonEmpty) Option(xs.init) else None
 }
 

@@ -44,9 +44,9 @@ object Boon {
         }
 
       theseResults match {
-        case OnlyLeft(values) => TestFailure(TestResult.Failure(TestResult.TestName(test.name), values))
-        case OnlyRight(values) => TestSuccess(TestResult.Success(TestResult.TestName(test.name), values))
-        case Both(lefts, rights) => TestMixed(TestResult.Mixed(TestResult.TestName(test.name), rights, lefts))
+        case These.OnlyLeft(values) => TestFailure(TestResult.Failure(TestResult.TestName(test.name), values))
+        case These.OnlyRight(values) => TestSuccess(TestResult.Success(TestResult.TestName(test.name), values))
+        case These.Both(lefts, rights) => TestMixed(TestResult.Mixed(TestResult.TestName(test.name), rights, lefts))
       }
   }
 
@@ -62,9 +62,9 @@ object Boon {
     }
 
     triple match {
-      case Triple.LeftOnly(values) => SuiteResult.Failure(SuiteResult.SuiteName(suite.name), values)
+      case Triple.OnlyLeft(values) => SuiteResult.Failure(SuiteResult.SuiteName(suite.name), values)
       case Triple.Middle(values) => SuiteResult.Mixed(SuiteResult.SuiteName(suite.name), values)
-      case Triple.RightOnly(values) => SuiteResult.Success(SuiteResult.SuiteName(suite.name), values)
+      case Triple.OnlyRight(values) => SuiteResult.Success(SuiteResult.SuiteName(suite.name), values)
     }
   }
 }
