@@ -30,6 +30,8 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
       case (x +: xs, y +: ys) => Both(NonEmptySeq[B](x.value, xs.map(_.value)), NonEmptySeq[C](y.value, ys.map(_.value)))
     }
   }
+
+  def partition2[B, C, D](f: A => Either[B, Either[C, D]]): Triple[NonEmptySeq[B], NonEmptySeq[C], NonEmptySeq[D]] = ???
 }
 
 object NonEmptySeq {
@@ -38,4 +40,6 @@ object NonEmptySeq {
   final case class L[A](value: A)
 
   def nes[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
+
+  def one[A](head: A): NonEmptySeq[A] = nes[A](head)
 }

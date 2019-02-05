@@ -37,47 +37,35 @@ object Boon {
 
   def runTest(test: Test): TestResult = test match {
     case Test(name, assertions) =>
-      val assertionResults = assertions.map(runAssertion)
-      val (passed, failed) = partitionWith[AssertionResult, AssertionResult.Success, AssertionResult.Failure](assertionResults
-        .toSeq,
-        { case AssertionSuccess(value) => value},
-        { case AssertionFailure(value) => value })
+      val theseResults: These[NonEmptySeq[AssertionResult.Failure], NonEmptySeq[AssertionResult.Success]] =
+        assertions.map(runAssertion).partition {
+          case AssertionFailure(value) => Left(value)
+          case AssertionSuccess(value) => Right(value)
+        }
 
-      (passed, failed) match {
-        // case (Seq(), Seq()) => ???//this should never happen! :P Figure out a way to not check for this
-        case (x +: xs, Seq()) =>   TestSuccess(TestResult.Success(TestResult.TestName(test.name), NonEmptySeq[AssertionResult.Success](x, xs)))
-        case (Seq(), y +: ys) =>   TestFailure(TestResult.Failure(TestResult.TestName(test.name), NonEmptySeq[AssertionResult.Failure](y, ys)))
-        case (x +: xs, y +: ys) => TestMixed(TestResult.Mixed(TestResult.TestName(test.name), NonEmptySeq[AssertionResult.Success](x, xs), NonEmptySeq[AssertionResult.Failure](y, ys)))
+      theseResults match {
+        case OnlyLeft(values) => TestFailure(TestResult.Failure(TestResult.TestName(test.name), values))
+        case OnlyRight(values) => TestSuccess(TestResult.Success(TestResult.TestName(test.name), values))
+        case Both(lefts, rights) => TestMixed(TestResult.Mixed(TestResult.TestName(test.name), rights, lefts))
       }
   }
 
   def runSuiteLike(suiteLike: SuiteLike): SuiteResult = runSuite(suiteLike.suite)
 
   def runSuite(suite: Suite): SuiteResult = {
-    val testResults = suite.tests.map(runTest).toSeq
-    val (passed, failed, mixed) = partitionWith3[TestResult, TestResult.Success, TestResult.Failure, TestResult.Mixed](testResults,
-      { case TestSuccess(success) => success },
-      { case TestFailure(failures) => failures },
-      { case TestMixed(mixed) => mixed })
+    val testResults: NonEmptySeq[TestResult] = suite.tests.map(runTest)
 
-    (passed, failed, mixed) match {
-      // case (Seq(), Seq(), Seq()) => ???//should never happen
-      case (x +: xs, Seq(), Seq()) => SuiteResult.Success(SuiteResult.SuiteName(suite.name), NonEmptySeq[TestResult.Success](x, xs))
-      case (Seq(), y +: ys, Seq()) => SuiteResult.Failure(SuiteResult.SuiteName(suite.name), NonEmptySeq[TestResult.Failure](y, ys))
-      case (Seq(), Seq(), z +: zs) => SuiteResult.Mixed(SuiteResult.SuiteName(suite.name), NonEmptySeq[TestResult.Mixed](z, zs))
+    val triple = testResults.partition2[TestResult.Failure, TestResult.Mixed, TestResult.Success] {
+      case TestFailure(failures) => Left(failures)
+      case TestMixed(mixed) => Right(Left(mixed))
+      case TestSuccess(successes) => Right(Right(successes))
     }
 
-
-    // val (passed, failed) = partitionWith[AssertionResult, AssertionResult.Success, AssertionResult.Failure](results,
-    //   { case AssertionSuccess(success) => success },
-    //   { case AssertionFailure(failure) => failure })
-
-    // (passed, failed) match {
-    //   case (Seq(), Seq()) => NoTests(suite.name)
-    //   case (xs, Seq())    => AllPassed(suite.name, xs)
-    //   case (Seq(), ys)    => AllFailed(suite.name, ys)
-    //   case (xs, ys)       => SomePassed(suite.name, xs, ys)
-    // }
+    triple match {
+      case Triple.LeftOnly(values) => SuiteResult.Failure(SuiteResult.SuiteName(suite.name), values)
+      case Triple.Middle(values) => SuiteResult.Mixed(SuiteResult.SuiteName(suite.name), values)
+      case Triple.RightOnly(values) => SuiteResult.Success(SuiteResult.SuiteName(suite.name), values)
+    }
   }
 }
 
