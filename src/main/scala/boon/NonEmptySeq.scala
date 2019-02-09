@@ -2,7 +2,6 @@ package boon
 
 //Minimal implementation of NonEmptySeq
 //Do we need to use Vector instead for performance?
-
 final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def map[B](f: A => B): NonEmptySeq[B] = NonEmptySeq(f(head), tail.map(f))
@@ -38,16 +37,10 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
       case (These.Both(lacc, racc), Left(l))  => These.Both(l +: lacc, racc)
       case (These.Both(lacc, racc), Right(r)) => These.Both(lacc, r +: racc)
     }
-
   }
-
-  def partition2[B, C, D](f: A => Either[B, Either[C, D]]): Triple[NonEmptySeq[B], NonEmptySeq[C], NonEmptySeq[D]] = ???
 }
 
 object NonEmptySeq {
-
-  final case class R[A](value: A)
-  final case class L[A](value: A)
 
   def nes[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
 

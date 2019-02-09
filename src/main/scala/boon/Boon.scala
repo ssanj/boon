@@ -31,22 +31,22 @@ object Boon {
     val testable = assertion.testable
     val value1 = testable.value1
     val value2 = testable.value2
-    if (testable.equality.eql(value1, value2)) AssertionSuccess(AssertionResult.Success(AssertionResult.AssertionName(assertion.name)))
-    else AssertionFailure(AssertionResult.Failure(AssertionResult.AssertionName(assertion.name), testable.difference.diff(value1, value2)))
+    if (testable.equality.eql(value1, value2)) AssertionPassed(AssertionResult.Passed(AssertionName(assertion.name)))
+    else AssertionFailed(AssertionResult.Failed(AssertionName(assertion.name), testable.difference.diff(value1, value2)))
   }
 
   def runTest(test: Test): TestResult = test match {
     case Test(name, assertions) =>
-      val theseResults: These[NonEmptySeq[AssertionResult.Failure], NonEmptySeq[AssertionResult.Success]] =
+      val theseResults: These[NonEmptySeq[AssertionResult.Failed], NonEmptySeq[AssertionResult.Passed]] =
         assertions.map(runAssertion).partition {
-          case AssertionFailure(value) => Left(value)
-          case AssertionSuccess(value) => Right(value)
+          case AssertionFailed(value) => Left(value)
+          case AssertionPassed(value) => Right(value)
         }
 
       theseResults match {
-        case These.OnlyLeft(values) => TestFailure(TestResult.Failure(TestResult.TestName(test.name), values))
-        case These.OnlyRight(values) => TestSuccess(TestResult.Success(TestResult.TestName(test.name), values))
-        case These.Both(lefts, rights) => TestMixed(TestResult.Mixed(TestResult.TestName(test.name), rights, lefts))
+        case These.OnlyLeft(values) => TestFailed(TestResult.Failed(test, values, None))
+        case These.OnlyRight(values) => TestPassed(TestResult.Passed(test, values))
+        case These.Both(lefts, rights) => TestFailed(TestResult.Failed(test, lefts, Some(rights)))
       }
   }
 
@@ -55,16 +55,16 @@ object Boon {
   def runSuite(suite: Suite): SuiteResult = {
     val testResults: NonEmptySeq[TestResult] = suite.tests.map(runTest)
 
-    val triple = testResults.partition2[TestResult.Failure, TestResult.Mixed, TestResult.Success] {
-      case TestFailure(failures) => Left(failures)
-      case TestMixed(mixed) => Right(Left(mixed))
-      case TestSuccess(successes) => Right(Right(successes))
-    }
+    val theseResults: These[NonEmptySeq[TestResult.Failed], NonEmptySeq[TestResult.Passed]] =
+      testResults.partition {
+        case TestFailed(value) => Left(value)
+        case TestPassed(value) => Right(value)
+      }
 
-    triple match {
-      case Triple.OnlyLeft(values) => SuiteResult.Failure(SuiteResult.SuiteName(suite.name), values)
-      case Triple.Middle(values) => SuiteResult.Mixed(SuiteResult.SuiteName(suite.name), values)
-      case Triple.OnlyRight(values) => SuiteResult.Success(SuiteResult.SuiteName(suite.name), values)
+    theseResults match {
+      case These.OnlyLeft(values)    => SuiteFailed(SuiteResult.Failed(suite, values, None))
+      case These.OnlyRight(values)   => SuitePassed(SuiteResult.Passed(suite, values))
+      case These.Both(lefts, rights) => SuiteFailed(SuiteResult.Failed(suite, lefts, Some(rights)))
     }
   }
 }
