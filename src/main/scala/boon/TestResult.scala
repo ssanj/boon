@@ -2,10 +2,6 @@ package boon
 
 sealed trait AssertionResult
 
-final case class TestName(name: String)
-final case class SuiteName(name: String)
-final case class AssertionName(name: String)
-
 object AssertionResult {
   final case class Passed(name: AssertionName)
   final case class Failed(name: AssertionName, error: String)

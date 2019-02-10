@@ -1,4 +1,4 @@
-name := "picotest"
+name := "boon"
 
 organization := "com.example"
 
@@ -30,5 +30,3 @@ scalacOptions ++= Seq(
 scalacOptions in (Compile, console) --= Seq("-Xfatal-warnings", "-Ywarn-unused-import")
 
 scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
-
-initialCommands := "import com.example.picotest._"

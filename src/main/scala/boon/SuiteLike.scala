@@ -7,7 +7,9 @@ abstract class SuiteLike(val suiteName: String) {
 
   private val testRegister = new ListBuffer[Test]
 
-  def suite: Suite = ???//Suite(suiteName, testRegister)
+  def primary: Test
+
+  def suite: Suite = Suite(SuiteName(suiteName), NonEmptySeq(primary, testRegister))
 
   def test[A](name: String)(gen: => (A, A))(implicit E: Equality[A], D: Difference[A]): Unit = {
     testRegister += defineTest[A](name, gen)

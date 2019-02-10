@@ -45,4 +45,6 @@ object NonEmptySeq {
   def nes[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
 
   def one[A](head: A): NonEmptySeq[A] = nes[A](head)
+
+  def isHeadOnly[A](xs: NonEmptySeq[A]): Boolean = xs.tail.isEmpty
 }
