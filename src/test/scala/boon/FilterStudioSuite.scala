@@ -26,7 +26,7 @@ object FilterStudioTests {
 
 import FilterStudioTests._
 
-final class FilterStudioSuite extends SuiteLike("FilterStudio")(NonEmptySeq.nes(t1, t2, t3))
+final class FilterStudioSuite extends SuiteLike("FilterStudio")(t1, t2, t3)
 
 object FilterStudioSuite {
 
