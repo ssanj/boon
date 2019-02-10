@@ -20,6 +20,10 @@ object Boon {
       }))
     )
 
+  def test[A](name: String)(gen: => (A, A))(implicit E: Equality[A], D: Difference[A]): Test = {
+    defineTest[A](name, gen)
+  }
+
   def defineAssertion[A](name: String, gen: => (A, A))(implicit E: Equality[A], D: Difference[A]): Assertion =
     Assertion(AssertionName(name), {
       val (a1, a2) = gen
