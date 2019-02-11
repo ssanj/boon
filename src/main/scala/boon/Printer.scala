@@ -1,48 +1,58 @@
 package boon
 
+import Boon.suiteResultToPassable
+import Boon.testResultToPassable
+
 object Printer {
 
   private val testPrefix = " - "
-  private val assertionPrefix = "  - "
-  private val errorPrefix = "   - "
-  private val errorPrefixForSingleAssertion = assertionPrefix
+  // private val assertionPrefix = "  - "
+  // private val errorPrefix = "   - "
+  // private val errorPrefixForSingleAssertion = assertionPrefix
   private val passedToken = "[passed]"
   private val failedToken = "[failed]"
 
-  def suiteResultOutput(suiteResult: SuiteResult): String = suiteResult match {
-    case SuitePassed(SuiteResult.Passed(Suite(SuiteName(suiteName), tests), _)) =>
-      passedSuiteOutput(suiteName, tests)
-    case SuiteFailed(SuiteResult.Failed(Suite(SuiteName(suiteName), _), failedTests, opPassedTests)) =>
-      failedSuiteOutput(suiteName, failedTests, opPassedTests)
+  def suiteResultOutput(suiteResult: SuiteResult): String = suiteResultToPassable(suiteResult) match {
+    case Passed => passedSuiteOutput(suiteResult)
+    case Failed => failedSuiteOutput(suiteResult)
   }
 
-  private def passedSuiteOutput(suiteName: String, passedTests: NonEmptySeq[Test]): String =  {
+  private def passedSuiteOutput(suiteResult: SuiteResult): String =  {
+      val suiteName = suiteResult.suite.name.value
+      val tests = suiteResult.testResults.map(_.test)
+
       s"""$suiteName:\n""" +
-        passedTests.map(t => s"${testPrefix}${t.name.value} ${passedToken}").toSeq.mkString("\n")
+        tests.map(t => s"${testPrefix}${t.name.value} ${passedToken}").toSeq.mkString("\n")
   }
 
-  private def failedSuiteOutput(suiteName: String,
-    failedTests: NonEmptySeq[TestResult.Failed], opPassedTests: Option[NonEmptySeq[TestResult.Passed]]): String = {
-      val failedString = failedTestOutput(failedTests)
-      val passedString = passedTestOutput(opPassedTests)
-      val separator    = if (opPassedTests.nonEmpty) "\n" else ""
-      s"""$suiteName:\n${passedString}${separator}${failedString}"""
+  private def failedSuiteOutput(suiteResult: SuiteResult): String = {
+      val suiteName = suiteResult.suite.name.value
+
+      val testOutput =
+        suiteResult.testResults.map(tr => (tr, testResultToPassable(tr))).map {
+          case (tr, Passed) => passedTestOutput(tr)
+          case (tr, Failed) => failedTestOutput(tr)
+        }
+
+      val testOutputString = testOutput.toSeq.mkString("\n")
+
+      s"$suiteName:\n$testOutputString"
   }
 
-  private def passedTestOutput(opPassedTests: Option[NonEmptySeq[TestResult.Passed]]): String = {
-    opPassedTests.fold("")(_.map(tr => s"${testPrefix}${tr.test.name.value} ${passedToken}").toSeq.mkString("\n"))
+  private def passedTestOutput(tr: TestResult): String = {
+    s"${testPrefix}${tr.test.name.value} ${passedToken}"
   }
 
-  private def failedTestOutput(failedTests: NonEmptySeq[TestResult.Failed]): String = {
-    failedTests.map(tr => s"${testPrefix}${tr.test.name.value} ${failedToken}" + assertionsOutput(tr.failures)).toSeq.mkString("\n")
+  private def failedTestOutput(tr: TestResult): String = {
+    s"${testPrefix}${tr.test.name.value} ${failedToken}"// + assertionsOutput(tr.failures))
   }
 
-  private def assertionsOutput(failedAssertions: NonEmptySeq[AssertionResult.Failed]): String = {
-    if (NonEmptySeq.isHeadOnly(failedAssertions)) {
-      val singleAssertionFailed = failedAssertions.head
-      s"\n${errorPrefixForSingleAssertion}${singleAssertionFailed.error}"
-    } else {
-      failedAssertions.map(fa => s"\n${assertionPrefix}${fa.name.value}\n${errorPrefix}${fa.error}").toSeq.mkString("\n")
-    }
-  }
+  // private def assertionsOutput(failedAssertions: NonEmptySeq[AssertionResult]): String = {
+  //   if (NonEmptySeq.isHeadOnly(failedAssertions)) {
+  //     val singleAssertionFailed = failedAssertions.head
+  //     s"\n${errorPrefixForSingleAssertion}${singleAssertionFailed.error}"
+  //   } else {
+  //     failedAssertions.map(fa => s"\n${assertionPrefix}${fa.name.value}\n${errorPrefix}${fa.error}").toSeq.mkString("\n")
+  //   }
+  // }
 }

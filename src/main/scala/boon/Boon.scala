@@ -55,19 +55,19 @@ object Boon {
   def testResultToPassable(tr: TestResult): Passable = {
     val failedOp = tr.assertionResults.map(assertionResultToPassable).find {
       case Failed => true
-      case _ => false
+      case Passed => false
     }
 
-    failedOp.fold[Passable](Failed)(_ => Passed)
+    failedOp.fold[Passable](Passed)(_ => Failed)
   }
 
   def suiteResultToPassable(sr: SuiteResult): Passable = {
     val failedOp = sr.testResults.map(testResultToPassable).find {
       case Failed => true
-      case _ => false
+      case Passed => false
     }
 
-   failedOp.fold[Passable](Failed)(_ => Passed)
+   failedOp.fold[Passable](Passed)(_ => Failed)
   }
 }
 
