@@ -36,7 +36,7 @@ object Boon {
     val value1 = testable.value1
     val value2 = testable.value2
     if (testable.equality.eql(value1, value2)) AssertionPassed(assertion)
-    else AssertionFailed(assertion, testable.difference.diff(value1, value2))
+    else AssertionFailed(AssertionError(assertion, testable.difference.diff(value1, value2)))
   }
 
   def runTest(test: Test): TestResult =

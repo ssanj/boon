@@ -6,10 +6,11 @@ case object Failed extends Passable
 
 final case class AssertionName(value: String)
 final case class Assertion(name: AssertionName, testable: Testable)
+final case class AssertionError(assertion: Assertion, error: String)
 
 sealed trait AssertionResult
 final case class AssertionPassed(assertion: Assertion) extends AssertionResult
-final case class AssertionFailed(assertion: Assertion, error: String) extends AssertionResult
+final case class AssertionFailed(value: AssertionError) extends AssertionResult
 
 final case class TestName(value: String)
 final case class Test(name: TestName, assertions: NonEmptySeq[Assertion])
