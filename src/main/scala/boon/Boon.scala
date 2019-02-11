@@ -35,41 +35,39 @@ object Boon {
     val testable = assertion.testable
     val value1 = testable.value1
     val value2 = testable.value2
-    if (testable.equality.eql(value1, value2)) AssertionPassed(AssertionResult.Passed(assertion.name))
-    else AssertionFailed(AssertionResult.Failed(assertion.name, testable.difference.diff(value1, value2)))
+    if (testable.equality.eql(value1, value2)) AssertionPassed(assertion)
+    else AssertionFailed(assertion, testable.difference.diff(value1, value2))
   }
 
-  def runTest(test: Test): TestResult = test match {
-    case Test(name, assertions) =>
-      val theseResults: These[NonEmptySeq[AssertionResult.Failed], NonEmptySeq[AssertionResult.Passed]] =
-        assertions.map(runAssertion).partition {
-          case AssertionFailed(value) => Left(value)
-          case AssertionPassed(value) => Right(value)
-        }
-
-      theseResults match {
-        case These.OnlyLeft(values) => TestFailed(TestResult.Failed(test, values, None))
-        case These.OnlyRight(values) => TestPassed(TestResult.Passed(test, values))
-        case These.Both(lefts, rights) => TestFailed(TestResult.Failed(test, lefts, Some(rights)))
-      }
-  }
+  def runTest(test: Test): TestResult =
+      TestResult(test, test.assertions.map(runAssertion))
 
   def runSuiteLike(suiteLike: SuiteLike): SuiteResult = runSuite(suiteLike.suite)
 
-  def runSuite(suite: Suite): SuiteResult = {
-    val testResults: NonEmptySeq[TestResult] = suite.tests.map(runTest)
+  def runSuite(suite: Suite): SuiteResult =
+    SuiteResult(suite, suite.tests.map(runTest))
 
-    val theseResults: These[NonEmptySeq[TestResult.Failed], NonEmptySeq[TestResult.Passed]] =
-      testResults.partition {
-        case TestFailed(value) => Left(value)
-        case TestPassed(value) => Right(value)
-      }
+  def assertionResultToPassable(ar: AssertionResult): Passable = ar match {
+    case _: AssertionPassed => Passed
+    case _: AssertionFailed => Failed
+  }
 
-    theseResults match {
-      case These.OnlyLeft(values)    => SuiteFailed(SuiteResult.Failed(suite, values, None))
-      case These.OnlyRight(values)   => SuitePassed(SuiteResult.Passed(suite, values))
-      case These.Both(lefts, rights) => SuiteFailed(SuiteResult.Failed(suite, lefts, Some(rights)))
+  def testResultToPassable(tr: TestResult): Passable = {
+    val failedOp = tr.assertionResults.map(assertionResultToPassable).find {
+      case Failed => true
+      case _ => false
     }
+
+    failedOp.fold[Passable](Failed)(_ => Passed)
+  }
+
+  def suiteResultToPassable(sr: SuiteResult): Passable = {
+    val failedOp = sr.testResults.map(testResultToPassable).find {
+      case Failed => true
+      case _ => false
+    }
+
+   failedOp.fold[Passable](Failed)(_ => Passed)
   }
 }
 

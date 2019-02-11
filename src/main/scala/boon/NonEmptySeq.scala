@@ -38,6 +38,11 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
       case (These.Both(lacc, racc), Right(r)) => These.Both(lacc, r +: racc)
     }
   }
+
+  def find(f: A => Boolean): Option[A] = {
+    if (f(head)) Some(head)
+    else tail.find(f)
+  }
 }
 
 object NonEmptySeq {
