@@ -63,7 +63,7 @@ object Printer {
   private def assertionsOutput(assertionErrors: NonEmptySeq[AssertionError]): String = {
     if (NonEmptySeq.isHeadOnly(assertionErrors)) {
       val singleAssertionFailed = assertionErrors.head
-      s"\n${errorPrefixForSingleAssertion}${singleAssertionFailed.assertion.name.value} [x]"
+      s"\n${errorPrefixForSingleAssertion}${singleAssertionFailed.error} [x]"
     } else {
       assertionErrors.map(fa => s"\n${assertionPrefix}${fa.assertion.name.value}\n${errorPrefix}${fa.error} [x]").toSeq.mkString("\n")
     }
