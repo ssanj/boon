@@ -13,14 +13,6 @@ final case class DescSyntax[A](pair: (A, A)) {
 }
 
 final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
-  def &(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
+    def &(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
 }
 
-object EqSyntax {
-  implicit def toEqSyntax[A](value1: A): EqSyntax[A] = EqSyntax[A](value1)
-
-  // implicit def toContinueSyntax(assertion: Assertion): ContinueSyntax = ContinueSyntax(NonEmptySeq.nes(assertion))
-
-  implicit def toNonEmptySeqOfAssertions(continueSyntax: ContinueSyntax): NonEmptySeq[Assertion] =
-    continueSyntax.assertions
-}

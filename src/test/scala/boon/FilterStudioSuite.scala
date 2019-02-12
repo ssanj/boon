@@ -1,6 +1,6 @@
 package boon
 
-import syntax.EqSyntax._
+import syntax._
 import example.FilterStudio
 import FilterStudio._
 import Boon.test
