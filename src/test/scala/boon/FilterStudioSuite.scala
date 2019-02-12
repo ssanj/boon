@@ -8,7 +8,7 @@ import Boon.test
 object FilterStudioTests {
   val t1 = test("with empty audience") {
     (filterStudio(Nil) =?= List("studio") | "stays empty") &
-    (filterStudio(Nil) =?= List("") | "more")
+    (filterStudio(Nil) =?= Nil | "more")
   }
 
   val t2 = test("remove studio audience") {
@@ -33,6 +33,8 @@ object FilterStudioSuite {
 
   def main(args: Array[String]): Unit =  {
     val s1 = new FilterStudioSuite
-    println(Printer.suiteResultOutput(Boon.runSuiteLike(s1)))
+    val suiteResult = Boon.runSuiteLike(s1)
+    val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
+    println(SimplePrinter.print(suiteOutput))
   }
 }
