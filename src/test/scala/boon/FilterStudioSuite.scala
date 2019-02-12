@@ -7,20 +7,21 @@ import Boon.test
 
 object FilterStudioTests {
   val t1 = test("with empty audience") {
-    (filterStudio(Nil) =?= List("studio"))
+    (filterStudio(Nil) =?= List("studio") | "stays empty") &
+    (filterStudio(Nil) =?= List("") | "more")
   }
 
   val t2 = test("remove studio audience") {
       val audienceList = List("myfun", "studio", "balh", "blee")
       val expectedAudience = List("myfun","balh", "blee")
       val actualList = filterStudio(audienceList)
-      actualList =?= expectedAudience
+      actualList =?= expectedAudience | "only remove studio"
     }
 
   val t3 = test("not remove anything else") {
     val audienceList = List("myfun", "balh", "blee")
     val actualList = filterStudio(audienceList)
-    actualList =?= audienceList
+    actualList =?= audienceList | "leave others unchanged"
   }
 }
 

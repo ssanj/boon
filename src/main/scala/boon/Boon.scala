@@ -10,19 +10,8 @@ object Boon {
     val difference = D
   }
 
-  def defineTest[A](name: String, gen: => (A, A))(implicit E: Equality[A], D: Difference[A]): Test =
-    //TODO: Can we do without the duplicate 'name' in Test and Assertion
-    Test(
-      TestName(name),
-      NonEmptySeq.nes(Assertion(AssertionName(name), {
-        val (a1, a2) = gen
-        testable[A](a1, a2)
-      }))
-    )
+  def test(name: String)(assertions: NonEmptySeq[Assertion]): Test = Test(TestName(name), assertions)
 
-  def test[A](name: String)(gen: => (A, A))(implicit E: Equality[A], D: Difference[A]): Test = {
-    defineTest[A](name, gen)
-  }
 
   def defineAssertion[A](name: String, gen: => (A, A))(implicit E: Equality[A], D: Difference[A]): Assertion =
     Assertion(AssertionName(name), {

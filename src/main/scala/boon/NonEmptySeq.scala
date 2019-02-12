@@ -2,6 +2,8 @@ package boon
 
 //Minimal implementation of NonEmptySeq
 //Do we need to use Vector instead for performance?
+//Generalise? NonEmpty[F[_], A]
+// - F needs: map, flatMap, fold, prepend, append, reverse
 final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def map[B](f: A => B): NonEmptySeq[B] = NonEmptySeq(f(head), tail.map(f))
@@ -19,7 +21,9 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def toSeq: Seq[A] = head +: tail
 
-  def +:(newHead: A): NonEmptySeq[A] = NonEmptySeq[A](newHead, self.head +: tail)
+  def prepend(newHead: A): NonEmptySeq[A] = NonEmptySeq[A](newHead, self.head +: tail)
+
+  def append(last: A): NonEmptySeq[A] = NonEmptySeq[A](head, tail :+ last)
 
   def partition[B, C](f: A => Either[B, C]): These[NonEmptySeq[B], NonEmptySeq[C]] = {
     val eitherSeq: NonEmptySeq[Either[B, C]] = self.map(f).reverse
@@ -30,12 +34,12 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
     }
 
     eitherSeq.tail.foldLeft(headResult) {
-      case (These.OnlyLeft(lacc), Left(l))    => These.OnlyLeft(l +: lacc)
+      case (These.OnlyLeft(lacc), Left(l))    => These.OnlyLeft(lacc.prepend(l))
       case (These.OnlyLeft(lacc), Right(r))   => These.Both(lacc, NonEmptySeq.one(r))
       case (These.OnlyRight(racc), Left(l))   => These.Both(NonEmptySeq.one(l), racc)
-      case (These.OnlyRight(racc), Right(r))  => These.OnlyRight(r +: racc)
-      case (These.Both(lacc, racc), Left(l))  => These.Both(l +: lacc, racc)
-      case (These.Both(lacc, racc), Right(r)) => These.Both(lacc, r +: racc)
+      case (These.OnlyRight(racc), Right(r))  => These.OnlyRight(racc.prepend(r))
+      case (These.Both(lacc, racc), Left(l))  => These.Both(lacc.prepend(l), racc)
+      case (These.Both(lacc, racc), Right(r)) => These.Both(lacc, racc.prepend(r))
     }
   }
 
