@@ -1,5 +1,6 @@
 package boon
 
+//This may not need to be a typeclass.
 trait Difference[A] {
   def diff(a1: A, a2: A): String
 }
@@ -8,7 +9,7 @@ object Difference {
 
   def apply[A: Difference]: Difference[A] = implicitly[Difference[A]]
 
-  private def genericDifference[A](implicit rep: StringRep[A]): Difference[A] = new Difference[A] {
+  def genericDifference[A](implicit rep: StringRep[A]): Difference[A] = new Difference[A] {
     def diff(a1: A, a2: A): String = s"${rep.strRep(a1)} != ${rep.strRep(a2)}"
   }
 
@@ -46,5 +47,15 @@ object Difference {
   implicit def listDifference[A: Difference : StringRep]: Difference[List[A]] = new Difference[List[A]] {
     val rep = StringRep[List[A]]
     def diff(xs: List[A], ys: List[A]): String = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
+  }
+
+  implicit def optionDifference[A: Difference : StringRep]: Difference[Option[A]] = new Difference[Option[A]] {
+    val rep = StringRep[Option[A]]
+    def diff(xs: Option[A], ys: Option[A]): String = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
+  }
+
+  implicit def pairDifference[A: Difference : StringRep, B: Difference : StringRep]: Difference[Tuple2[A, B]] = new Difference[Tuple2[A, B]] {
+    val rep = StringRep[Tuple2[A, B]]
+    override def diff(pair1: Tuple2[A, B], pair2: Tuple2[A, B]): String = s"${rep.strRep(pair1)} != ${rep.strRep(pair2)}"
   }
 }

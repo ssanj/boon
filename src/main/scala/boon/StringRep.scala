@@ -43,4 +43,12 @@ object StringRep {
   implicit def listStringRep[A](implicit S: StringRep[A]): StringRep[List[A]] = new StringRep[List[A]] {
     override def strRep(xs: List[A]): String = xs.map(S.strRep).mkString("[", ",", "]")
   }
+
+  implicit def optionStringRep[A](implicit S: StringRep[A]): StringRep[Option[A]] = new StringRep[Option[A]] {
+    override def strRep(xs: Option[A]): String = xs.fold("None")(v => s"Some(${S.strRep(v)})")
+  }
+
+  implicit def pairStringRep[A, B](implicit SA: StringRep[A], SB: StringRep[B]): StringRep[Tuple2[A, B]] = new StringRep[Tuple2[A, B]] {
+    override def strRep(pair: Tuple2[A, B]): String = s"(${SA.strRep(pair._1)}, ${SB.strRep(pair._2)})"
+  }
 }

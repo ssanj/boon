@@ -44,4 +44,19 @@ object Equality {
       case _ => xs.zip(ys).forall(p => E.eql(p._1, p._2))
     }
   }
+
+  implicit def optionEquality[A](implicit E: Equality[A]): Equality[Option[A]] = new Equality[Option[A]] {
+    override def eql(xs: Option[A], ys: Option[A]): Boolean = (xs, ys) match {
+      case (Some(x), Some(y)) => E.eql(x, y)
+      case (None, None) => true
+      case _ => false
+    }
+  }
+
+  implicit def pairEquality[A, B](implicit EA: Equality[A], EB: Equality[B]): Equality[Tuple2[A, B]] = new Equality[Tuple2[A, B]] {
+    override def eql(xs: Tuple2[A, B], ys: Tuple2[A, B]): Boolean = (xs, ys) match {
+      case ((x1, y1), (x2, y2)) => EA.eql(x1, x2) && EB.eql(y1, y2)
+    }
+  }
+
 }
