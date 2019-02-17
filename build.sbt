@@ -7,8 +7,7 @@ version := "0.0.1"
 scalaVersion := "2.12.7"
 
 libraryDependencies ++= Seq(
-  "org.scalaz"     %% "scalaz-core" % "7.2.9",
-  // "org.scalatest"  %% "scalatest"   % "3.0.1"  % "test",
+  "org.scala-sbt" % "test-interface" % "1.0",
   "org.scalacheck" %% "scalacheck"  % "1.13.4" % "test"
 )
 
@@ -26,6 +25,8 @@ scalacOptions ++= Seq(
                       "-Ywarn-nullary-unit",
                       "-language:implicitConversions"
                      )
+
+testFrameworks := Seq(new TestFramework("boon.sbt.BoonFramework"))
 
 scalacOptions in (Compile, console) --= Seq("-Xfatal-warnings", "-Ywarn-unused-import")
 
