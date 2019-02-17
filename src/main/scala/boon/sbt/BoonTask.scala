@@ -15,12 +15,11 @@ import boon.Failed
 import boon.Passed
 import boon.SuiteLike
 import boon.SuiteOutput
-import boon.SimplePrinter
 import boon.SuiteResult
 
 import scala.util.Try
 
-final class BoonTask(val taskDef: TaskDef, cl: ClassLoader) extends Task {
+final class BoonTask(val taskDef: TaskDef, cl: ClassLoader, printer: (SuiteOutput, Boolean) => String) extends Task {
 
   def tags(): Array[String] = Array.empty
 
@@ -42,8 +41,7 @@ final class BoonTask(val taskDef: TaskDef, cl: ClassLoader) extends Task {
 
   private def logResult(suiteOutput: SuiteOutput, loggers: Array[Logger]): Unit = {
     loggers.foreach { log =>
-      val result = SimplePrinter.print(suiteOutput, SuiteOutput.defaultPrinterSetting(log.ansiCodesSupported))
-      log.info(result)
+      log.info(printer(suiteOutput, log.ansiCodesSupported))
     }
   }
 
