@@ -35,6 +35,6 @@ object FilterStudioSuite {
     val s1 = new FilterStudioSuite
     val suiteResult = Boon.runSuiteLike(s1)
     val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
-    println(SimplePrinter.print(suiteOutput))
+    println(SimplePrinter.print(suiteOutput, SuiteOutput.defaultPrinterSetting(true)))
   }
 }

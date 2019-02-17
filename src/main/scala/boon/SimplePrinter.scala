@@ -1,58 +1,42 @@
 package boon
 
-import Colourise.colourise
-import Colourise.Green
-import Colourise.Red
-import Colourise.RedUnderlined
 import scala.compat.Platform.EOL
 
 
 object SimplePrinter {
 
-  private val suitePassedToken = "[passed]"
-  private val suiteFailedToken = "[failed]"
-
-  private val testPadding = ""
-  private val testPassedToken = "[passed]"
-  private val testFailedToken = "[failed]"
-
-  private val assertionPadding = " " * 2
-  private val assertionPassedToken = "[/]"
-  private val assertionFailedPadding = " " * 4
-  private val assertionFailedToken = "[x]"
-
-  def print(suiteOutput: SuiteOutput): String = {
-    printSuiteOutput(suiteOutput)
+  def print(suiteOutput: SuiteOutput, ps: PrinterSetting): String = {
+    printSuiteOutput(suiteOutput, ps)
   }
 
-  private def printSuiteOutput(so: SuiteOutput): String = so match {
+  private def printSuiteOutput(so: SuiteOutput, ps: PrinterSetting): String = so match {
     case SuiteOutput(name, tests, pass) =>
       val token = pass match {
-        case Passed => colourise(Some(Green) ,suitePassedToken)
-        case Failed => colourise(Some(Red), suiteFailedToken)
+        case Passed => ps.suitePassedToken
+        case Failed => ps.suiteFailedToken
       }
 
       s"${name} ${token}${EOL}" +
-        tests.map(printTestOutput).toSeq.mkString(EOL)
+        tests.map(printTestOutput(_, ps)).toSeq.mkString(EOL)
   }
 
-  private def printTestOutput(to: TestOutput): String = to match {
+  private def printTestOutput(to: TestOutput, ps: PrinterSetting): String = to match {
     case TestOutput(name, assertions, pass) =>
       val token = pass match {
-        case Passed => colourise(Some(Green), testPassedToken)
-        case Failed => colourise(Some(Red), testFailedToken)
+        case Passed => ps.testPassedToken
+        case Failed => ps.testFailedToken
       }
-      s"${testPadding} - ${name} ${token}${EOL}" +
-        assertions.map(printAssertionOutput).toSeq.mkString(EOL)
+      s"${ps.testPadding} - ${name} ${token}${EOL}" +
+        assertions.map(printAssertionOutput(_, ps)).toSeq.mkString(EOL)
   }
 
-  private def printAssertionOutput(ao: AssertionOutput): String = ao match {
+  private def printAssertionOutput(ao: AssertionOutput, ps: PrinterSetting): String = ao match {
     case PassedOutput(name)        =>
-      s"${assertionPadding} - ${name} ${colourise(Some(Green), assertionPassedToken)}"
+      s"${ps.assertionPadding} - ${name} ${ps.assertionPassedToken}"
     case FailedOutput(name, error) =>
-      s"${assertionPadding} - ${name} ${colourise(Some(Red), assertionFailedToken)}${EOL}" +
-      s"${assertionFailedPadding} " +
-      s"${colourise(Some(RedUnderlined), s"=> ${error}")}"
+      s"${ps.assertionPadding} - ${name} ${ps.assertionFailedToken}${EOL}" +
+      s"${ps.assertionFailedPadding} " +
+      s"${ps.colourError(s"=> ${error}")}"
   }
 
 }

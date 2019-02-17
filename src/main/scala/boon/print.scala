@@ -12,6 +12,10 @@ package boon
 
 import Boon.suiteResultToPassable
 import Boon.testResultToPassable
+import Colourise.colourise
+import Colourise.red
+import Colourise.green
+import Colourise.redU
 
 final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], pass: Passable)
 final case class TestOutput(name: String, assertions: NonEmptySeq[AssertionOutput], pass: Passable)
@@ -19,6 +23,21 @@ final case class TestOutput(name: String, assertions: NonEmptySeq[AssertionOutpu
 sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
 final case class FailedOutput(name: String, error: String) extends AssertionOutput
+
+abstract class PrinterSetting(
+  val suitePassedToken: String,
+  val suiteFailedToken: String,
+  val testPassedToken: String,
+  val testFailedToken: String,
+  val assertionPassedToken: String,
+  val assertionFailedToken: String,
+  val testPadding: String,
+  val assertionPadding: String,
+  val assertionFailedPadding: String
+
+) {
+  def colourError(message: String): String
+}
 
 object SuiteOutput {
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
@@ -32,5 +51,20 @@ object SuiteOutput {
     }
 
     SuiteOutput(suiteResult.suite.name.value, testOutputs, suiteResultToPassable(suiteResult))
+  }
+
+  def defaultPrinterSetting(showColours: Boolean): PrinterSetting = new PrinterSetting(
+    suitePassedToken =  colourise(green(showColours), "[passed]"),
+    suiteFailedToken = colourise(red(showColours), "[failed]"),
+    testPassedToken = colourise(green(showColours), "[passed]"),
+    testFailedToken = colourise(red(showColours), "[failed]"),
+    assertionPassedToken = colourise(green(showColours), "[/]"),
+    assertionFailedToken = colourise(red(showColours), "[x]"),
+    testPadding = "",
+    assertionPadding = " " * 2,
+    assertionFailedPadding = " " * 4
+
+  ) {
+    override def colourError(message: String): String = colourise(redU(showColours), message)
   }
 }

@@ -34,15 +34,17 @@ final class BoonTask(val taskDef: TaskDef, cl: ClassLoader) extends Task {
 
       handleEvent(createEvent(suiteResult, endTime - startTime), eventHandler)
       val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
-      logResult(SimplePrinter.print(suiteOutput), loggers)
+      logResult(suiteOutput, loggers)
     }
 
     Array.empty
   }
 
-  private def logResult(result: String, loggers: Array[Logger]): Unit = {
-    //need to handle colours if Logger.ansiCodesSupported
-    loggers.foreach(l => l.info(result))
+  private def logResult(suiteOutput: SuiteOutput, loggers: Array[Logger]): Unit = {
+    loggers.foreach { log =>
+      val result = SimplePrinter.print(suiteOutput, SuiteOutput.defaultPrinterSetting(log.ansiCodesSupported))
+      log.info(result)
+    }
   }
 
   private def handleEvent(event: Event, eventHandler: EventHandler): Unit = {

@@ -20,4 +20,13 @@ object Colourise {
       s"${chosenColour}${message}${Console.RESET}"
     }
   }
+
+  def green(showColour: Boolean): Option[ConsoleColour] =
+    if (showColour) Some(Green) else None
+
+  def red(showColour: Boolean): Option[ConsoleColour] =
+    if (showColour) Some(Red) else None
+
+  def redU(showColour: Boolean): Option[ConsoleColour] =
+    if (showColour) Some(RedUnderlined) else None
 }
