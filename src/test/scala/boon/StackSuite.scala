@@ -2,6 +2,7 @@ package boon
 
 import syntax._
 import Boon.test
+import example.Stack
 
 object StackTests {
 

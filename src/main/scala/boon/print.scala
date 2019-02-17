@@ -58,8 +58,8 @@ object SuiteOutput {
     suiteFailedToken = colourise(red(showColours), "[failed]"),
     testPassedToken = colourise(green(showColours), "[passed]"),
     testFailedToken = colourise(red(showColours), "[failed]"),
-    assertionPassedToken = colourise(green(showColours), "[/]"),
-    assertionFailedToken = colourise(red(showColours), "[x]"),
+    assertionPassedToken = colourise(green(showColours), "[✓]"),
+    assertionFailedToken = colourise(red(showColours), "[✗]"),
     testPadding = "",
     assertionPadding = " " * 2,
     assertionFailedPadding = " " * 4
