@@ -1,9 +1,11 @@
 package boon
 
 trait Equality[A] {
-  def eql(a1: A, a2: A): Boolean
-}
 
+  def eql(a1: A, a2: A): Boolean
+
+  def neql(a1: A, a2: A): Boolean = !eql(a1, a2)
+}
 
 object Equality {
 
@@ -57,6 +59,10 @@ object Equality {
     override def eql(xs: Tuple2[A, B], ys: Tuple2[A, B]): Boolean = (xs, ys) match {
       case ((x1, y1), (x2, y2)) => EA.eql(x1, x2) && EB.eql(y1, y2)
     }
+  }
+
+  implicit def notEquality[A](implicit E: Equality[A]): Equality[Not[A]] = new Equality[Not[A]] {
+    override def eql(a1: Not[A], a2: Not[A]): Boolean = E.neql(a1.value, a2.value)
   }
 
 }

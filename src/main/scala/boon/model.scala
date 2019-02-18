@@ -19,3 +19,5 @@ final case class TestResult(test: Test, assertionResults: NonEmptySeq[AssertionR
 final case class SuiteName(value: String)
 final case class Suite(name: SuiteName, tests: NonEmptySeq[Test])
 final case class SuiteResult(suite: Suite, testResults: NonEmptySeq[TestResult])
+
+final case class Not[A](value: A)

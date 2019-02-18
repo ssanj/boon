@@ -51,4 +51,8 @@ object StringRep {
   implicit def pairStringRep[A, B](implicit SA: StringRep[A], SB: StringRep[B]): StringRep[Tuple2[A, B]] = new StringRep[Tuple2[A, B]] {
     override def strRep(pair: Tuple2[A, B]): String = s"(${SA.strRep(pair._1)}, ${SB.strRep(pair._2)})"
   }
+
+  implicit def notStringRep[A](implicit S: StringRep[A]): StringRep[Not[A]] = new StringRep[Not[A]] {
+    override def strRep(na: Not[A]): String = S.strRep(na.value)
+  }
 }
