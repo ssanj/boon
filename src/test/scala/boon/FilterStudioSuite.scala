@@ -6,22 +6,22 @@ import FilterStudio._
 import Boon.test
 
 object FilterStudioTests {
-  private [boon] val t1 = test("with empty audience") {
+  private [boon] val t1 = test("with empty abode") {
     (filterStudio(Nil) =?= List("studio") | "stays empty") &
     (filterStudio(Nil) =?= Nil | "more")
   }
 
-  private [boon] val t2 = test("remove studio audience") {
-      val audienceList = List("myfun", "studio", "balh", "blee")
-      val expectedAudience = List("myfun","balh", "blee")
-      val actualList = filterStudio(audienceList)
-      actualList =?= expectedAudience | "only remove studio"
+  private [boon] val t2 = test("remove studio abode") {
+      val abode = List("loft", "studio", "balh", "blee")
+      val expectedAbode = List("loft","balh", "blee")
+      val actualList = filterStudio(abode)
+      actualList =?= expectedAbode | "only remove studio"
     }
 
   private [boon] val t3 = test("not remove anything else") {
-    val audienceList = List("myfun", "balh", "blee")
-    val actualList = filterStudio(audienceList)
-    actualList =?= audienceList | "leave others unchanged"
+    val abode = List("loft", "balh", "blee")
+    val actualList = filterStudio(abode)
+    actualList =?= abode | "leave others unchanged"
   }
 }
 
