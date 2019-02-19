@@ -14,9 +14,13 @@ object MySimpleTests {
   }
 
   val t2 = test("strings") {
-    (("Daniel" + " " + "Jackson") =?= "Daniel Jackson" | "concat")    &
-    ("yohoho"                     =?= "ohohoy".reverse | "reversing") &
-    ("hello".toUpperCase          =?= "HELLO"          | "UPPER")
+    (("Daniel" + " " + "Jackson") =?= "Daniel Jackson" | "concat")     &
+    ("yohoho"                     =?= "ohohoy".reverse | "reversing")  &
+    ("hello".toUpperCase          =?= "HELLO"          | "UPPER")      &
+    ("DollHouse".startsWith("Doll")                    | "startsWith") &
+    ("Battlestar".endsWith("star")                     | "endsWith")   &
+    ("Frodo".contains("od")                            | "contains")   &
+    (!"Bilbo".contains("ob")                           | "!contains")
   }
 
   private def factorial(n: Int): Int =

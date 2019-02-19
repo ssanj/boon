@@ -6,4 +6,7 @@ package object syntax {
 
   implicit def toNonEmptySeqOfAssertions(continueSyntax: ContinueSyntax): NonEmptySeq[Assertion] =
     continueSyntax.assertions
+
+  implicit def booleanToDescSyntax(value1: Boolean): DescSyntax[Boolean] =
+    DescSyntax[Boolean]((value1, true))
 }
