@@ -12,6 +12,8 @@ class Stack[A](private var internal: NonEmptySeq[A]) {
     case NonEmptySeq(h, Seq()) => (h, None)
     case NonEmptySeq(h, x +: xs) => (h, Some(new Stack(NonEmptySeq(x, xs))))
   }
+
+  override def toString: String = s"Stack(${internal.toSeq.mkString(",")})"
 }
 
 //Custom types need to define `Equality`, `StringRep` and `Difference`.

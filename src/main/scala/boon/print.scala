@@ -22,7 +22,7 @@ final case class TestOutput(name: String, assertions: NonEmptySeq[AssertionOutpu
 
 sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
-final case class FailedOutput(name: String, error: String) extends AssertionOutput
+final case class FailedOutput(name: String, error: String, context: Map[String, String]) extends AssertionOutput
 
 abstract class PrinterSetting(
   val suitePassedToken: String,
@@ -33,7 +33,9 @@ abstract class PrinterSetting(
   val assertionFailedToken: String,
   val testPadding: String,
   val assertionPadding: String,
-  val assertionFailedPadding: String
+  val assertionFailedPadding: String,
+  val assertionFailedContextPadding: String,
+  val assertionFailedContextElementPadding: String
 
 ) {
   def colourError(message: String): String
@@ -43,8 +45,8 @@ object SuiteOutput {
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
       val assertionOutputs = tr.assertionResults.map {
-        case AssertionPassed(Assertion(AssertionName(name), _)) => PassedOutput(name)
-        case AssertionFailed(AssertionError(Assertion(AssertionName(name), _), error)) => FailedOutput(name, error)
+        case AssertionPassed(Assertion(AssertionName(name), _, _)) => PassedOutput(name)
+        case AssertionFailed(AssertionError(Assertion(AssertionName(name), _, ctx), error)) => FailedOutput(name, error, ctx)
       }
 
       TestOutput(tr.test.name.value, assertionOutputs, testResultToPassable(tr))
@@ -62,7 +64,9 @@ object SuiteOutput {
     assertionFailedToken = colourise(red(showColours), "[✗]"),
     testPadding = "",
     assertionPadding = " " * 2,
-    assertionFailedPadding = " " * 4
+    assertionFailedPadding = " " * 4,
+    assertionFailedContextPadding = " " * 7,
+    assertionFailedContextElementPadding = " " * 10
 
   ) {
     override def colourError(message: String): String = colourise(redU(showColours), message)

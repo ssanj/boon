@@ -20,7 +20,11 @@ object MySimpleTests {
     ("DollHouse".startsWith("Doll")                    | "startsWith") &
     ("Battlestar".endsWith("star")                     | "endsWith")   &
     ("Frodo".contains("od")                            | "contains")   &
-    (!"Bilbo".contains("ob")                           | "!contains")
+    ("Bilbo".contains("ob") |# (
+      "!contains",
+      "subject" -> "\"Bilbo\"",
+      "predicate" -> "!contain",
+      "value" -> "\"ob\""))
   }
 
   private def factorial(n: Int): Int =

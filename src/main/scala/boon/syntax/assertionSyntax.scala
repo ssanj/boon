@@ -2,6 +2,7 @@ package boon
 package syntax
 
 import Boon.defineAssertion
+import Boon.defineAssertionWithContext
 
 final case class EqSyntax[A](value1: A) {
   def =?=(value2: A): DescSyntax[A] = DescSyntax[A]((value1, value2))
@@ -12,6 +13,9 @@ final case class EqSyntax[A](value1: A) {
 final case class DescSyntax[A](pair: (A, A)) {
   def |(name: String)(implicit E: boon.Equality[A], D: Difference[A]): ContinueSyntax =
     ContinueSyntax(NonEmptySeq.nes(defineAssertion[A](name, (pair))))
+
+  def |#(name: String, ctx: (String, String)*)(implicit E: boon.Equality[A], D: Difference[A]): ContinueSyntax =
+    ContinueSyntax(NonEmptySeq.nes(defineAssertionWithContext[A](name, (pair), Map(ctx:_*))))
 }
 
 final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {

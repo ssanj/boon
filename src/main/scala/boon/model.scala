@@ -5,7 +5,7 @@ case object Passed extends Passable
 case object Failed extends Passable
 
 final case class AssertionName(value: String)
-final case class Assertion(name: AssertionName, testable: Testable)
+final case class Assertion(name: AssertionName, testable: Testable, context: Map[String, String])
 final case class AssertionError(assertion: Assertion, error: String)
 
 sealed trait AssertionResult

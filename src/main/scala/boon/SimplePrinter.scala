@@ -33,10 +33,17 @@ object SimplePrinter {
   private def printAssertionOutput(ao: AssertionOutput, ps: PrinterSetting): String = ao match {
     case PassedOutput(name)        =>
       s"${ps.assertionPadding} - ${name} ${ps.assertionPassedToken}"
-    case FailedOutput(name, error) =>
-      s"${ps.assertionPadding} - ${name} ${ps.assertionFailedToken}${EOL}" +
-      s"${ps.assertionFailedPadding} " +
-      s"${ps.colourError(s"=> ${error}")}"
+    case FailedOutput(name, error, ctx) =>
+      val baseError =
+        s"${ps.assertionPadding} - ${name} ${ps.assertionFailedToken}${EOL}" +
+        s"${ps.assertionFailedPadding} " +
+        s"${ps.colourError(s"=> ${error}")}"
+
+      if (ctx.nonEmpty) {
+        s"${baseError}${EOL}" +
+        s"${ps.assertionFailedContextPadding}#: " +
+        s"${ctx.mkString(s"${EOL}${ps.assertionFailedContextElementPadding}")}"
+      } else baseError
   }
 
 }
