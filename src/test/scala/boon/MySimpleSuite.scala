@@ -37,8 +37,12 @@ object MySimpleTests {
     (factorial(4)  =/= 120     | "of 4 is not 120")  &
     (factorial(10) =?= 3628800 | "of 10 is 3628800")
   }
+
+  val t4 = test("takes a while") {
+    (1 to 6000).flatMap(x => (1 to x).toList).length =?= 18003000 | "6k"
+  }
 }
 
 import MySimpleTests._
 
-final class MySimpleSuite extends SuiteLike("SimpleSuite")(t1, t2, t3)
+final class MySimpleSuite extends SuiteLike("SimpleSuite")(t1, t2, t3, t4)
