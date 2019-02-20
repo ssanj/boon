@@ -18,31 +18,49 @@ import boon.SuiteOutput
 import boon.SuiteResult
 
 import scala.util.Try
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+
+object BoonTask {
+  implicit val EC: ExecutionContext = ExecutionContext.global
+}
 
 final class BoonTask(val taskDef: TaskDef, cl: ClassLoader, printer: (SuiteOutput, Boolean) => String) extends Task {
 
   def tags(): Array[String] = Array.empty
 
   def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
-    val suiteOp = loadSuite(taskDef.fullyQualifiedName, cl)
-    //look into async execution
-    suiteOp.fold(println(s"could not load class: ${taskDef.fullyQualifiedName}")) { suite =>
-      val startTime = System.currentTimeMillis()
-      val suiteResult = Boon.runSuiteLike(suite)
-      val endTime = System.currentTimeMillis()
+    import BoonTask._
+    val asyncExec = Future.apply[Array[Task]]{
+      val suiteOp = loadSuite(taskDef.fullyQualifiedName, cl)
 
-      handleEvent(createEvent(suiteResult, endTime - startTime), eventHandler)
-      val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
-      logResult(suiteOutput, loggers)
+      suiteOp.fold(logError(s"could not load class: ${taskDef.fullyQualifiedName}", loggers)) { suite =>
+        val startTime = System.currentTimeMillis()
+        val suiteResult = Boon.runSuiteLike(suite)
+        val endTime = System.currentTimeMillis()
+
+        handleEvent(createEvent(suiteResult, endTime - startTime), eventHandler)
+        val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
+        logResult(suiteOutput, loggers)
+      }
+
+      Array.empty
     }
 
-    Array.empty
+    //Should this be a max timeout?
+    Await.result[Array[Task]](asyncExec, Duration.Inf)
   }
 
   private def logResult(suiteOutput: SuiteOutput, loggers: Array[Logger]): Unit = {
     loggers.foreach { log =>
       log.info(printer(suiteOutput, log.ansiCodesSupported))
     }
+  }
+
+  private def logError(error: String, loggers: Array[Logger]): Unit = {
+    loggers.foreach(_.error(error))
   }
 
   private def handleEvent(event: Event, eventHandler: EventHandler): Unit = {
