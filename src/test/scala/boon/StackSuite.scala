@@ -29,7 +29,9 @@ object StackTests {
 
 import StackTests._
 
-final class StackSuite extends SuiteLike("Stack")(test1)
+final class StackSuite extends SuiteLike("Stack") {
+  override def tests = NonEmptySeq.nes(test1)
+}
 
 object StackSuite {
 

@@ -45,4 +45,6 @@ object MySimpleTests {
 
 import MySimpleTests._
 
-final class MySimpleSuite extends SuiteLike("SimpleSuite")(t1, t2, t3, t4)
+final class MySimpleSuite extends SuiteLike("SimpleSuite") {
+  override def tests = NonEmptySeq.nes(t1, t2, t3, t4)
+}

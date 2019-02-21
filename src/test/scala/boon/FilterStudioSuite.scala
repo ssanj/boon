@@ -12,11 +12,11 @@ object FilterStudioTests {
   }
 
   private [boon] val t2 = test("remove studio abode") {
-      val abode = List("loft", "studio", "balh", "blee")
-      val expectedAbode = List("loft","balh", "blee")
-      val actualList = filterStudio(abode)
-      actualList =?= expectedAbode | "only remove studio"
-    }
+    val abode = List("loft", "studio", "balh", "blee")
+    val expectedAbode = List("loft","balh", "blee")
+    val actualList = filterStudio(abode)
+    actualList =?= expectedAbode | "only remove studio"
+  }
 
   private [boon] val t3 = test("not remove anything else") {
     val abode = List("loft", "balh", "blee")
@@ -27,7 +27,9 @@ object FilterStudioTests {
 
 import FilterStudioTests._
 
-final class FilterStudioSuite extends SuiteLike("FilterStudio")(t1, t2, t3)
+final class FilterStudioSuite extends SuiteLike("FilterStudio") {
+  override def tests = NonEmptySeq.nes(t1, t2, t3)
+}
 
 object FilterStudioSuite {
 

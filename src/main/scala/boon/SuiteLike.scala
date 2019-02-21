@@ -1,8 +1,8 @@
 package boon
 
-abstract class SuiteLike(val suiteName: String)(primary: Test, others: Test*) {
+abstract class SuiteLike(val suiteName: String) {
 
-  def suite: Suite = Suite(SuiteName(suiteName), NonEmptySeq(primary, others))
+  def tests: NonEmptySeq[DeferredTest]
 
-  //we need another test method for multi assertion tests
+  def suite: DeferredSuite = DeferredSuite(SuiteName(suiteName), tests)
 }
