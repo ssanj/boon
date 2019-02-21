@@ -13,6 +13,8 @@ class Stack[A](private var internal: NonEmptySeq[A]) {
     case NonEmptySeq(h, x +: xs) => (h, Some(new Stack(NonEmptySeq(x, xs))))
   }
 
+  def peek: A = ???
+
   override def toString: String = s"Stack(${internal.toSeq.mkString(",")})"
 }
 

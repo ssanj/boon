@@ -17,7 +17,10 @@ import boon.SuiteLike
 import boon.SuiteOutput
 import boon.SuiteResult
 
+import scala.util.Failure
+import scala.util.Success
 import scala.util.Try
+
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -34,16 +37,21 @@ final class BoonTask(val taskDef: TaskDef, cl: ClassLoader, printer: (SuiteOutpu
   def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
     import BoonTask._
     val asyncExec = Future.apply[Array[Task]]{
-      val suiteOp = loadSuite(taskDef.fullyQualifiedName, cl)
 
-      suiteOp.fold(logError(s"could not load class: ${taskDef.fullyQualifiedName}", loggers)) { suite =>
-        val startTime = System.currentTimeMillis()
-        val suiteResult = Boon.runSuiteLike(suite)
-        val endTime = System.currentTimeMillis()
+      val suiteTry = loadSuite(taskDef.fullyQualifiedName, cl)
+      val startTime = System.currentTimeMillis()
+      val suiteResultTry = suiteTry.flatMap[SuiteResult](suite => Try(Boon.runSuiteLike(suite)))
+      val endTime = System.currentTimeMillis()
+      val timeTaken = endTime - startTime
 
-        handleEvent(createEvent(suiteResult, endTime - startTime), eventHandler)
-        val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
-        logResult(suiteOutput, loggers)
+      suiteResultTry match {
+        case Failure(error) =>
+          handleEvent(createErrorEvent(error, timeTaken), eventHandler)
+          logError(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
+        case Success(suiteResult) =>
+          val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
+          handleEvent(createEvent(suiteResult, timeTaken), eventHandler)
+          logResult(suiteOutput, loggers)
       }
 
       Array.empty
@@ -59,8 +67,11 @@ final class BoonTask(val taskDef: TaskDef, cl: ClassLoader, printer: (SuiteOutpu
     }
   }
 
-  private def logError(error: String, loggers: Array[Logger]): Unit = {
-    loggers.foreach(_.error(error))
+  private def logError(message: String, error: Throwable, loggers: Array[Logger]): Unit = {
+    loggers.foreach{ l =>
+      l.error(message)
+      l.trace(error)
+    }
   }
 
   private def handleEvent(event: Event, eventHandler: EventHandler): Unit = {
@@ -87,8 +98,25 @@ final class BoonTask(val taskDef: TaskDef, cl: ClassLoader, printer: (SuiteOutpu
     override def duration(): Long = timeTakenMs
   }
 
-  private def loadSuite(name: String, loader: ClassLoader): Option[SuiteLike] = {
-    Try(reflectivelyInstantiateSuite(name, loader)).toOption.collect { case ref: SuiteLike => ref }
+  private def createErrorEvent(error: Throwable, timeTakenMs: Long): Event = new Event {
+
+    override def fullyQualifiedName(): String = taskDef.fullyQualifiedName()
+
+    override def throwable(): OptionalThrowable = new OptionalThrowable(error)
+
+    override def status(): Status = Status.Error
+
+    override def selector(): Selector = taskDef.selectors.head//Unsafe
+
+    override def fingerprint(): Fingerprint = taskDef.fingerprint
+
+    override def duration(): Long = timeTakenMs
+  }
+
+  private def loadSuite(name: String, loader: ClassLoader): Try[SuiteLike] = {
+    Try(reflectivelyInstantiateSuite(name, loader)).collect {
+      case ref: SuiteLike => ref
+    }
   }
 
   private def reflectivelyInstantiateSuite(className: String, loader: ClassLoader): Any = {
