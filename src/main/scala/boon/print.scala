@@ -47,7 +47,7 @@ object SuiteOutput {
       val assertionOutputs = tr.assertionResults.map {
         case AssertionPassed(Assertion(AssertionName(name), _, _)) => PassedOutput(name)
         case AssertionFailed(AssertionError(Assertion(AssertionName(name), _, ctx), error)) => FailedOutput(name, error, ctx)
-        case AssertionThrew(error) => FailedOutput("???", error.getMessage, Map.empty[String, String])//FIX
+        case AssertionThrew(AssertionName(name), error) => FailedOutput(name, error.getMessage, Map.empty[String, String])//FIX
       }
 
       TestOutput(tr.test.name.value, assertionOutputs, testResultToPassable(tr))
