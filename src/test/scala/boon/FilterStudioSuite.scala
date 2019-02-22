@@ -5,7 +5,7 @@ import example.FilterStudio
 import FilterStudio._
 import Boon.test
 
-object FilterStudioTests {
+object FilterStudioSuite extends SuiteLike("FilterStudio") {
   private [boon] val t1 = test("with empty abode") {
     (filterStudio(Nil) =?= List("studio") | "stays empty") &
     (filterStudio(Nil) =?= Nil | "more")
@@ -23,19 +23,14 @@ object FilterStudioTests {
     val actualList = filterStudio(abode)
     actualList =?= abode | "leave others unchanged"
   }
-}
 
-import FilterStudioTests._
-
-final class FilterStudioSuite extends SuiteLike("FilterStudio") {
   override def tests = NonEmptySeq.nes(t1, t2, t3)
 }
 
-object FilterStudioSuite {
+object FilterStudioSuiteRunner {
 
   def main(args: Array[String]): Unit =  {
-    val s1 = new FilterStudioSuite
-    val suiteResult = Boon.runSuiteLike(s1)
+    val suiteResult = Boon.runSuiteLike(FilterStudioSuite)
     val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
     println(SimplePrinter.print(suiteOutput, SuiteOutput.defaultPrinterSetting(true)))
   }

@@ -20,7 +20,7 @@ object BoonFramework {
 
   val fingerprint: Fingerprint = new SubclassFingerprint {
 
-    val isModule = false
+    val isModule = true
 
     def requireNoArgConstructor(): Boolean = true
 

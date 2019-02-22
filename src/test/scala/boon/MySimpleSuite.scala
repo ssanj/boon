@@ -3,7 +3,7 @@ package boon
 import Boon.test
 import syntax._
 
-object MySimpleTests {
+object MySimpleSuite extends SuiteLike("SimpleSuite") {
 
   val t1 = test("addition") {
     (2 + 1     =?= 1 + 2       | "commutative")    &
@@ -41,10 +41,6 @@ object MySimpleTests {
   val t4 = test("takes a while") {
     (1 to 6000).flatMap(x => (1 to x).toList).length =?= 18003000 | "6k"
   }
-}
 
-import MySimpleTests._
-
-final class MySimpleSuite extends SuiteLike("SimpleSuite") {
   override def tests = NonEmptySeq.nes(t1, t2, t3, t4)
 }

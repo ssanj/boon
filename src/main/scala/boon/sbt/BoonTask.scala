@@ -25,6 +25,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
+import scala.reflect.runtime.universe._
 
 object BoonTask {
   implicit val EC: ExecutionContext = ExecutionContext.global
@@ -120,7 +121,8 @@ final class BoonTask(val taskDef: TaskDef, cl: ClassLoader, printer: (SuiteOutpu
   }
 
   private def reflectivelyInstantiateSuite(className: String, loader: ClassLoader): Any = {
-    //Use Scala reflection instead
-    Class.forName(className, true, loader).getConstructor().newInstance()
+   val mirror = runtimeMirror(loader)
+   val module = mirror.staticModule(className)
+   mirror.reflectModule(module).instance.asInstanceOf[Any]
   }
 }

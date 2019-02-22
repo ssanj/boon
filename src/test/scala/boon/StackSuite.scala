@@ -4,7 +4,7 @@ import syntax._
 import Boon.test
 import example.Stack
 
-object StackTests {
+object StackSuite extends SuiteLike("Stack"){
 
   private def noStack[A]: Option[Stack[A]] = None: Option[Stack[A]]
 
@@ -20,24 +20,20 @@ object StackTests {
       ( pop3._2 =?= Some(stack2) | "pop3 returns stack2 as stack")
 
     } &
-    ( stack2.peek =?= 1 | "peeking") &
+    ( stack2.peek =?= 1 | "peeking 1") &
+    ( 1 =/= stack2.peek | "peeking 2") &
     ( stack2.pop()._1  =?= 1                       | "popping stack2 returns 1 as value" )                      &
     ( stack2.pop()._2  =?= Some(stack1)            | "popping stack2 returns stack1 as stack" )                 &
     ( stack1.pop()     =?= Tuple2(0, noStack[Int]) | "popping stack1 returns 0 as value and no further stacks")
   }
-}
 
-import StackTests._
-
-final class StackSuite extends SuiteLike("Stack") {
   override def tests = NonEmptySeq.nes(test1)
 }
 
-object StackSuite {
+object StackSuiteRunner {
 
   def main(args: Array[String]): Unit =  {
-    val s1 = new StackSuite
-    val suiteResult = Boon.runSuiteLike(s1)
+    val suiteResult = Boon.runSuiteLike(StackSuite)
     val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
     println(SimplePrinter.print(suiteOutput, SuiteOutput.defaultPrinterSetting(true)))
   }
