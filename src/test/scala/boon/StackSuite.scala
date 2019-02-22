@@ -1,10 +1,10 @@
 package boon
 
 import syntax._
-import Boon.test
-import example.Stack
 
 object StackSuite extends SuiteLike("Stack"){
+
+  import example.Stack
 
   private def noStack[A]: Option[Stack[A]] = None: Option[Stack[A]]
 
@@ -28,13 +28,4 @@ object StackSuite extends SuiteLike("Stack"){
   }
 
   override def tests = NonEmptySeq.nes(test1)
-}
-
-object StackSuiteRunner {
-
-  def main(args: Array[String]): Unit =  {
-    val suiteResult = Boon.runSuiteLike(StackSuite)
-    val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
-    println(SimplePrinter.print(suiteOutput, SuiteOutput.defaultPrinterSetting(true)))
-  }
 }

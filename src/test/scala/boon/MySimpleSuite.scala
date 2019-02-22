@@ -1,6 +1,5 @@
 package boon
 
-import Boon.test
 import syntax._
 
 object MySimpleSuite extends SuiteLike("SimpleSuite") {

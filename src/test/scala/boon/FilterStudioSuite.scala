@@ -1,11 +1,10 @@
 package boon
 
 import syntax._
-import example.FilterStudio
-import FilterStudio._
-import Boon.test
 
 object FilterStudioSuite extends SuiteLike("FilterStudio") {
+  import example.FilterStudio._
+
   private [boon] val t1 = test("with empty abode") {
     (filterStudio(Nil) =?= List("studio") | "stays empty") &
     (filterStudio(Nil) =?= Nil | "more")
@@ -27,6 +26,7 @@ object FilterStudioSuite extends SuiteLike("FilterStudio") {
   override def tests = NonEmptySeq.nes(t1, t2, t3)
 }
 
+//To run outside of SBT
 object FilterStudioSuiteRunner {
 
   def main(args: Array[String]): Unit =  {

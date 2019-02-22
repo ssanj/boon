@@ -16,9 +16,6 @@ object Boon {
     Defer(() => t)
   }
 
-  def test(name: => String)(assertions: NonEmptySeq[Defer[Assertion]]): DeferredTest = DeferredTest(TestName(name), assertions)
-
-
   def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]))(implicit E: Equality[A], D: Difference[A]): Defer[Assertion] =
     defineAssertionWithContext[A](name, gen, Map.empty[String, String])
 
