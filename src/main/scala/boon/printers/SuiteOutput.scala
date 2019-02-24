@@ -1,4 +1,5 @@
 package boon
+package printers
 
 //  SuiteName [passed]
 //  - test1 [passed]

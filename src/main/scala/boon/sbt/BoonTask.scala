@@ -14,7 +14,7 @@ import boon.Boon
 import boon.Failed
 import boon.Passed
 import boon.SuiteLike
-import boon.SuiteOutput
+import boon.printers.SuiteOutput
 import boon.SuiteResult
 
 import scala.util.Failure

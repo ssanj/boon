@@ -4,8 +4,8 @@ import sbt.testing.Runner
 import sbt.testing.Task
 import sbt.testing.TaskDef
 
-import boon.SimplePrinter
-import boon.SuiteOutput
+import boon.printers.SimplePrinter
+import boon.printers.SuiteOutput
 
 final class BoonRunner(
   val args: Array[String],

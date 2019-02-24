@@ -1,4 +1,5 @@
 package boon
+package printers
 
 import scala.compat.Platform.EOL
 

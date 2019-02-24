@@ -31,7 +31,7 @@ object FilterStudioSuiteRunner {
 
   def main(args: Array[String]): Unit =  {
     val suiteResult = Boon.runSuiteLike(FilterStudioSuite)
-    val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
-    println(SimplePrinter.print(suiteOutput, SuiteOutput.defaultPrinterSetting(true)))
+    val suiteOutput = printers.SuiteOutput.toSuiteOutput(suiteResult)
+    println(printers.SimplePrinter.print(suiteOutput, printers.SuiteOutput.defaultPrinterSetting(true)))
   }
 }
