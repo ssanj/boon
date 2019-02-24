@@ -19,6 +19,8 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
     NonEmptySeq(reversed.head, reversed.tail)
   }
 
+  def foreach(f: A => Unit): Unit = map(f)
+
   def toSeq: Seq[A] = head +: tail
 
   def prepend(newHead: A): NonEmptySeq[A] = NonEmptySeq[A](newHead, self.head +: tail)

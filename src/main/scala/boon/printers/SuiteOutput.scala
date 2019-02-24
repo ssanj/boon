@@ -43,6 +43,7 @@ abstract class PrinterSetting(
 }
 
 object SuiteOutput {
+  // DeferredSuite -> A
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
       val assertionOutputs = tr.assertionResults.map {

@@ -4,13 +4,17 @@ sealed trait Passable
 case object Passed extends Passable
 case object Failed extends Passable
 
-final case class Defer[A](value: () => A)
+final case class Defer[A](value: () => A) {
+  def map[B](f: A => B): Defer[B] = Defer(() => f(value()))
+
+  def flatMap[B](f: A => Defer[B]): Defer[B] = Defer(() => f(value()).value())
+}
 
 final case class AssertionName(value: String)
 final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String])
 final case class AssertionError(assertion: Assertion, error: String)
 
-sealed trait AssertionResult
+sealed trait AssertionResult extends Product with Serializable
 final case class AssertionPassed(assertion: Assertion) extends AssertionResult
 final case class AssertionFailed(value: AssertionError) extends AssertionResult
 final case class AssertionThrew(name: AssertionName, value: Throwable) extends AssertionResult
