@@ -19,7 +19,6 @@ final class BoonRunner(
                           classLoader,
                           (so, c, print) =>
                             SimplePrinter(so, SuiteOutput.defaultPrinterSetting(c), print)))
-    // list.map(new BoonTask2(_, classLoader))
   }
 
   override def done(): String = ""
