@@ -47,15 +47,14 @@ final class BoonTask2(val taskDef: TaskDef, cl: ClassLoader) extends Task {
             suiteClass   <- loadSuite(taskDef.fullyQualifiedName, cl)
             dSuiteResult <-  Try(boon.printers.IncrementalOutput.run(suiteClass.suite))
           } yield {
-            print("-------->")
             // log(dSuiteResult.suite.name.value, loggers)
             println(dSuiteResult.suite.name.value)
             dSuiteResult.testResults.foreach { tr =>
               println(tr.test.name.value)
               //log(tr.test.name.value, loggers)
               tr.assertionResults.foreach { dar =>
-                val output = Try(dar.value().toString).getOrElse("- failed -")
-                println(output)
+                val output = Try(dar.result.value().toString).getOrElse("- failed -")
+                println(s"${dar.assertion.name.value} - ${output}")
                 // log(output, loggers)
               }
             }

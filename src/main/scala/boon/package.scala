@@ -1,3 +1,3 @@
 package object boon {
-  def test(name: => String)(assertions: NonEmptySeq[Defer[Assertion]]): DeferredTest = DeferredTest(TestName(name), assertions)
+  def test(name: => String)(assertions: NonEmptySeq[Assertion]): DeferredTest = DeferredTest(TestName(name), assertions)
 }

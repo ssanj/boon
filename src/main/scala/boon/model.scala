@@ -20,7 +20,7 @@ final case class AssertionFailed(value: AssertionError) extends AssertionResult
 final case class AssertionThrew(name: AssertionName, value: Throwable) extends AssertionResult
 
 final case class TestName(value: String)
-final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Defer[Assertion]])
+final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion])
 final case class TestResult(test: DeferredTest, assertionResults: NonEmptySeq[AssertionResult])
 
 final case class SuiteName(value: String)

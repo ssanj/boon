@@ -18,7 +18,7 @@ final class DescSyntax[A](pair: (Defer[A], Defer[A])) {
     new ContinueSyntax(NonEmptySeq.nes(defineAssertionWithContext[A](name, (pair), Map(ctx:_*))))
 }
 
-final case class ContinueSyntax(assertions: NonEmptySeq[Defer[Assertion]]) {
+final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
     def &(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
 }
 
