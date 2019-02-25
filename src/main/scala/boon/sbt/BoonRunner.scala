@@ -4,8 +4,8 @@ import sbt.testing.Runner
 import sbt.testing.Task
 import sbt.testing.TaskDef
 
-import boon.printers.SimplePrinter
-import boon.printers.SuiteOutput
+// import boon.printers.SimplePrinter
+// import boon.printers.SuiteOutput
 
 final class BoonRunner(
   val args: Array[String],
@@ -15,11 +15,11 @@ final class BoonRunner(
 
   //use default printer for now, change to use from args
   override def tasks(list: Array[TaskDef]): Array[Task] = {
-    list.map(new BoonTask(_,
-                          classLoader,
-                          (so, c) =>
-                            SimplePrinter.print(so, SuiteOutput.defaultPrinterSetting(c))))
-    // list.map(new BoonTask2(_, classLoader))
+    // list.map(new BoonTask(_,
+    //                       classLoader,
+    //                       (so, c) =>
+    //                         SimplePrinter.print(so, SuiteOutput.defaultPrinterSetting(c))))
+    list.map(new BoonTask2(_, classLoader))
   }
 
   override def done(): String = ""

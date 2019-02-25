@@ -16,6 +16,12 @@ import sbt.testing.Selector
 import boon.SuiteLike
 // import boon.printers.SuiteOutput
 // import boon.SuiteResult
+import boon.Assertion
+import boon.AssertionName
+import boon.AssertionPassed
+import boon.AssertionFailed
+import boon.AssertionThrew
+import boon.AssertionError
 
 import scala.util.Failure
 import scala.util.Success
@@ -26,6 +32,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.reflect.runtime.universe._
+
 
 object BoonTask2 {
   implicit val EC: ExecutionContext = ExecutionContext.global
@@ -50,11 +57,19 @@ final class BoonTask2(val taskDef: TaskDef, cl: ClassLoader) extends Task {
             // log(dSuiteResult.suite.name.value, loggers)
             println(dSuiteResult.suite.name.value)
             dSuiteResult.testResults.foreach { tr =>
-              println(tr.test.name.value)
+              println
+              val testName = tr.test.name.value
+              println(testName)
+              println("-" * testName.length)
               //log(tr.test.name.value, loggers)
               tr.assertionResults.foreach { dar =>
-                val output = Try(dar.result.value().toString).getOrElse("- failed -")
-                println(s"${dar.assertion.name.value} - ${output}")
+
+                val output = Try(dar.result.value()).fold(error => s"[e2] - ${error}", {
+                  case AssertionPassed(Assertion(AssertionName(name), _, _)) => s"[./]"
+                  case AssertionFailed(AssertionError(Assertion(AssertionName(name), _, _), error)) => s"[x] - (${error})"
+                  case AssertionThrew(AssertionName(name), error) => s"[e] - ${error.getMessage}"
+                })
+                println(s"${dar.assertion.name.value} ${output}")
                 // log(output, loggers)
               }
             }
