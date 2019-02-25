@@ -1,4 +1,5 @@
 package boon
+package printers
 
 import scala.Console
 
@@ -21,12 +22,19 @@ object Colourise {
     }
   }
 
-  def green(showColour: Boolean): Option[ConsoleColour] =
-    if (showColour) Some(Green) else None
 
-  def red(showColour: Boolean): Option[ConsoleColour] =
-    if (showColour) Some(Red) else None
+  def colour(showColour: ColourOutput, colour: ConsoleColour): Option[ConsoleColour] =
+    showColour match {
+      case ShowColours => Option(colour)
+      case DontShowColours => None
+    }
 
-  def redU(showColour: Boolean): Option[ConsoleColour] =
-    if (showColour) Some(RedUnderlined) else None
+  def green(showColour: ColourOutput): Option[ConsoleColour] =
+    colour(showColour, Green)
+
+  def red(showColour: ColourOutput): Option[ConsoleColour] =
+    colour(showColour, Red)
+
+  def redU(showColour: ColourOutput): Option[ConsoleColour] =
+    colour(showColour, RedUnderlined)
 }

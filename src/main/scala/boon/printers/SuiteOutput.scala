@@ -25,23 +25,6 @@ sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
 final case class FailedOutput(name: String, error: String, context: Map[String, String]) extends AssertionOutput
 
-abstract class PrinterSetting(
-  val suitePassedToken: String,
-  val suiteFailedToken: String,
-  val testPassedToken: String,
-  val testFailedToken: String,
-  val assertionPassedToken: String,
-  val assertionFailedToken: String,
-  val testPadding: String,
-  val assertionPadding: String,
-  val assertionFailedPadding: String,
-  val assertionFailedContextPadding: String,
-  val assertionFailedContextElementPadding: String
-
-) {
-  def colourError(message: String): String
-}
-
 object SuiteOutput {
   // DeferredSuite -> A
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
@@ -58,7 +41,7 @@ object SuiteOutput {
     SuiteOutput(suiteResult.suite.name.value, testOutputs, suiteResultToPassable(suiteResult))
   }
 
-  def defaultPrinterSetting(showColours: Boolean): PrinterSetting = new PrinterSetting(
+  def defaultPrinterSetting(showColours: ColourOutput): PrinterSetting = new PrinterSetting(
     suitePassedToken =  colourise(green(showColours), "[passed]"),
     suiteFailedToken = colourise(red(showColours), "[failed]"),
     testPassedToken = colourise(green(showColours), "[passed]"),

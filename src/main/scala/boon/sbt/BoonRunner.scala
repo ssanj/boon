@@ -17,8 +17,8 @@ final class BoonRunner(
   override def tasks(list: Array[TaskDef]): Array[Task] = {
     list.map(new BoonTask(_,
                           classLoader,
-                          (so, c) =>
-                            SimplePrinter.print(so, SuiteOutput.defaultPrinterSetting(c))))
+                          (so, c, print) =>
+                            SimplePrinter(so, SuiteOutput.defaultPrinterSetting(c), print)))
     // list.map(new BoonTask2(_, classLoader))
   }
 

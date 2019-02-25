@@ -2,15 +2,13 @@ package boon.sbt
 
 import sbt.testing.Task
 import sbt.testing.TaskDef
-import sbt.testing.Event
 import sbt.testing.EventHandler
-import sbt.testing.Fingerprint
 import sbt.testing.Logger
-import sbt.testing.OptionalThrowable
 import sbt.testing.Status
-import sbt.testing.Selector
 
-import boon.SuiteLike
+import boon.Passable
+import boon.Passed
+
 
 import boon.Assertion
 import boon.AssertionName
@@ -18,12 +16,14 @@ import boon.AssertionPassed
 import boon.AssertionFailed
 import boon.AssertionThrew
 import boon.AssertionError
+import boon.sbt.Event.createEvent
+import boon.sbt.Event.createErrorEvent
+import boon.sbt.Event.handleEvent
+import boon.sbt.SuiteLoader.loadSuite
 
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-
-import scala.reflect.runtime.universe._
 
 
 final class BoonTask2(val taskDef: TaskDef, cl: ClassLoader) extends Task {
@@ -65,10 +65,10 @@ final class BoonTask2(val taskDef: TaskDef, cl: ClassLoader) extends Task {
 
        tryRun match {
         case Failure(error) =>
-          handleEvent(createErrorEvent(error, timeTaken), eventHandler)
+          handleEvent(createErrorEvent(taskDef, error, timeTaken), eventHandler)
           logError(s"failed to run suite: ${taskDef.fullyQualifiedName}", error, loggers)
         case Success(_) =>
-          handleEvent(createEvent(boon.Passed, timeTaken), eventHandler)
+          handleEvent(createEvent[Passable](taskDef, passableToStatus, Passed, timeTaken), eventHandler)
           log("done", loggers)
       }
 
@@ -89,54 +89,9 @@ final class BoonTask2(val taskDef: TaskDef, cl: ClassLoader) extends Task {
     }
   }
 
-  private def handleEvent(event: Event, eventHandler: EventHandler): Unit = {
-    eventHandler.handle(event)
-  }
-
-  private def createEvent(result: boon.Passable, timeTakenMs: Long): Event = new Event {
-
-    override def fullyQualifiedName(): String = taskDef.fullyQualifiedName()
-
-    override def throwable(): OptionalThrowable = new OptionalThrowable()
-
-    override def status(): Status = {
-      result match {
-        case boon.Passed => Status.Success
-        case boon.Failed => Status.Failure
-      }
+  private def passableToStatus(passable: boon.Passable): Status =
+    passable match {
+      case boon.Passed => Status.Success
+      case boon.Failed => Status.Failure
     }
-
-    override def selector(): Selector = taskDef.selectors.head//Unsafe
-
-    override def fingerprint(): Fingerprint = taskDef.fingerprint
-
-    override def duration(): Long = timeTakenMs
-  }
-
-  private def createErrorEvent(error: Throwable, timeTakenMs: Long): Event = new Event {
-
-    override def fullyQualifiedName(): String = taskDef.fullyQualifiedName()
-
-    override def throwable(): OptionalThrowable = new OptionalThrowable(error)
-
-    override def status(): Status = Status.Error
-
-    override def selector(): Selector = taskDef.selectors.head//Unsafe
-
-    override def fingerprint(): Fingerprint = taskDef.fingerprint
-
-    override def duration(): Long = timeTakenMs
-  }
-
-  private def loadSuite(name: String, loader: ClassLoader): Try[SuiteLike] = {
-    Try(reflectivelyInstantiateSuite(name, loader)).collect {
-      case ref: SuiteLike => ref
-    }
-  }
-
-  private def reflectivelyInstantiateSuite(className: String, loader: ClassLoader): Any = {
-   val mirror = runtimeMirror(loader)
-   val module = mirror.staticModule(className)
-   mirror.reflectModule(module).instance.asInstanceOf[Any]
-  }
 }

@@ -1,6 +1,9 @@
 package boon
 
 import syntax._
+import printers.SimplePrinter
+import printers.ShowColours
+import printers.SuiteOutput
 
 object FilterStudioSuite extends SuiteLike("FilterStudio") {
   import example.FilterStudio._
@@ -31,7 +34,7 @@ object FilterStudioSuiteRunner {
 
   def main(args: Array[String]): Unit =  {
     val suiteResult = Boon.runSuiteLike(FilterStudioSuite)
-    val suiteOutput = printers.SuiteOutput.toSuiteOutput(suiteResult)
-    println(printers.SimplePrinter.print(suiteOutput, printers.SuiteOutput.defaultPrinterSetting(true)))
+    val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
+    SimplePrinter(suiteOutput, SuiteOutput.defaultPrinterSetting(ShowColours), println)
   }
 }
