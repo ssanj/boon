@@ -21,24 +21,13 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.duration.Duration
 import scala.reflect.runtime.universe._
-
-object BoonTask {
-  implicit val EC: ExecutionContext = ExecutionContext.global
-}
 
 final class BoonTask(val taskDef: TaskDef, cl: ClassLoader, printer: (SuiteOutput, Boolean) => String) extends Task {
 
   def tags(): Array[String] = Array.empty
 
   def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
-    import BoonTask._
-    val asyncExec = Future.apply[Array[Task]]{
-
       val suiteTry = loadSuite(taskDef.fullyQualifiedName, cl)
       val startTime = System.currentTimeMillis()
       val suiteResultTry = suiteTry.flatMap[SuiteResult](suite => Try(Boon.runSuiteLike(suite)))
@@ -56,17 +45,12 @@ final class BoonTask(val taskDef: TaskDef, cl: ClassLoader, printer: (SuiteOutpu
       }
 
       Array.empty
-    }
-
-    //Should this be a max timeout?
-    Await.result[Array[Task]](asyncExec, Duration.Inf)
   }
 
   private def logResult(suiteOutput: SuiteOutput, loggers: Array[Logger]): Unit = {
     loggers.foreach { log =>
       log.info(printer(suiteOutput, log.ansiCodesSupported))
     }
-    // println(printer(suiteOutput, true))
   }
 
   private def logError(message: String, error: Throwable, loggers: Array[Logger]): Unit = {
