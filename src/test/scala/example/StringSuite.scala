@@ -1,5 +1,6 @@
-package boon
+package example
 
+import boon._
 import syntax._
 
 object StringSuite extends SuiteLike("StringSuite") {

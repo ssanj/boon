@@ -1,5 +1,6 @@
-package boon
+package example
 
+import boon._
 import syntax._
 
 object StackSuite extends SuiteLike("NonEmptyStack"){
@@ -8,7 +9,7 @@ object StackSuite extends SuiteLike("NonEmptyStack"){
 
   private def noStack[A]: Option[Stack[A]] = None: Option[Stack[A]]
 
-  private [boon] val test1 = test("Pop") {
+  private val test1 = test("Pop") {
     val stack1 = new Stack[Int](NonEmptySeq.nes(0))
     val stack2 = stack1.push(1)
     val stack3 = stack2.push(2)

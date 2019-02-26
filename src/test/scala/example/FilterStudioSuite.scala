@@ -1,27 +1,24 @@
-package boon
+package example
 
+import boon._
 import syntax._
-
-import printers.PrinterSetting
-import printers.SimplePrinter
-import printers.ShowColours
-import printers.SuiteOutput
+import printers._
 
 object FilterStudioSuite extends SuiteLike("FilterStudio") {
-  import example.FilterStudio._
+  import FilterStudio._
 
-  private [boon] val t1 = test("with empty abode") {
+  private val t1 = test("with empty abode") {
     (filterStudio(Nil) =?= Nil | "stays empty")
   }
 
-  private [boon] val t2 = test("remove studio abode") {
+  private val t2 = test("remove studio abode") {
     val abode = List("loft", "studio", "balh", "blee")
     val expectedAbode = List("loft","balh", "blee")
     val actualList = filterStudio(abode)
     actualList =?= expectedAbode | "only remove studio"
   }
 
-  private [boon] val t3 = test("not remove anything else") {
+  private val t3 = test("not remove anything else") {
     val abode = List("loft", "balh", "blee")
     val actualList = filterStudio(abode)
     actualList =?= abode | "leave others unchanged"
