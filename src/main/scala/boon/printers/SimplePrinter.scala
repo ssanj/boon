@@ -27,7 +27,10 @@ object SimplePrinter {
         case Passed => ps.test.tokens.passed
         case Failed => ps.test.tokens.failed
       }
-      s"${ps.test.padding} - ${name} ${token}${EOL}" +
+
+      val colouredTestName = ps.test.colour(name)
+
+      s"${ps.test.padding} - ${colouredTestName} ${token}${EOL}" +
         assertions.map(assertionOutputString(_, ps)).toSeq.mkString(EOL)
   }
 

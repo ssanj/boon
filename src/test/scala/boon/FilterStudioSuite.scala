@@ -11,8 +11,7 @@ object FilterStudioSuite extends SuiteLike("FilterStudio") {
   import example.FilterStudio._
 
   private [boon] val t1 = test("with empty abode") {
-    (filterStudio(Nil) =?= List("studio") | "stays empty") &
-    (filterStudio(Nil) =?= Nil | "more")
+    (filterStudio(Nil) =?= Nil | "stays empty")
   }
 
   private [boon] val t2 = test("remove studio abode") {

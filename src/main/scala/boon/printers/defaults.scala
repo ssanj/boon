@@ -3,6 +3,7 @@ package boon.printers
 import Colourise.colourise
 import Colourise.red
 import Colourise.green
+import Colourise.yellow
 import Colourise.redU
 
 sealed trait ColourOutput
@@ -18,7 +19,7 @@ final case class Tokens(passed: String, failed: String)
 
 final case class SuitePrinterSettings(tokens: Tokens)
 
-final case class TestPrinterSettings(tokens: Tokens, padding: String)
+final case class TestPrinterSettings(tokens: Tokens, padding: String, colour: String => String)
 
 final case class AssertionPrinterSettings(
   tokens: Tokens,
@@ -47,7 +48,8 @@ object PrinterSetting {
       TestPrinterSettings(
         tokens = Tokens(colourise(green(showColours), "[passed]"),
                         colourise(red(showColours), "[failed]")),
-        padding = ""
+        padding = "",
+        colour = colourise(yellow(showColours), _: String)
       )
 
     val assertion =
