@@ -64,4 +64,11 @@ object Difference {
     override def diff(na1: Not[A], na2: Not[A]): String = s"${repA.strRep(na1.value)} == ${repA.strRep(na2.value)}"
   }
 
+  implicit object FailedAssertionDifference extends Difference[FailedAssertion.type] {
+    override def diff(a1: FailedAssertion.type, a2: FailedAssertion.type): String = s"user-failed assertion"
+  }
+
+  implicit object PassedAssertionDifference extends Difference[PassedAssertion.type] {
+    override def diff(a1: PassedAssertion.type, a2: PassedAssertion.type): String = s"user-passed assertion"
+  }
 }

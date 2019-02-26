@@ -11,4 +11,8 @@ import syntax.toStrRep
   }
 
   type NonEmptyMap[K, V] = NonEmptySeq[(K, V)]
+
+  object FailedAssertion
+
+  object PassedAssertion
 }

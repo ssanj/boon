@@ -55,4 +55,12 @@ object StringRep {
   implicit def notStringRep[A](implicit S: StringRep[A]): StringRep[Not[A]] = new StringRep[Not[A]] {
     override def strRep(na: Not[A]): String = S.strRep(na.value)
   }
+
+  implicit object failedAssertionStringRep extends StringRep[FailedAssertion.type] {
+    override def strRep(fa: FailedAssertion.type): String = "<- fail ->"
+  }
+
+  implicit object passedAssertionStringRep extends StringRep[PassedAssertion.type] {
+    override def strRep(fa: PassedAssertion.type): String = "<- pass ->"
+  }
 }

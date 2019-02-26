@@ -11,4 +11,8 @@ package object syntax {
     new DescSyntax[Boolean]((Defer(() => value1), Defer(() =>true)))
 
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
+
+  def failAssertion: DescSyntax[FailedAssertion.type] = FailedAssertion =?= FailedAssertion
+
+  def passAssertion: DescSyntax[PassedAssertion.type] = PassedAssertion =?= PassedAssertion
 }
