@@ -1,6 +1,8 @@
 package boon
 
 import syntax._
+
+import printers.PrinterSetting
 import printers.SimplePrinter
 import printers.ShowColours
 import printers.SuiteOutput
@@ -35,6 +37,6 @@ object FilterStudioSuiteRunner {
   def main(args: Array[String]): Unit =  {
     val suiteResult = Boon.runSuiteLike(FilterStudioSuite)
     val suiteOutput = SuiteOutput.toSuiteOutput(suiteResult)
-    SimplePrinter(suiteOutput, SuiteOutput.defaultPrinterSetting(ShowColours), println)
+    SimplePrinter(suiteOutput, PrinterSetting.defaults(ShowColours), println)
   }
 }

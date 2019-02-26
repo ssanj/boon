@@ -13,8 +13,8 @@ object SimplePrinter {
   private def suiteOutputString(so: SuiteOutput, ps: PrinterSetting): String = so match {
     case SuiteOutput(name, tests, pass) =>
       val token = pass match {
-        case Passed => ps.suitePassedToken
-        case Failed => ps.suiteFailedToken
+        case Passed => ps.suite.tokens.passed
+        case Failed => ps.suite.tokens.failed
       }
 
       s"${name} ${token}${EOL}" +
@@ -24,26 +24,26 @@ object SimplePrinter {
   private def testOutputString(to: TestOutput, ps: PrinterSetting): String = to match {
     case TestOutput(name, assertions, pass) =>
       val token = pass match {
-        case Passed => ps.testPassedToken
-        case Failed => ps.testFailedToken
+        case Passed => ps.test.tokens.passed
+        case Failed => ps.test.tokens.failed
       }
-      s"${ps.testPadding} - ${name} ${token}${EOL}" +
+      s"${ps.test.padding} - ${name} ${token}${EOL}" +
         assertions.map(assertionOutputString(_, ps)).toSeq.mkString(EOL)
   }
 
   private def assertionOutputString(ao: AssertionOutput, ps: PrinterSetting): String = ao match {
     case PassedOutput(name)        =>
-      s"${ps.assertionPadding} - ${name} ${ps.assertionPassedToken}"
+      s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.passed}"
     case FailedOutput(name, error, ctx) =>
       val baseError =
-        s"${ps.assertionPadding} - ${name} ${ps.assertionFailedToken}${EOL}" +
-        s"${ps.assertionFailedPadding} " +
+        s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.failed}${EOL}" +
+        s"${ps.assertion.failedPadding} " +
         s"${ps.colourError(s"=> ${error}")}"
 
       if (ctx.nonEmpty) {
         s"${baseError}${EOL}" +
-        s"${ps.assertionFailedContextPadding}#: " +
-        s"${ctx.mkString(s"${EOL}${ps.assertionFailedContextElementPadding}")}"
+        s"${ps.assertion.failedContextPadding}#: " +
+        s"${ctx.mkString(s"${EOL}${ps.assertion.failedContextElementPadding}")}"
       } else baseError
   }
 
