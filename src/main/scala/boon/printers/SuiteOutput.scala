@@ -36,4 +36,14 @@ object SuiteOutput {
 
     SuiteOutput(suiteResult.suite.name.value, testOutputs, suiteResultToPassable(suiteResult))
   }
+
+  def assertionName(ao: AssertionOutput): String = ao match {
+    case PassedOutput(name) => name
+    case FailedOutput(name, _, _) => name
+  }
+
+  def assertionFold[A](passed: String => A, failed: (String, String, Map[String, String]) => A)(ao: AssertionOutput): A = ao match {
+    case PassedOutput(name) => passed(name)
+    case FailedOutput(name, error, context) => failed(name, error, context)
+  }
 }

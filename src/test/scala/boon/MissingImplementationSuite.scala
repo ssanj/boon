@@ -3,36 +3,34 @@ package boon
 import syntax._
 import printers._
 
-object SuiteLikeSuite extends SuiteLike("SuiteLike") {
+object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite") {
 
-  val t1 = test("can handle missing implementations") {
+  private val t1 = test("can handle missing implementations") {
 
-    val so = SuiteLikeSuiteFixtures.run
+    val so = MissingImplFixtures.run
 
     (so.tests.length =?= 1 | "no of tests") &
     (so.tests.head.name =?= "test for missing impl" | "test name") &
     (so.tests.head.assertions.length =?= 1 | "no of assertions") &
     {
-      so.tests.head.assertions.head match {
-        case FailedOutput(name, error, _) =>
-          (passAssertion | "assertionOutput type") &
-          (name =?= "Boolean test" | "assertion name") &
-          (error =?= "an implementation is missing" | "assertion error")
-        case _ => failAssertion | "assertionOutput type"
-      }
+      SuiteOutput.assertionFold(_ => failAssertion | "assertionOutput type", { (name, error, _) =>
+        (passAssertion | "assertionOutput type") &
+        (name =?= "Boolean test" | "assertion name") &
+        (error =?= "an implementation is missing" | "assertion error")
+      })(so.tests.head.assertions.head)
     }
   }
 
   override val tests = NonEmptySeq.nes(t1)
 }
 
-object SuiteLikeSuiteFixtures {
+object MissingImplFixtures {
 
   final class SomeClass {
     def predicate: Boolean = ???
   }
 
-  private val missingImplSuite = new SuiteLike("Missing Implementation") {
+  private val missingImplSuite = new SuiteLike("MissingImplementationSuite") {
     val missingImplTest = test("test for missing impl") {
       new SomeClass().predicate =?= true | "Boolean test"
     }
