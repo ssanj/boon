@@ -21,6 +21,18 @@ sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
 final case class FailedOutput(name: String, error: String, context: Map[String, String]) extends AssertionOutput
 
+object AssertionOutput {
+
+  final case class FoldSyntax(ao: AssertionOutput) {
+    def fold[A](failed: (String, String, Map[String, String]) => A, passed: String => A): A = ao match {
+      case PassedOutput(name) => passed(name)
+      case FailedOutput(name, error, context) => failed(name, error, context)
+    }
+  }
+
+  implicit def foldAssertionOutput(ao: AssertionOutput): FoldSyntax = FoldSyntax(ao)
+}
+
 object SuiteOutput {
 
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
@@ -40,10 +52,5 @@ object SuiteOutput {
   def assertionName(ao: AssertionOutput): String = ao match {
     case PassedOutput(name) => name
     case FailedOutput(name, _, _) => name
-  }
-
-  def assertionFold[A](failed: (String, String, Map[String, String]) => A, passed: String => A)(ao: AssertionOutput): A = ao match {
-    case PassedOutput(name) => passed(name)
-    case FailedOutput(name, error, context) => failed(name, error, context)
   }
 }
