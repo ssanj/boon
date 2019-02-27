@@ -42,7 +42,7 @@ object SuiteOutput {
     case FailedOutput(name, _, _) => name
   }
 
-  def assertionFold[A](passed: String => A, failed: (String, String, Map[String, String]) => A)(ao: AssertionOutput): A = ao match {
+  def assertionFold[A](failed: (String, String, Map[String, String]) => A, passed: String => A)(ao: AssertionOutput): A = ao match {
     case PassedOutput(name) => passed(name)
     case FailedOutput(name, error, context) => failed(name, error, context)
   }

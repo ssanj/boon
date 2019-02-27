@@ -44,22 +44,27 @@ object Difference {
     override def diff(a1: Char, a2: Char): String = s"${rep.strRep(a1)} != ${rep.strRep(a2)}"
   }
 
-  implicit def listDifference[A: Difference : StringRep]: Difference[List[A]] = new Difference[List[A]] {
+  implicit def listDifference[A: StringRep]: Difference[List[A]] = new Difference[List[A]] {
     val rep = StringRep[List[A]]
     override def diff(xs: List[A], ys: List[A]): String = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
   }
 
-  implicit def optionDifference[A: Difference : StringRep]: Difference[Option[A]] = new Difference[Option[A]] {
+  implicit def optionDifference[A: StringRep]: Difference[Option[A]] = new Difference[Option[A]] {
     val rep = StringRep[Option[A]]
     override def diff(xs: Option[A], ys: Option[A]): String = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
   }
 
-  implicit def pairDifference[A: Difference : StringRep, B: Difference : StringRep]: Difference[Tuple2[A, B]] = new Difference[Tuple2[A, B]] {
+  implicit def pairDifference[A: StringRep, B: StringRep]: Difference[Tuple2[A, B]] = new Difference[Tuple2[A, B]] {
     val rep = StringRep[Tuple2[A, B]]
     override def diff(pair1: Tuple2[A, B], pair2: Tuple2[A, B]): String = s"${rep.strRep(pair1)} != ${rep.strRep(pair2)}"
   }
 
-  implicit def notDifference[A: Difference : StringRep]: Difference[Not[A]] = new Difference[Not[A]] {
+  implicit def mapDifference[A: StringRep, B: StringRep]: Difference[Map[A, B]] = new Difference[Map[A, B]] {
+    val rep = StringRep[Map[A, B]]
+    override def diff(map1: Map[A, B], map2: Map[A, B]): String = s"${rep.strRep(map1)} != ${rep.strRep(map2)}"
+  }
+
+  implicit def notDifference[A: StringRep]: Difference[Not[A]] = new Difference[Not[A]] {
     val repA = StringRep[A]
     override def diff(na1: Not[A], na2: Not[A]): String = s"${repA.strRep(na1.value)} == ${repA.strRep(na2.value)}"
   }

@@ -61,6 +61,25 @@ object Equality {
     }
   }
 
+  import scala.collection.immutable.TreeSet
+  implicit def mapEquality[A: Ordering, B: Ordering](implicit EA: Equality[A], EB: Equality[B]): Equality[Map[A, B]] = new Equality[Map[A, B]] {
+    override def eql(xs: Map[A, B], ys: Map[A, B]): Boolean = {
+      (xs.isEmpty && ys.isEmpty) ||
+      (xs.size == ys.size && {
+        {
+          (TreeSet.empty[A] ++ xs.keySet).zip((TreeSet.empty[A] ++ ys.keySet)).forall(x => EA.eql(x._1, x._2)) &&
+          {
+            val xValues = xs.values.toSeq
+            val yValues = ys.values.toSeq
+
+            (xValues.isEmpty && yValues.isEmpty) ||
+            (xs.values.toSeq.sorted[B].zip(ys.values.toSeq.sorted[B]).forall(x => EB.eql(x._1, x._2)))
+          }
+        }
+      })
+    }
+  }
+
   implicit def notEquality[A](implicit E: Equality[A]): Equality[Not[A]] = new Equality[Not[A]] {
     override def eql(a1: Not[A], a2: Not[A]): Boolean = E.neql(a1.value, a2.value)
   }
