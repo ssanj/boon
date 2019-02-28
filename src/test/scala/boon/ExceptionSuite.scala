@@ -10,16 +10,18 @@ object ExceptionSuite extends SuiteLike("ExceptionSuite") {
     def safe: Boolean = true
   }
 
+  private val NFE = "java.lang.NumberFormatException"
+  private val NSE = "java.util.NoSuchElementException"
+  private val RE = "java.lang.RuntimeException"
+  private val B = "java.lang.Boolean"
+
   private val t1 = test("Exception syntax") {
-    ("abcd".toInt =!=
-      Ex("java.lang.NumberFormatException", """For input string: "abcd"""") |
+    ("abcd".toInt =!= Ex(NFE, """For input string: "abcd"""") |
       "Number format error") &
-    (List.empty[String].head =!=
-      Ex("java.util.NoSuchElementException", "head of empty list") |
-      "Head on empty List") &
-    (new Flakey().blow =!= Ex("java.lang.RuntimeException", "boom!") | "throw RuntimeException") &
-    (new Flakey().blowNested =!= Ex("java.lang.RuntimeException", "nested boom!") | "throw nested exception") &
-    (new Flakey().safe =!= NotEx("java.lang.Boolean") | "does not throw")
+    (List.empty[String].head =!= Ex(NSE, "head of empty list") | "Head on empty List") &
+    (new Flakey().blow =!= Ex(RE, "boom!") | "throw RuntimeException") &
+    (new Flakey().blowNested =!= Ex(RE, "nested boom!") | "throw nested exception") &
+    (new Flakey().safe =!= NotEx(B) | "does not throw")
   }
 
   override val tests = NonEmptySeq.nes(t1)
