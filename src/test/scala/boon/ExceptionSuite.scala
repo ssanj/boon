@@ -24,5 +24,17 @@ object ExceptionSuite extends SuiteLike("ExceptionSuite") {
     (new Flakey().safe =!= NotEx(B) | "does not throw")
   }
 
-  override val tests = NonEmptySeq.nes(t1)
+  private val t2 = test("Alternate syntax-1") {
+    ("abcd".toInt =!!= {
+      case Ex(cn, msg) =>
+        (cn == NFE | "Exception class") & (msg.contains("abcd") | "exception message")
+      case NotEx(cn) => failAssertion | s"Expected Exception but got: $cn"
+    })
+  }
+
+  private val t3 = test("Alternate syntax-2") {
+    "abcd".toInt =!!!= (_ == NFE, _.contains("xbcd"))
+  }
+
+  override val tests = NonEmptySeq.nes(t1, t2, t3)
 }

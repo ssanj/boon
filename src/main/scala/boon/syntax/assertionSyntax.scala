@@ -21,6 +21,27 @@ final class EqSyntax[A](value1: => A) {
 
     new DescSyntax[BoonEx]((d1, d2))
   }
+
+  def =!!=(handle: BoonEx => ContinueSyntax): ContinueSyntax = {
+    val ex =
+      Try(value1).fold[BoonEx](e => Ex(e.getClass.getName, e.getMessage),
+                               s => NotEx(s.getClass.getName))
+
+    handle(ex)
+  }
+
+  def =!!!=(assertClassName: String => DescSyntax[Boolean], assertMessage: String => DescSyntax[Boolean]): ContinueSyntax = {
+    val ex =
+      Try(value1).fold[BoonEx](e => Ex(e.getClass.getName, e.getMessage),
+                               s => NotEx(s.getClass.getName))
+
+    ex match {
+      case Ex(cn, msg) =>
+        (assertClassName(cn) | "Exception class name") &
+        (assertMessage(msg) | "Exception message")
+      case NotEx(cn) => failAssertion | s"Not an Exception: $cn"
+    }
+  }
 }
 
 final class DescSyntax[A](pair: (Defer[A], Defer[A])) {
