@@ -7,7 +7,7 @@ package object syntax {
   implicit def toNonEmptySeqOfAssertions(continueSyntax: ContinueSyntax): NonEmptySeq[Assertion] =
     continueSyntax.assertions
 
-  implicit def booleanToDescSyntax(value1: Boolean): DescSyntax[Boolean] =
+  implicit def booleanToDescSyntax(value1: => Boolean): DescSyntax[Boolean] =
     new DescSyntax[Boolean]((Defer(() => value1), Defer(() =>true)))
 
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
