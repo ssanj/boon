@@ -41,8 +41,8 @@ object SuiteOutput {
         case AssertionPassed(Assertion(AssertionName(name), _, _, _)) => PassedOutput(name)
         case AssertionFailed(AssertionError(Assertion(AssertionName(name), _, ctx, loc), error)) =>
           FailedOutput(name, error, ctx, sourceLocation(loc))
-        case AssertionThrew(AssertionName(name), error) =>
-          FailedOutput(name, error.getMessage, Map.empty[String, String], None)
+        case AssertionThrew(AssertionName(name), error, loc) =>
+          FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
       }
 
       TestOutput(tr.test.name.value, assertionOutputs, testResultToPassable(tr))

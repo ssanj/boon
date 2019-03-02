@@ -17,7 +17,7 @@ final case class AssertionError(assertion: Assertion, error: String)
 sealed trait AssertionResult extends Product with Serializable
 final case class AssertionPassed(assertion: Assertion) extends AssertionResult
 final case class AssertionFailed(value: AssertionError) extends AssertionResult
-final case class AssertionThrew(name: AssertionName, value: Throwable) extends AssertionResult
+final case class AssertionThrew(name: AssertionName, value: Throwable, location: SourceLocation) extends AssertionResult
 
 final case class TestName(value: String)
 final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion])

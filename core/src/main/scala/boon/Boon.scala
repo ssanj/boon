@@ -32,7 +32,7 @@ object Boon {
       val value2 = testable.value2.value()
       if (testable.equality.eql(value1, value2)) AssertionPassed(assertion)
       else AssertionFailed(AssertionError(assertion, testable.difference.diff(value1, value2)))
-    }.fold(AssertionThrew(assertion.name, _), identity _)
+    }.fold(AssertionThrew(assertion.name, _, assertion.location), identity _)
   }
 
   def runTest(dTest: DeferredTest): TestResult = {
