@@ -20,9 +20,9 @@ object StringSuite extends SuiteLike("StringSuite") {
 
   val strTable =
     NonEmptyMap.values(
-      "thequickbrownfoxjumpedoverthelazydog" -> 36,
-      ""                                     -> 0,
-      "Hello World"                          -> 11
+      ("thequickbrownfoxjumpedoverthelazydog" -> tval(36)),
+      (""                                     -> tval(0)),
+      ("Hello World"                          -> tval(11))
     )
 
   val t2 = table[String, Int]("String length", strTable)(_.length)

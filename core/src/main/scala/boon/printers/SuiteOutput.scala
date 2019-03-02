@@ -19,14 +19,14 @@ final case class TestOutput(name: String, assertions: NonEmptySeq[AssertionOutpu
 
 sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
-final case class FailedOutput(name: String, error: String, context: Map[String, String]) extends AssertionOutput
+final case class FailedOutput(name: String, error: String, context: Map[String, String], location: Option[String]) extends AssertionOutput
 
 object AssertionOutput {
 
   final case class FoldSyntax(ao: AssertionOutput) {
-    def fold[A](failed: (String, String, Map[String, String]) => A, passed: String => A): A = ao match {
+    def fold[A](failed: (String, String, Map[String, String], Option[String]) => A, passed: String => A): A = ao match {
       case PassedOutput(name) => passed(name)
-      case FailedOutput(name, error, context) => failed(name, error, context)
+      case FailedOutput(name, error, context, loc) => failed(name, error, context, loc)
     }
   }
 
@@ -38,9 +38,11 @@ object SuiteOutput {
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
       val assertionOutputs = tr.assertionResults.map {
-        case AssertionPassed(Assertion(AssertionName(name), _, _)) => PassedOutput(name)
-        case AssertionFailed(AssertionError(Assertion(AssertionName(name), _, ctx), error)) => FailedOutput(name, error, ctx)
-        case AssertionThrew(AssertionName(name), error) => FailedOutput(name, error.getMessage, Map.empty[String, String])//FIX
+        case AssertionPassed(Assertion(AssertionName(name), _, _, _)) => PassedOutput(name)
+        case AssertionFailed(AssertionError(Assertion(AssertionName(name), _, ctx, loc), error)) =>
+          FailedOutput(name, error, ctx, sourceLocation(loc))
+        case AssertionThrew(AssertionName(name), error) =>
+          FailedOutput(name, error.getMessage, Map.empty[String, String], None)
       }
 
       TestOutput(tr.test.name.value, assertionOutputs, testResultToPassable(tr))
@@ -51,6 +53,9 @@ object SuiteOutput {
 
   def assertionName(ao: AssertionOutput): String = ao match {
     case PassedOutput(name) => name
-    case FailedOutput(name, _, _) => name
+    case FailedOutput(name, _, _, _) => name
   }
+
+  def sourceLocation(loc: SourceLocation): Option[String] =
+    loc.filePath.map(filePath => s"${filePath}:${loc.line}")
 }

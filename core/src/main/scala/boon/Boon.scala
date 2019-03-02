@@ -16,14 +16,14 @@ object Boon {
     Defer(() => t)
   }
 
-  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]))(implicit E: Equality[A], D: Difference[A]): Assertion =
+  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]))(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
     defineAssertionWithContext[A](name, gen, Map.empty[String, String])
 
-  def defineAssertionWithContext[A](name: => String, gen: (Defer[A], Defer[A]), context: Map[String, String])(implicit E: Equality[A], D: Difference[A]): Assertion =
+  def defineAssertionWithContext[A](name: => String, gen: (Defer[A], Defer[A]), context: Map[String, String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
     Assertion(AssertionName(name), {
       val (a1, a2) = gen
       testable[A](a1, a2)
-    }, context)
+    }, context, loc)
 
   def runAssertion(assertion: Assertion): AssertionResult = {
     Try {

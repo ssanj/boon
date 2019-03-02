@@ -7,12 +7,12 @@ object MathSuite extends SuiteLike("MathSuite") {
 
   val multTable =
     NonEmptyMap.values(
-      (1, 4)   -> 4,
-      (2, 6)   -> 12,
-      (5, 10)  -> 50,
-      (7, 7)   -> 49,
-      (-2, -1) -> 2,
-      (10, 20) -> 200
+      (1, 4)   -> tval(4),
+      (2, 6)   -> tval(12),
+      (5, 10)  -> tval(50),
+      (7, 7)   -> tval(49),
+      (-2, -1) -> tval(2),
+      (10, 20) -> tval(200)
     )
 
   val t1 = test("Addition") {

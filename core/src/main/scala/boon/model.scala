@@ -11,7 +11,7 @@ final case class Defer[A](value: () => A) {
 }
 
 final case class AssertionName(value: String)
-final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String])
+final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], location: SourceLocation)
 final case class AssertionError(assertion: Assertion, error: String)
 
 sealed trait AssertionResult extends Product with Serializable

@@ -10,7 +10,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
   private val t1 = test("show context on error") {
     (so.tests.length =?= 1 | "have 1 test") &
     (so.tests.toSeq(0).assertions.length =?= 1 | "have 1 assertion") &
-    so.tests.toSeq(0).assertions.toSeq(0).fold({(name, error, context) =>
+    so.tests.toSeq(0).assertions.toSeq(0).fold({(name, error, context, _) =>
       (name =?= "Frodo is a hobbit" | "assertion.name") &
       (error =?= """false is not true""" | "assertion.error") &
       (context =?= Map("allHobbits" -> "Bilbo,Sam,Bingo,Merimas", "missing" -> "Frodo") | "assertion.context")

@@ -13,7 +13,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
     (so.tests.head.name =?= "test for missing impl" | "test name") &
     (so.tests.head.assertions.length =?= 1 | "no of assertions") &
     {
-      so.tests.head.assertions.head.fold({ (name, error, _) =>
+      so.tests.head.assertions.head.fold({ (name, error, _, _) =>
         (passAssertion | "assertionOutput type") &
         (name =?= "Boolean test" | "assertion name") &
         (error =?= "an implementation is missing" | "assertion error")

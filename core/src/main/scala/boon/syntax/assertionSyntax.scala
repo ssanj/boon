@@ -24,10 +24,10 @@ final class EqSyntax[A](value1: => A) {
 }
 
 final class DescSyntax[A](pair: (Defer[A], Defer[A])) {
-  def |(name: => String)(implicit E: boon.Equality[A], D: Difference[A]): ContinueSyntax =
+  def |(name: => String)(implicit E: boon.Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax =
     new ContinueSyntax(NonEmptySeq.nes(defineAssertion[A](name, (pair))))
 
-  def |#(name: => String, ctx: (String, String)*)(implicit E: boon.Equality[A], D: Difference[A]): ContinueSyntax =
+  def |#(name: => String, ctx: (String, String)*)(implicit E: boon.Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax =
     new ContinueSyntax(NonEmptySeq.nes(defineAssertionWithContext[A](name, (pair), Map(ctx:_*))))
 }
 
