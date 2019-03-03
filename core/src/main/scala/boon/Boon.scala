@@ -27,9 +27,10 @@ object Boon {
 
   def runAssertion(assertion: Assertion): AssertionResult = {
     Try {
-      val testable = assertion.testable.value()
-      val value1 = testable.value1.value()
-      val value2 = testable.value2.value()
+      val testable = assertion.testable.run()
+      val value1 = testable.value1.run()
+      val value2 = testable.value2.run()
+
       if (testable.equality.eql(value1, value2)) AssertionPassed(assertion)
       else AssertionFailed(AssertionError(assertion, testable.difference.diff(value1, value2)))
     }.fold(AssertionThrew(assertion.name, _, assertion.location), identity _)
