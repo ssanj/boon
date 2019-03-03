@@ -5,13 +5,16 @@ trait Difference[A] {
   def diff(a1: A, a2: A): String
 }
 
-object Difference {
-
-  def apply[A: Difference]: Difference[A] = implicitly[Difference[A]]
-
-  def genericDifference[A](implicit rep: StringRep[A]): Difference[A] = new Difference[A] {
+trait LowPriorityDifference {
+  implicit def genericDifference[A](implicit rep: StringRep[A]): Difference[A] = new Difference[A] {
     override def diff(a1: A, a2: A): String = s"${rep.strRep(a1)} != ${rep.strRep(a2)}"
   }
+
+}
+
+object Difference extends LowPriorityDifference {
+
+  def apply[A: Difference]: Difference[A] = implicitly[Difference[A]]
 
   implicit object IntDifference extends Difference[Int] {
     override def diff(a1: Int, a2: Int): String = genericDifference[Int].diff(a1, a2)

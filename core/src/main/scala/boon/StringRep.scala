@@ -4,13 +4,15 @@ trait StringRep[A] {
   def strRep(a: A): String
 }
 
-object StringRep {
-
-  def apply[A: StringRep]: StringRep[A] = implicitly[StringRep[A]]
-
-  private def genericStringRep[A]: StringRep[A] = new StringRep[A] {
+trait LowPriorityStringRep {
+  implicit  def genericStringRep[A]: StringRep[A] = new StringRep[A] {
     override def strRep(a: A): String = a.toString
   }
+}
+
+object StringRep extends LowPriorityStringRep {
+
+  def apply[A: StringRep]: StringRep[A] = implicitly[StringRep[A]]
 
   implicit object IntStringRep extends StringRep[Int] {
     override def strRep(a: Int): String = genericStringRep[Int].strRep(a)
