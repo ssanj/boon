@@ -13,7 +13,7 @@ object Boon {
       val difference = D
     }
 
-    Defer(() => t)
+    defer(t)
   }
 
   def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]))(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =

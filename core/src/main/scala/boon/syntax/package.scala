@@ -8,7 +8,7 @@ package object syntax {
     continueSyntax.assertions
 
   implicit def booleanToDescSyntax(value1: => Boolean): DescSyntax[Boolean] =
-    new DescSyntax[Boolean]((Defer(() => value1), Defer(() =>true)))
+    new DescSyntax[Boolean]((defer(value1), defer(true)))
 
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 
