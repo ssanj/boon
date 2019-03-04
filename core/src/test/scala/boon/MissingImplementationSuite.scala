@@ -40,8 +40,8 @@ object MissingImplFixtures {
       (new SomeClass().predicate | "Boolean test") & /* Tests for a bug with lazy evaluation */
       (new SomeClass().priority =?= 10 | "Int test") &
       {
-        val message = defer(new SomeClass().message /*this blows here*/)
-        message.run =?= "it's a trap" | "Unsafe test"
+        val message = defer[String](new SomeClass().message)
+        message =?= "it's a trap" | "Unsafe test"
       }
     }
 

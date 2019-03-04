@@ -2,7 +2,10 @@ package boon
 
 package object syntax {
 
-  implicit def toEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
+  implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
+
+  implicit def deferAToEqSyntax[A](dValue: Defer[A]): EqSyntax[A] =
+    new EqSyntax[A](dValue.run) //this is safe because EqSyntax is lazy
 
   implicit def toNonEmptySeqOfAssertions(continueSyntax: ContinueSyntax): NonEmptySeq[Assertion] =
     continueSyntax.assertions
