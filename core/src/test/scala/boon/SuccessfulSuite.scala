@@ -40,7 +40,7 @@ object SuccessfulTestFixture {
 
   private val successfulSuite = new SuiteLike("SuccessfulSuite") {
     private val t1 = test("String.length") {
-       ("".length =?= 0 | "empty") &
+       ("".length      =?= 0 | "empty") &
        ("hello".length =?= 5 | "hello")
     }
 

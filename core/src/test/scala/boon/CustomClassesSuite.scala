@@ -4,7 +4,7 @@ import syntax._
 
 object CustomClassesSuite extends SuiteLike("CustomClasses") {
 
-  private val t1 = test("use Generic for TC instances") {
+  private val t1 = test("use default TC instances") {
     final case class Name(value: String)
     final case class Age(value: Int)
     final case class Person(name: Name, age: Age)

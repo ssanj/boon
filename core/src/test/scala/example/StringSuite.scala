@@ -5,7 +5,7 @@ import syntax._
 
 object StringSuite extends SuiteLike("StringSuite") {
 
-  val t1 = test("String methods") {
+  private val t1 = test("String methods") {
     (("Daniel" + " " + "Jackson") =?= "Daniel Jackson" | "concat")     &
     ("yohoho"                     =?= "ohohoy".reverse | "reversing")  &
     ("hello".toUpperCase          =?= "HELLO"          | "UPPER")      &
@@ -18,14 +18,14 @@ object StringSuite extends SuiteLike("StringSuite") {
       "value" -> "\"ob\""))
   }
 
-  val strTable =
+  private val strTable =
     NonEmptyMap.values(
       ("thequickbrownfoxjumpedoverthelazydog" -> tval(36)),
       (""                                     -> tval(0)),
       ("Hello World"                          -> tval(11))
     )
 
-  val t2 = table[String, Int]("String length", strTable)(_.length)
+  private val t2 = table[String, Int]("String length", strTable)(_.length)
 
   override def tests = NonEmptySeq.nes(t1, t2)
 }
