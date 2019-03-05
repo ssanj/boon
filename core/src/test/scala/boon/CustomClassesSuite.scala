@@ -16,9 +16,9 @@ object CustomClassesSuite extends SuiteLike("CustomClasses") {
     val a1 = Age(50)
     val a2 = Age(50)
 
-    (p1 =?= p2 | "Person instances with same data are equal") &
-    (p2 =/= p3 | "Person instances with different data are not equal") &
-    (a1 =?= a2 | "The same ages are equal")
+    p1 =?= p2 | "Person instances with same data are equal" and
+    p2 =/= p3 | "Person instances with different data are not equal" and
+    a1 =?= a2 | "The same ages are equal"
    }
 
   val tests = NonEmptySeq.nes(t1)

@@ -32,5 +32,7 @@ final class DescSyntax[A](pair: (Defer[A], Defer[A])) {
 
 final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
     def &(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
+
+    def and(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
 }
 
