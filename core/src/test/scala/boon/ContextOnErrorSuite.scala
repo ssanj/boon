@@ -12,9 +12,9 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
     (so.tests.toSeq(0).assertions.length =?= 1 | "have 1 assertion") &
     so.tests.toSeq(0).assertions.toSeq(0).fold({(name, error, context, _) =>
       (name =?= "Frodo is a hobbit" | "assertion.name") &
-      (error =?= """false is not true""" | "assertion.error") &
+      (error =?= "false is not true" | "assertion.error") &
       (context =?= Map("allHobbits" -> "Bilbo,Sam,Bingo,Merimas", "missing" -> "Frodo") | "assertion.context")
-    }, _ => failAssertion | "assertionType")
+    }, fo => fail(s"Incorrect assertion type: $fo") | "assertionType")
   }
 
   override val tests = NonEmptySeq.nes(t1)

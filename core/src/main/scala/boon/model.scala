@@ -40,3 +40,9 @@ sealed trait BoonEx
 final case class Ex(className: String, message: String) extends BoonEx
 final case class NotEx(className: String) extends BoonEx
 
+sealed trait FailableAssertion
+final case class FailedAssertion(reason: String) extends FailableAssertion
+object NotFailedAssertion extends FailableAssertion
+
+object PassedAssertion
+

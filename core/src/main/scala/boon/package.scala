@@ -17,8 +17,4 @@ import syntax.toStrRep
   def tval[U](value: U)(implicit SL: SourceLocation): (U, SourceLocation) = (value, SL)
 
   type NonEmptyMap[K, V] = NonEmptySeq[(K, V)]
-
-  object FailedAssertion
-
-  object PassedAssertion
 }

@@ -5,7 +5,7 @@ import scala.util.Try
 object Boon {
 
   def testable[A](a1: Defer[A], a2: Defer[A])(implicit E: Equality[A], D: Difference[A]): Defer[Testable] = {
-    val t = new Testable {
+    val t = () => new Testable {
       type Actual = A
       val value1: Defer[Actual] = a1
       val value2: Defer[Actual] = a2
@@ -13,7 +13,7 @@ object Boon {
       val difference = D
     }
 
-    defer(t)
+    Defer[Testable](t)
   }
 
   def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]))(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =

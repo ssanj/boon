@@ -19,8 +19,8 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
           (name =?= "Boolean test" | "assertion name") &
           (error =?= "an implementation is missing" | "assertion error") &
           (loc.endsWith("MissingImplementationSuite.scala:40") |# ("error location", "loc" -> loc))
-        case (name, error, _, None) => failAssertion | "assertionOutput location missing"
-      }, _ => failAssertion | "assertionOutput type")
+        case (name, error, _, None) => fail("Assertion location is missing") | "assertionOutput location missing"
+      }, fo => fail(s"Invalid assertion type: $fo") | "assertionOutput type")
     }
   }
 

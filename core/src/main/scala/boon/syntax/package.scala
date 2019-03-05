@@ -15,7 +15,8 @@ package object syntax {
 
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 
-  def failAssertion: DescSyntax[FailedAssertion.type] = FailedAssertion =?= FailedAssertion
+  def fail(reason: String): DescSyntax[FailableAssertion] =
+    (FailedAssertion(reason): FailableAssertion) =?= (NotFailedAssertion: FailableAssertion)
 
   def passAssertion: DescSyntax[PassedAssertion.type] = PassedAssertion =?= PassedAssertion
 }
