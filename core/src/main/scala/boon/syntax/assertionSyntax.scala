@@ -20,6 +20,19 @@ final class EqSyntax[A](value1: => A) {
 
     new DescSyntax[BoonEx]((d1, d2))
   }
+
+  def =!!=(f: Bex => ContinueSyntax): ContinueSyntax =  {
+    val ex =
+      Try(value1).fold[BoonEx](
+        e => Ex(e.getClass.getName, e.getMessage),
+        s => NotEx(s.getClass.getName)
+      )
+
+    ex match {
+      case Ex(cn, msg) => f(Bex(cn, msg))
+      case NotEx(cn) => fail(s"expected Exception but got: $cn") | "expect Exception"
+    }
+  }
 }
 
 final class DescSyntax[A](pair: (Defer[A], Defer[A])) {

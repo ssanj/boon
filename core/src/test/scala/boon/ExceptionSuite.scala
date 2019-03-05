@@ -24,5 +24,12 @@ object ExceptionSuite extends SuiteLike("ExceptionSuite") {
     new Flakey().safe =!= NotEx(B) | "does not throw"
   }
 
-  override val tests = NonEmptySeq.nes(t1)
+  private val t2 = test("Alt Exception syntax") {
+    new Flakey().blowNested =!!= { bex =>
+      bex.className =?= RE | "nested.exception.className" and
+      bex.message.contains("boom!") | "nested.exception.message"
+    }
+  }
+
+  override val tests = NonEmptySeq.nes(t1, t2)
 }

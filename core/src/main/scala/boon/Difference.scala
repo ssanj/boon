@@ -72,9 +72,13 @@ object Difference extends LowPriorityDifference {
     override def diff(na1: Not[A], na2: Not[A]): String = s"${repA.strRep(na1.value)} == ${repA.strRep(na2.value)}"
   }
 
-  implicit def failableAssertionDifference(implicit S: StringRep[FailableAssertion]): Difference[FailableAssertion] = new Difference[FailableAssertion] {
-    val rep = StringRep[FailableAssertion]
-    override def diff(a1: FailableAssertion, a2: FailableAssertion): String = s"${rep.strRep(a1)} != ${rep.strRep(a2)}"
+  //breaks the laws (if any)
+  implicit object FailableAssertionDifference extends Difference[FailableAssertion] {
+    override def diff(a1: FailableAssertion, a2: FailableAssertion): String = (a1, a2) match {
+      case (FailedAssertion(r1), _) => s"explicit fail: $r1"
+      case (NotFailedAssertion, FailedAssertion(r1)) => s"explicit fail: $r1"
+      case (NotFailedAssertion, NotFailedAssertion)  => s"explicit fail: passed!"
+    }
   }
 
   implicit object PassedAssertionDifference extends Difference[PassedAssertion.type] {
