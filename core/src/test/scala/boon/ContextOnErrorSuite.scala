@@ -11,9 +11,9 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
     so.tests.length =?= 1 | "have 1 test" and
     so.tests.toSeq(0).assertions.length =?= 1 | "have 1 assertion" and
     so.tests.toSeq(0).assertions.toSeq(0).fold({(name, error, context, _) =>
-      (name =?= "Frodo is a hobbit" | "assertion.name") &
-      (error =?= "false is not true" | "assertion.error") &
-      (context =?= Map("allHobbits" -> "Bilbo,Sam,Bingo,Merimas", "missing" -> "Frodo") | "assertion.context")
+      name =?= "Frodo is a hobbit" | "assertion.name" and
+      error =?= "false is not true" | "assertion.error" and
+      context =?= Map("allHobbits" -> "Bilbo,Sam,Bingo,Merimas", "missing" -> "Frodo") | "assertion.context"
     }, fo => fail(s"Incorrect assertion type: $fo") | "assertionType")
   }
 

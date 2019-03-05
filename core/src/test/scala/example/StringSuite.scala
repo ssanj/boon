@@ -6,16 +6,16 @@ import syntax._
 object StringSuite extends SuiteLike("StringSuite") {
 
   private val t1 = test("String methods") {
-    (("Daniel" + " " + "Jackson") =?= "Daniel Jackson" | "concat")     &
-    ("yohoho"                     =?= "ohohoy".reverse | "reversing")  &
-    ("hello".toUpperCase          =?= "HELLO"          | "UPPER")      &
-    ("DollHouse".startsWith("Doll")                    | "startsWith") &
-    ("Battlestar".endsWith("star")                     | "endsWith")   &
-    ("Bilbo".contains("lbo") |# (
+    ("Daniel" + " " + "Jackson") =?= "Daniel Jackson" | "concat"     and
+    "yohoho"                     =?= "ohohoy".reverse | "reversing"  and
+    "hello".toUpperCase          =?= "HELLO"          | "UPPER"      and
+    "DollHouse".startsWith("Doll")                    | "startsWith" and
+    "Battlestar".endsWith("star")                     | "endsWith"   and
+    "Bilbo".contains("lbo") |# (
       "contains",
       "subject" -> "\"Bilbo\"",
       "predicate" -> "contains",
-      "value" -> "\"ob\""))
+      "value" -> "\"ob\"")
   }
 
   private val strTable =

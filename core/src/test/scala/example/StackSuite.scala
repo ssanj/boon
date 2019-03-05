@@ -17,13 +17,13 @@ object StackSuite extends SuiteLike("NonEmptyStack"){
     {
       val pop3 = stack3.pop()
 
-      ( pop3._1 =?= 2            | "pop3 returns 2 as value" )     &
-      ( pop3._2 =?= Some(stack2) | "pop3 returns stack2 as stack")
+      pop3._1 =?= 2            | "pop3 returns 2 as value"     and
+      pop3._2 =?= Some(stack2) | "pop3 returns stack2 as stack"
 
-    } &
-    ( stack2.pop()._1  =?= 1                       | "popping stack2 returns 1 as value" )                      &
-    ( stack2.pop()._2  =?= Some(stack1)            | "popping stack2 returns stack1 as stack" )                 &
-    ( stack1.pop()     =?= Tuple2(0, noStack[Int]) | "popping stack1 returns 0 as value and no further stacks")
+    } and
+    stack2.pop()._1  =?= 1                       | "popping stack2 returns 1 as value" and
+    stack2.pop()._2  =?= Some(stack1)            | "popping stack2 returns stack1 as stack" and
+    stack1.pop()     =?= Tuple2(0, noStack[Int]) | "popping stack1 returns 0 as value and no further stacks"
   }
 
   override def tests = NonEmptySeq.nes(test1)
