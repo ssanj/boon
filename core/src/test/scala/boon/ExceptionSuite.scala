@@ -10,33 +10,12 @@ object ExceptionSuite extends SuiteLike("ExceptionSuite") {
     def safe: Boolean = true
   }
 
-  private val NFE = "java.lang.NumberFormatException"
-  private val NSE = "java.util.NoSuchElementException"
-  private val RE = "java.lang.RuntimeException"
-  private val B = "java.lang.Boolean"
-
-  private val t1 = test("Exception syntax") {
-    "abcd".toInt =!= Ex(NFE, """For input string: "abcd"""") |
-      "Number format error" and
-    List.empty[String].head =!= Ex(NSE, "head of empty list") | "Head on empty List" and
-    new Flakey().blow =!= Ex(RE, "boom!") | "throw RuntimeException" and
-    new Flakey().blowNested =!= Ex(RE, "nested boom!") | "throw nested exception" and
-    new Flakey().safe =!= NotEx(B) | "does not throw"
+  private val t1 = test("Exception Assertions") {
+    "abcd".toInt =!=[NumberFormatException](_ =?= "For input string: \"abcd\"" | "Number format error")  and
+    List.empty[String].head =!=[NoSuchElementException](_ =?= "head of empty list" | "Head on empty List")  and
+    new Flakey().blow =!=[RuntimeException](_ =?=  "boom!" | "throw RuntimeException")  and
+    new Flakey().blowNested =!=[RuntimeException](_.contains("boom!") | "nested.exception.message")
   }
 
-  private val t2 = test("Exception syntax - 2") {
-    new Flakey().blowNested =!!= { bex =>
-      bex.className =?= RE | "nested.exception.className" and
-      bex.message.contains("boom!") | "nested.exception.message"
-    }
-  }
-
-  private val t3 = test("Alt Exception syntax - 3") {
-    "abcd".toInt =!!!=[NumberFormatException](_ =?= "For input string: \"abcd\"" | "Number format error")  and
-    List.empty[String].head =!!!=[NoSuchElementException](_ =?= "head of empty list" | "Head on empty List")  and
-    new Flakey().blow =!!!=[RuntimeException](_ =?=  "boom!" | "throw RuntimeException")  and
-    new Flakey().blowNested =!!!=[RuntimeException](_.contains("boom!") | "nested.exception.message")
-  }
-
-  override val tests = NonEmptySeq.nes(t1, t2, t3)
+  override val tests = NonEmptySeq.nes(t1)
 }

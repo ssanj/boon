@@ -27,38 +27,16 @@ final class EqSyntax[A](value1: => A) {
 
   def =/=(value2: => A): DescSyntax[Not[A]] = new DescSyntax[Not[A]]((defer(Not(value1)), defer(Not(value2))))
 
-  def =!=(value2: => BoonEx): DescSyntax[BoonEx] =  {
-    val d1 =
-      defer(Try(value1).fold[BoonEx](e => Ex(e.getClass.getName, e.getMessage),
-                                     s => NotEx(s.getClass.getName)))
-
-    val d2 = defer(value2)
-
-    new DescSyntax[BoonEx]((d1, d2))
-  }
-
-  def =!!=(f: Bex => ContinueSyntax): ContinueSyntax = {
-    val ex =
-      Try(value1).fold[BoonEx](
-        e => Ex(e.getClass.getName, e.getMessage),
-        s => NotEx(s.getClass.getName)
-      )
-
-    ex match {
-      case Ex(cn, msg) => f(Bex(cn, msg))
-      case NotEx(cn) => fail(s"expected Exception but got: $cn") | "expect Exception"
-    }
-  }
-
-  def =!!!=[T <: Throwable](assertMessage: String => ContinueSyntax)(
+  def =!=[T <: Throwable](assertMessage: String => ContinueSyntax)(
     implicit classTag: ClassTag[T], SR: StringRep[A]): ContinueSyntax = {
     val expectedClass = classTag.runtimeClass
+    val expectedClassName = expectedClass.getName
     Try(value1).fold[ContinueSyntax](
-      e => expectedClass.isAssignableFrom(e.getClass) |# (s"exception class ${expectedClass.getName}",
-                                                          "expected class" -> expectedClass.getName,
+      e => expectedClass.isAssignableFrom(e.getClass) |# (s"exception class ${expectedClassName}",
+                                                          "expected class" -> expectedClassName,
                                                           "got class" -> e.getClass.getName) and
            assertMessage(e.getMessage),
-      s => fail(s"expected Exception but got class:${s.getClass.getName} value:${SR.strRep(s)}") | "exception class"
+      s => fail(s"expected ${expectedClassName} but got class:${s.getClass.getName} value:${SR.strRep(s)}") | s"exception class ${expectedClassName}"
     )
   }
 }
