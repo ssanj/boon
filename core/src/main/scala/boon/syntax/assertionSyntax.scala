@@ -5,6 +5,22 @@ import Boon.defineAssertion
 import Boon.defineAssertionWithContext
 
 import scala.util.Try
+import scala.reflect.ClassTag
+
+/**
+  * Operator Precedence: https://docs.scala-lang.org/tour/operators.html
+  *
+  * (characters not shown below)
+  * * / %
+  * + -
+  * :
+  * = !
+  * < >
+  * &
+  * ^
+  * |
+  * (all letters)
+  */
 
 final class EqSyntax[A](value1: => A) {
   def =?=(value2: => A): DescSyntax[A] = new DescSyntax[A]((defer(value1), defer(value2)))
@@ -21,7 +37,7 @@ final class EqSyntax[A](value1: => A) {
     new DescSyntax[BoonEx]((d1, d2))
   }
 
-  def =!!=(f: Bex => ContinueSyntax): ContinueSyntax =  {
+  def =!!=(f: Bex => ContinueSyntax): ContinueSyntax = {
     val ex =
       Try(value1).fold[BoonEx](
         e => Ex(e.getClass.getName, e.getMessage),
@@ -32,6 +48,17 @@ final class EqSyntax[A](value1: => A) {
       case Ex(cn, msg) => f(Bex(cn, msg))
       case NotEx(cn) => fail(s"expected Exception but got: $cn") | "expect Exception"
     }
+  }
+
+  def =!!!=[T <: Throwable](assertMessage: String => ContinueSyntax)(
+    implicit classTag: ClassTag[T], SR: StringRep[A]): ContinueSyntax = {
+    val expectedClass = classTag.runtimeClass
+    Try(value1).fold[ContinueSyntax](
+      e => expectedClass.isAssignableFrom(e.getClass) |# ("exception class",
+                                                          "class" -> expectedClass.getName) and
+           assertMessage(e.getMessage),
+      s => fail(s"expected Exception but got class:${s.getClass.getName} value:${SR.strRep(s)}") | "exception class"
+    )
   }
 }
 

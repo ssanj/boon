@@ -24,12 +24,19 @@ object ExceptionSuite extends SuiteLike("ExceptionSuite") {
     new Flakey().safe =!= NotEx(B) | "does not throw"
   }
 
-  private val t2 = test("Alt Exception syntax") {
+  private val t2 = test("Exception syntax - 2") {
     new Flakey().blowNested =!!= { bex =>
       bex.className =?= RE | "nested.exception.className" and
       bex.message.contains("boom!") | "nested.exception.message"
     }
   }
 
-  override val tests = NonEmptySeq.nes(t1, t2)
+  private val t3 = test("Alt Exception syntax - 3") {
+    "abcd".toInt =!!!=[NumberFormatException](_ =?= "For input string: \"abcd\"" | "Number format error")  and
+    List.empty[String].head =!!!=[NoSuchElementException](_ =?= "head of empty list" | "Head on empty List")  and
+    new Flakey().blow =!!!=[RuntimeException](_ =?=  "boom!" | "throw RuntimeException")  and
+    new Flakey().blowNested =!!!=[RuntimeException](_.contains("boom!") | "nested.exception.message")
+  }
+
+  override val tests = NonEmptySeq.nes(t1, t2, t3)
 }
