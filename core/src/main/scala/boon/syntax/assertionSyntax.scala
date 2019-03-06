@@ -7,20 +7,20 @@ import Boon.defineAssertionWithContext
 import scala.util.Try
 import scala.reflect.ClassTag
 
-/**
-  * Operator Precedence: https://docs.scala-lang.org/tour/operators.html
-  *
-  * (characters not shown below)
-  * * / %
-  * + -
-  * :
-  * = !
-  * < >
-  * &
-  * ^
-  * |
-  * (all letters)
-  */
+/*
+ * Operator Precedence: https://docs.scala-lang.org/tour/operators.html
+ *
+ * (characters not shown below)
+ * * / %
+ * + -
+ * :
+ * = !
+ * < >
+ * &
+ * ^
+ * |
+ * (all letters)
+ */
 
 final class EqSyntax[A](value1: => A) {
   def =?=(value2: => A): DescSyntax[A] = new DescSyntax[A]((defer(value1), defer(value2)))
@@ -54,8 +54,9 @@ final class EqSyntax[A](value1: => A) {
     implicit classTag: ClassTag[T], SR: StringRep[A]): ContinueSyntax = {
     val expectedClass = classTag.runtimeClass
     Try(value1).fold[ContinueSyntax](
-      e => expectedClass.isAssignableFrom(e.getClass) |# ("exception class",
-                                                          "class" -> expectedClass.getName) and
+      e => expectedClass.isAssignableFrom(e.getClass) |# (s"exception class ${expectedClass.getName}",
+                                                          "expected class" -> expectedClass.getName,
+                                                          "got class" -> e.getClass.getName) and
            assertMessage(e.getMessage),
       s => fail(s"expected Exception but got class:${s.getClass.getName} value:${SR.strRep(s)}") | "exception class"
     )
