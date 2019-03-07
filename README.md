@@ -52,7 +52,7 @@ import boon._
 import syntax._
 ```
 
-All Boon **Suites** extend the `SuiteLike` class and supply it with a suite name. In the above example the suite name is "FirstSuite". You can call your **Suite** whatever you like.
+All Boon **Suites** must be `object`s and extend the `SuiteLike` class and supply it with a suite name. In the above example the suite name is "FirstSuite". You can call your **Suite** whatever you like.
 
 Tests are defined through the `test` function and require a name, which in the above example is "String Methods" and one or more **Assertions**.
 
@@ -62,7 +62,9 @@ An **Assertion** takes the following format:
 actualValue =?= expectedValue | "assertion name"
 ```
 
-The `=?=` operator is a typesafe equals operator and the `|` operator simply adds a name to the preceding assertion. The `and` operator is used to combine assertions.
+The `=?=` operator is a typesafe equals operator and the `|` operator simply adds a name to the preceding assertion. All **Assertions** must have names. The `and` operator is used to combine assertions.
+
+Defined tests such as t1 in the above example, must be added a `NonEmptySeq` and used as part of the definition for the `tests` abstract method from the `SuiteLike` trait to be included in the **Suite**.
 
 Running the above **Suite** produces the following output:
 
