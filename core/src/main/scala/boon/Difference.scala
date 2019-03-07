@@ -84,11 +84,4 @@ object Difference extends LowPriorityDifference {
   implicit object PassedAssertionDifference extends Difference[PassedAssertion.type] {
     override def diff(a1: PassedAssertion.type, a2: PassedAssertion.type): String = s"user-passed assertion"
   }
-
-  implicit object BoonExDifference extends Difference[BoonEx] {
-    override def diff(x1: BoonEx, x2: BoonEx): String = {
-      val rep = StringRep[BoonEx]
-      s"${rep.strRep(x1)} != ${rep.strRep(x2)}"
-    }
-  }
 }

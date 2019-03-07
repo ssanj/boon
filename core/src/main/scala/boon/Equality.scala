@@ -102,7 +102,4 @@ object Equality extends LowPriorityEquality {
     override def eql(a1: PassedAssertion.type, a2: PassedAssertion.type): Boolean = true //Always pass
   }
 
-  implicit object BoonExEquality extends Equality[BoonEx] {
-    override def eql(x1: BoonEx, x2: BoonEx): Boolean = x1 == x2
-  }
 }

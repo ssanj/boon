@@ -73,11 +73,4 @@ object StringRep extends LowPriorityStringRep {
   implicit object passedAssertionStringRep extends StringRep[PassedAssertion.type] {
     override def strRep(fa: PassedAssertion.type): String = "<- pass ->"
   }
-
-  implicit object boonExStringRep extends StringRep[BoonEx] {
-    override def strRep(x: BoonEx): String = x match {
-      case Ex(clazz, message) => s"Ex(className=${clazz}, message=${message})"
-      case NotEx(clazz) => s"NotEx(className=${clazz})"
-    }
-  }
 }

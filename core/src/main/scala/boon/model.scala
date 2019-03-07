@@ -29,18 +29,7 @@ final case class SuiteName(value: String)
 final case class DeferredSuite(name: SuiteName, tests: NonEmptySeq[DeferredTest])
 final case class SuiteResult(suite: DeferredSuite, testResults: NonEmptySeq[TestResult])
 
-//How about
-//final case class Suite(name: SuiteName, tests: NonEmptySeq[Defer[Test]])
-//final case class Test(name: TestName, assertions: NonEmptySeq[Defer[Assertion]])
-//final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String])
-
 final case class Not[A](value: A)
-
-sealed trait BoonEx
-final case class Ex(className: String, message: String) extends BoonEx
-final case class NotEx(className: String) extends BoonEx
-
-final case class Bex(className: String, message: String)
 
 sealed trait FailableAssertion
 final case class FailedAssertion(reason: String) extends FailableAssertion
