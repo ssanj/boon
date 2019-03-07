@@ -46,7 +46,7 @@ lazy val boonMacro = (project in file("macro"))
   )
 )
 
-name := "boonProj"
+lazy val boonProj = (project in file("."))
 
 // scalacOptions in (Compile, console) --= Seq("-Xfatal-warnings", "-Ywarn-unused-import")
 
