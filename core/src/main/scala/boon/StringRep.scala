@@ -4,13 +4,15 @@ trait StringRep[A] {
   def strRep(a: A): String
 }
 
-object StringRep {
-
-  def apply[A: StringRep]: StringRep[A] = implicitly[StringRep[A]]
-
-  private def genericStringRep[A]: StringRep[A] = new StringRep[A] {
+trait LowPriorityStringRep {
+  implicit  def genericStringRep[A]: StringRep[A] = new StringRep[A] {
     override def strRep(a: A): String = a.toString
   }
+}
+
+object StringRep extends LowPriorityStringRep {
+
+  def apply[A: StringRep]: StringRep[A] = implicitly[StringRep[A]]
 
   implicit object IntStringRep extends StringRep[Int] {
     override def strRep(a: Int): String = genericStringRep[Int].strRep(a)
@@ -61,8 +63,11 @@ object StringRep {
     override def strRep(na: Not[A]): String = S.strRep(na.value)
   }
 
-  implicit object failedAssertionStringRep extends StringRep[FailedAssertion.type] {
-    override def strRep(fa: FailedAssertion.type): String = "<- fail ->"
+  implicit object failableAssertionStringRep extends StringRep[FailableAssertion] {
+    override def strRep(fa: FailableAssertion): String = fa match {
+      case FailedAssertion(reason) => s"Failed(reason=${reason})"
+      case NotFailedAssertion      => s"NotFailed"
+    }
   }
 
   implicit object passedAssertionStringRep extends StringRep[PassedAssertion.type] {

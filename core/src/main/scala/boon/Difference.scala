@@ -5,13 +5,16 @@ trait Difference[A] {
   def diff(a1: A, a2: A): String
 }
 
-object Difference {
-
-  def apply[A: Difference]: Difference[A] = implicitly[Difference[A]]
-
-  def genericDifference[A](implicit rep: StringRep[A]): Difference[A] = new Difference[A] {
+trait LowPriorityDifference {
+  implicit def genericDifference[A](implicit rep: StringRep[A]): Difference[A] = new Difference[A] {
     override def diff(a1: A, a2: A): String = s"${rep.strRep(a1)} != ${rep.strRep(a2)}"
   }
+
+}
+
+object Difference extends LowPriorityDifference {
+
+  def apply[A: Difference]: Difference[A] = implicitly[Difference[A]]
 
   implicit object IntDifference extends Difference[Int] {
     override def diff(a1: Int, a2: Int): String = genericDifference[Int].diff(a1, a2)
@@ -69,8 +72,13 @@ object Difference {
     override def diff(na1: Not[A], na2: Not[A]): String = s"${repA.strRep(na1.value)} == ${repA.strRep(na2.value)}"
   }
 
-  implicit object FailedAssertionDifference extends Difference[FailedAssertion.type] {
-    override def diff(a1: FailedAssertion.type, a2: FailedAssertion.type): String = s"user-failed assertion"
+  //breaks the laws (if any)
+  implicit object FailableAssertionDifference extends Difference[FailableAssertion] {
+    override def diff(a1: FailableAssertion, a2: FailableAssertion): String = (a1, a2) match {
+      case (FailedAssertion(r1), _) => s"explicit fail: $r1"
+      case (NotFailedAssertion, FailedAssertion(r1)) => s"explicit fail: $r1"
+      case (NotFailedAssertion, NotFailedAssertion)  => s"explicit fail: passed!"
+    }
   }
 
   implicit object PassedAssertionDifference extends Difference[PassedAssertion.type] {

@@ -7,7 +7,13 @@ trait Equality[A] {
   def neql(a1: A, a2: A): Boolean = !eql(a1, a2)
 }
 
-object Equality {
+trait LowPriorityEquality {
+  implicit def genericEquality[A]: Equality[A] = new Equality[A] {
+    override def eql(a1: A, a2: A): Boolean = a1 == a2
+  }
+}
+
+object Equality extends LowPriorityEquality {
 
   def apply[A: Equality]: Equality[A] = implicitly[Equality[A]]
 
@@ -84,8 +90,12 @@ object Equality {
     override def eql(a1: Not[A], a2: Not[A]): Boolean = E.neql(a1.value, a2.value)
   }
 
-  implicit object FailedAssertionEquality extends Equality[FailedAssertion.type] {
-    override def eql(a1: FailedAssertion.type, a2: FailedAssertion.type): Boolean = false //Always fail
+  implicit object FailableAssertionEquality extends Equality[FailableAssertion] {
+    override def eql(a1: FailableAssertion, a2: FailableAssertion): Boolean = (a1, a2) match {
+      case (FailedAssertion(r1), FailedAssertion(r2)) => StringEquality.eql(r1, r2)
+      case (NotFailedAssertion, NotFailedAssertion) => true
+      case _ => false
+    }
   }
 
   implicit object PassedAssertionEquality extends Equality[PassedAssertion.type] {
