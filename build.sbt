@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.8",
   organization := "net.ssanj",
-  version := "0.0.1-b11",
+  version := "0.0.1-b12",
   scalacOptions ++= Seq(
                       "-unchecked",
                       "-deprecation",
@@ -31,8 +31,6 @@ lazy val boon = (project in file("core"))
         "org.scala-sbt"  % "test-interface" % "1.0",
         "org.scalacheck" %% "scalacheck"    % "1.13.4" % "test"
     )
-    // publish := {},
-    // publishLocal := {}
   )
 
 lazy val boonMacro = (project in file("macro"))
@@ -46,7 +44,12 @@ lazy val boonMacro = (project in file("macro"))
   )
 )
 
-lazy val boonProj = (project in file("."))
+lazy val boonProj = (project in file(".")).
+  settings(
+    commonSettings,
+    name := "boon-project",
+  ).aggregate(boonMacro, boon)
+
 
 // scalacOptions in (Compile, console) --= Seq("-Xfatal-warnings", "-Ywarn-unused-import")
 
