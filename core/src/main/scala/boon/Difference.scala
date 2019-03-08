@@ -76,12 +76,8 @@ object Difference extends LowPriorityDifference {
   implicit object FailableAssertionDifference extends Difference[FailableAssertion] {
     override def diff(a1: FailableAssertion, a2: FailableAssertion): String = (a1, a2) match {
       case (FailedAssertion(r1), _) => s"explicit fail: $r1"
-      case (NotFailedAssertion, FailedAssertion(r1)) => s"explicit fail: $r1"
-      case (NotFailedAssertion, NotFailedAssertion)  => s"explicit fail: passed!"
+      case (PassedAssertion, FailedAssertion(r1)) => s"explicit fail: $r1"
+      case (PassedAssertion, PassedAssertion)  => s"explicit pass"
     }
-  }
-
-  implicit object PassedAssertionDifference extends Difference[PassedAssertion.type] {
-    override def diff(a1: PassedAssertion.type, a2: PassedAssertion.type): String = s"user-passed assertion"
   }
 }

@@ -33,7 +33,5 @@ final case class Not[A](value: A)
 
 sealed trait FailableAssertion
 final case class FailedAssertion(reason: String) extends FailableAssertion
-object NotFailedAssertion extends FailableAssertion
-
-object PassedAssertion
+object PassedAssertion extends FailableAssertion
 

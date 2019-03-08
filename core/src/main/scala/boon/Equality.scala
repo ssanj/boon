@@ -93,13 +93,8 @@ object Equality extends LowPriorityEquality {
   implicit object FailableAssertionEquality extends Equality[FailableAssertion] {
     override def eql(a1: FailableAssertion, a2: FailableAssertion): Boolean = (a1, a2) match {
       case (FailedAssertion(r1), FailedAssertion(r2)) => StringEquality.eql(r1, r2)
-      case (NotFailedAssertion, NotFailedAssertion) => true
+      case (PassedAssertion, PassedAssertion) => true
       case _ => false
     }
   }
-
-  implicit object PassedAssertionEquality extends Equality[PassedAssertion.type] {
-    override def eql(a1: PassedAssertion.type, a2: PassedAssertion.type): Boolean = true //Always pass
-  }
-
 }

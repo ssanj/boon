@@ -16,7 +16,10 @@ package object syntax {
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 
   def fail(reason: String): DescSyntax[FailableAssertion] =
-    (FailedAssertion(reason): FailableAssertion) =?= (NotFailedAssertion: FailableAssertion)
+    upcast[FailedAssertion, FailableAssertion](FailedAssertion(reason)) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
 
-  def passAssertion: DescSyntax[PassedAssertion.type] = PassedAssertion =?= PassedAssertion
+  def pass: DescSyntax[FailableAssertion] =
+    upcast[PassedAssertion.type, FailableAssertion](PassedAssertion) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
+
+  def upcast[Sub, Super](value: Sub)(implicit CAST:Sub <:< Super): Super = CAST(value)
 }

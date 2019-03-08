@@ -66,11 +66,7 @@ object StringRep extends LowPriorityStringRep {
   implicit object failableAssertionStringRep extends StringRep[FailableAssertion] {
     override def strRep(fa: FailableAssertion): String = fa match {
       case FailedAssertion(reason) => s"Failed(reason=${reason})"
-      case NotFailedAssertion      => s"NotFailed"
+      case PassedAssertion         => s"Passed"
     }
-  }
-
-  implicit object passedAssertionStringRep extends StringRep[PassedAssertion.type] {
-    override def strRep(fa: PassedAssertion.type): String = "<- pass ->"
   }
 }

@@ -15,7 +15,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
     {
       so.tests.head.assertions.head.fold({
         case (name, error, _, Some(loc)) =>
-          passAssertion | "assertionOutput type" and
+          pass | "assertionOutput type" and
           name =?= "Boolean test" | "assertion name" and
           error =?= "an implementation is missing" | "assertion error" and
           loc.endsWith("MissingImplementationSuite.scala:40") |# ("error location", "loc" -> loc)

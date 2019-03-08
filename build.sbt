@@ -26,10 +26,10 @@ lazy val boon = (project in file("core"))
   .settings(
     commonSettings,
     name := "boon",
-    testFrameworks := Seq(new TestFramework("boon.sbt.BoonFramework")),
+    testFrameworks := Seq(new TestFramework("boon.sbt.BoonFramework"), sbt.TestFrameworks.ScalaCheck),
     libraryDependencies ++= Seq(
-        "org.scala-sbt" % "test-interface" % "1.0",
-        "org.scalacheck" %% "scalacheck"  % "1.13.4" % "test"
+        "org.scala-sbt"  % "test-interface" % "1.0",
+        "org.scalacheck" %% "scalacheck"    % "1.13.4" % "test"
     )
     // publish := {},
     // publishLocal := {}

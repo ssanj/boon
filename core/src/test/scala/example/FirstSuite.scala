@@ -6,7 +6,7 @@ import syntax._
 object FirstSuite extends SuiteLike("FirstSuite") {
 
   private val t1 = test("String methods") {
-    "Hello" + " " + "World" =?= "Hello Globe"    | "concat"     and
+    "Hello" + " " + "World" =?= "Hello World"    | "concat"     and
     "yohoho"                =?= "ohohoy".reverse | "reversing"
   }
 
