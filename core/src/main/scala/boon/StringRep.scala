@@ -59,10 +59,6 @@ object StringRep extends LowPriorityStringRep {
     override def strRep(map: Map[A, B]): String = map.map { case (k, v) =>  s"${SA.strRep(k)} -> ${SB.strRep(v)}" }.mkString("Map(", ",", ")")
   }
 
-  implicit def notStringRep[A](implicit S: StringRep[A]): StringRep[Not[A]] = new StringRep[Not[A]] {
-    override def strRep(na: Not[A]): String = S.strRep(na.value)
-  }
-
   implicit object failableAssertionStringRep extends StringRep[FailableAssertion] {
     override def strRep(fa: FailableAssertion): String = fa match {
       case FailedAssertion(reason) => s"Failed(reason=${reason})"

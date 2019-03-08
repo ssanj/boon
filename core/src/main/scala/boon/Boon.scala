@@ -4,25 +4,26 @@ import scala.util.Try
 
 object Boon {
 
-  def testable[A](a1: Defer[A], a2: Defer[A])(implicit E: Equality[A], D: Difference[A]): Defer[Testable] = {
+  def testable[A](a1: Defer[A], a2: Defer[A], et: EqualityType)(implicit E: Equality[A], D: Difference[A]): Defer[Testable] = {
     val t = () => new Testable {
       type Actual = A
       val value1: Defer[Actual] = a1
       val value2: Defer[Actual] = a2
       val equality = E
       val difference = D
+      val equalityType = et
     }
 
     Defer[Testable](t)
   }
 
-  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]))(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
-    defineAssertionWithContext[A](name, gen, Map.empty[String, String])
+  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
+    defineAssertionWithContext[A](name, gen, equalityType, Map.empty[String, String])
 
-  def defineAssertionWithContext[A](name: => String, gen: (Defer[A], Defer[A]), context: Map[String, String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
+  def defineAssertionWithContext[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType, context: Map[String, String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
     Assertion(AssertionName(name), {
       val (a1, a2) = gen
-      testable[A](a1, a2)
+      testable[A](a1, a2, equalityType)
     }, context, loc)
 
   def runAssertion(assertion: Assertion): AssertionResult = {
@@ -31,7 +32,9 @@ object Boon {
       val value1 = testable.value1.run()
       val value2 = testable.value2.run()
 
-      if (testable.equality.eql(value1, value2)) AssertionPassed(assertion)
+      val eqFunc = testable.equalityType.fold(testable.equality.neql _, testable.equality.eql _)
+
+      if (eqFunc(value1, value2)) AssertionPassed(assertion)
       else AssertionFailed(AssertionError(assertion, testable.difference.diff(value1, value2)))
     }.fold(AssertionThrew(assertion.name, _, assertion.location), identity _)
   }

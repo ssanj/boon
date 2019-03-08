@@ -23,9 +23,9 @@ import scala.reflect.ClassTag
  */
 
 final class EqSyntax[A](value1: => A) {
-  def =?=(value2: => A): DescSyntax[A] = new DescSyntax[A]((defer(value1), defer(value2)))
+  def =?=(value2: => A): DescSyntax[A] = new DescSyntax[A]((defer(value1), defer(value2)), IsEqual)
 
-  def =/=(value2: => A): DescSyntax[Not[A]] = new DescSyntax[Not[A]]((defer(Not(value1)), defer(Not(value2))))
+  def =/=(value2: => A): DescSyntax[A] = new DescSyntax[A]((defer(value1), defer(value2)), IsNotEqual)
 
   def =!=[T <: Throwable](assertMessage: String => ContinueSyntax)(
     implicit classTag: ClassTag[T], SR: StringRep[A]): ContinueSyntax = {
@@ -41,12 +41,12 @@ final class EqSyntax[A](value1: => A) {
   }
 }
 
-final class DescSyntax[A](pair: (Defer[A], Defer[A])) {
+final class DescSyntax[A](pair: (Defer[A], Defer[A]), equalityType: EqualityType) {
   def |(name: => String)(implicit E: boon.Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax =
-    new ContinueSyntax(NonEmptySeq.nes(defineAssertion[A](name, (pair))))
+    new ContinueSyntax(NonEmptySeq.nes(defineAssertion[A](name, (pair), equalityType)))
 
   def |#(name: => String, ctx: (String, String)*)(implicit E: boon.Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax =
-    new ContinueSyntax(NonEmptySeq.nes(defineAssertionWithContext[A](name, (pair), Map(ctx:_*))))
+    new ContinueSyntax(NonEmptySeq.nes(defineAssertionWithContext[A](name, (pair), equalityType, Map(ctx:_*))))
 }
 
 final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {

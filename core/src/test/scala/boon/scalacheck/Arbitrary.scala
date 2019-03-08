@@ -6,8 +6,6 @@ import Arbitrary.arbitrary
 
 object Arb {
 
-  implicit def notArb[T: Arbitrary]: Arbitrary[Not[T]] = Arbitrary(arbitrary[T].map(Not.apply))
-
   implicit val failableAssertionArb: Arbitrary[FailableAssertion] = Arbitrary{
     for {
       message           <- arbitrary[String]

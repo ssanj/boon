@@ -3,7 +3,7 @@ package boon
 import org.scalacheck.Properties
 import org.scalacheck._
 import Prop.forAll
-import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 import boon.scalacheck.Arb._
 
 object EqualityProps extends Properties("Equality") {
@@ -31,14 +31,35 @@ object EqualityProps extends Properties("Equality") {
   equalityLaws[Float]
   equalityLaws[Double]
   equalityLaws[Char]
+
   equalityLaws[List[Int]]
+  equalityLaws[List[Long]]
+  equalityLaws[List[String]]
+  equalityLaws[List[Boolean]]
+  equalityLaws[List[Float]]
+  equalityLaws[List[Double]]
+  equalityLaws[List[Char]]
+
   equalityLaws[Option[Int]]
+  equalityLaws[Option[Long]]
+  equalityLaws[Option[String]]
+  equalityLaws[Option[Boolean]]
+  equalityLaws[Option[Float]]
+  equalityLaws[Option[Double]]
+  equalityLaws[Option[Char]]
+
+  equalityLaws[(Int, Int)]
   equalityLaws[(Int, String)]
-  equalityLaws[Not[Int]]
+  equalityLaws[(Boolean, Double)]
+  equalityLaws[(Char, Option[String])]
+
+  equalityLaws[Map[Int, String]]
+  equalityLaws[Map[String, String]]
+  equalityLaws[Map[Long, Char]]
   equalityLaws[FailableAssertion]
 
-  private def equalityLaws[A: Equality: Arbitrary](implicit classTag: ClassTag[A]): Unit = {
-    val typeName = classTag.runtimeClass.getName
+  private def equalityLaws[A: Equality: Arbitrary](implicit typeTag: TypeTag[A]): Unit = {
+    val typeName = typeOf[A].toString
 
     property(s"${typeName}.reflexive") = forAll(reflexiveLaw[A] _)
 
@@ -73,9 +94,4 @@ object EqualityProps extends Properties("Equality") {
 
     eql(value1, value2) || (neql(value1, value2) == !eql(value1, value2))
   }
-
-  // private def substitutivityLaw[A: Equality, B: Equality: Cogen](value1: A, value2: A, f: Function1[A,B]): Boolean = {
-  //   val eql = Equality[A].eql _
-  //   !eql(value1, value2) || f(value1) == f(value2)
-  // }
 }

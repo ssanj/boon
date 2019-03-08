@@ -11,7 +11,7 @@ package object syntax {
     continueSyntax.assertions
 
   implicit def booleanToDescSyntax(value1: => Boolean): DescSyntax[Boolean] =
-    new DescSyntax[Boolean]((defer(value1), defer(true)))
+    new DescSyntax[Boolean]((defer(value1), defer(true)), IsEqual)
 
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 

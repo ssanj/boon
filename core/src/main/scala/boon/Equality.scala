@@ -46,10 +46,10 @@ object Equality extends LowPriorityEquality {
   }
 
   implicit def listEquality[A](implicit E: Equality[A]): Equality[List[A]] = new Equality[List[A]] {
-    override def eql(xs: List[A], ys: List[A]): Boolean = (xs, ys) match {
-      case (_ :: _, Nil) => false
-      case (Nil, _ :: _) => false
-      case _ => xs.zip(ys).forall(p => E.eql(p._1, p._2))
+    override def eql(xs: List[A], ys: List[A]): Boolean = {
+      if (xs.length == ys.length) {
+        xs.zip(ys).forall(p => E.eql(p._1, p._2))
+      } else false
     }
   }
 
@@ -84,10 +84,6 @@ object Equality extends LowPriorityEquality {
         }
       })
     }
-  }
-
-  implicit def notEquality[A](implicit E: Equality[A]): Equality[Not[A]] = new Equality[Not[A]] {
-    override def eql(a1: Not[A], a2: Not[A]): Boolean = E.neql(a1.value, a2.value)
   }
 
   implicit object FailableAssertionEquality extends Equality[FailableAssertion] {

@@ -6,4 +6,5 @@ trait Testable {
   val value2: Defer[Actual]
   val equality: Equality[Actual]
   val difference: Difference[Actual]
+  val equalityType: EqualityType
 }

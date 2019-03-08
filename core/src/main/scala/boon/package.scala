@@ -8,7 +8,7 @@ import syntax.toStrRep
     DeferredTest(TestName(name), values.map {
       case (t, (u, loc)) =>
         implicit val sl: SourceLocation = loc
-        Boon.defineAssertion[U](s"with ${t.strRep} is ${u.strRep}", (Defer(() => f(t)), Defer(() => u)))
+        Boon.defineAssertion[U](s"with ${t.strRep} is ${u.strRep}", (Defer(() => f(t)), Defer(() => u)), IsEqual)
     })
   }
 
