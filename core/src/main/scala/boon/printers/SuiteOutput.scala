@@ -50,8 +50,7 @@ object SuiteOutput {
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
       val assertionOutputs = tr.assertionResults.map {
-        case AssertionPassed(SingleAssertion(AssertionName(name), _, _, _)) => PassedOutput(name)
-        case AssertionPassed(CompositeAssertion(AssertionName(name), _, _, _)) => PassedOutput(name) //make this different
+        case AssertionPassed(AssertionTriple(AssertionName(name), _, _)) => PassedOutput(name)
         case AssertionFailed(AssertionError(SingleAssertion(AssertionName(name), _, ctx, loc), error)) =>
           FailedOutput(name, error, ctx, sourceLocation(loc))
         case AssertionFailed(AssertionError(CompositeAssertion(AssertionName(name), _, ctx, loc), error)) =>

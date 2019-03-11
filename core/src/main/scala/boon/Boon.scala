@@ -41,7 +41,7 @@ object Boon {
 
             val eqFunc = testable.equalityType.fold(testable.equality.neql _, testable.equality.eql _)
 
-            if (eqFunc(value1, value2)) AssertionPassed(assertion)
+            if (eqFunc(value1, value2)) AssertionPassed(AssertionTriple(assertion.name, assertion.context, assertion.location))
             else AssertionFailed(AssertionError(assertion, testable.difference.diff(value1, value2)))
 
           }.fold(t => AssertionThrew(AssertionThrow(assertion.name, t, assertion.location)), identity _)
@@ -62,7 +62,7 @@ object Boon {
           }
 
           results.fail.fold[AssertionResult]({
-            val passed = results.pass.map(ar => CompositePass(assertionNameFromResult(ar)))
+            val passed = results.pass.map(ar => CompositePass(AssertionResult.assertionNameFromResult(ar)))
             CompositeAssertionAllPassed(assertion.name, NonEmptySeq.nes(passed.head, passed.tail:_*))
           })({ failure =>
               val failed = failure match {
@@ -71,7 +71,7 @@ object Boon {
                 case caf: CompositeAssertionFailed => caf.value.failed
               }
 
-              val passed = results.pass.map(ar => CompositePass(assertionNameFromResult(ar)))
+              val passed = results.pass.map(ar => CompositePass(AssertionResult.assertionNameFromResult(ar)))
               val notRun = results.notRun.map(assertion => CompositeNotRun(Assertion.assertionName(assertion)))
               CompositeAssertionFirstFailed(FirstFailed(assertion.name, failed, passed, notRun))
           })
@@ -115,14 +115,6 @@ object Boon {
     }
 
    failedOp.fold[Passable](Passed)(_ => Failed)
-  }
-
-  def assertionNameFromResult(ar: AssertionResult): AssertionName = ar match {
-    case AssertionPassed(assertion) => Assertion.assertionName(assertion)
-    case AssertionFailed(AssertionError(assertion, _)) => Assertion.assertionName(assertion)
-    case AssertionThrew(AssertionThrow(name, _, _)) => name
-    case CompositeAssertionAllPassed(name, _) => name
-    case CompositeAssertionFirstFailed(FirstFailed(name, _, _, _)) => name
   }
 }
 

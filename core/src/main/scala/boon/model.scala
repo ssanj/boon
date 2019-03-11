@@ -18,6 +18,16 @@ final case class Defer[A](value: () => A) {
   def run(): A = value()
 }
 
+final case class AssertionTriple(name: AssertionName, context: Map[String, String], location: SourceLocation)
+
+object AssertionTriple {
+
+  def from(assertion: Assertion): AssertionTriple = assertion match {
+    case SingleAssertion(name, _, context, location) => AssertionTriple(name, context, location)
+    case CompositeAssertion(name, _, context, location) => AssertionTriple(name, context, location)
+  }
+}
+
 final case class AssertionName(value: String)
 
 sealed trait Assertion
@@ -51,6 +61,16 @@ final case class CompositeAssertionFailed(value: FirstFailed) extends AssertionF
 
 sealed trait AssertionResult extends Product with Serializable
 
+object AssertionResult {
+  def assertionNameFromResult(ar: AssertionResult): AssertionName = ar match {
+    case AssertionPassed(AssertionTriple(name, _, _)) => name
+    case AssertionFailed(AssertionError(assertion, _)) => Assertion.assertionName(assertion)
+    case AssertionThrew(AssertionThrow(name, _, _)) => name
+    case CompositeAssertionAllPassed(name, _) => name
+    case CompositeAssertionFirstFailed(FirstFailed(name, _, _, _)) => name
+  }
+}
+
 final case class CompositeNotRun(name: AssertionName)
 final case class CompositePass(name: AssertionName)
 final case class CompositeFail(value: AssertionError)
@@ -58,7 +78,7 @@ final case class CompositeThrew(value: AssertionThrow)
 
 final case class CompositeAssertionAllPassed(name: AssertionName, pass: NonEmptySeq[CompositePass]) extends AssertionResult
 final case class CompositeAssertionFirstFailed(value: FirstFailed) extends AssertionResult
-final case class AssertionPassed(assertion: Assertion) extends AssertionResult
+final case class AssertionPassed(value: AssertionTriple) extends AssertionResult
 final case class AssertionFailed(value: AssertionError) extends AssertionResult
 final case class AssertionThrew(value: AssertionThrow) extends AssertionResult
 
