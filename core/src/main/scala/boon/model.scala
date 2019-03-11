@@ -43,6 +43,11 @@ object Assertion {
   }
 }
 
+sealed trait AssertionFailure
+final case class SingleAssertionFailed(value: AssertionError) extends AssertionFailure
+final case class SingleAssertionThrew(name: AssertionName, value: Throwable, location: SourceLocation) extends AssertionFailure
+final case class CompositeAssertionFailed(name: AssertionName, failed: Either[CompositeFail, CompositeThrew], passed: Seq[CompositePass], notRun: Seq[CompositeNotRun]) extends AssertionFailure
+
 sealed trait AssertionResult extends Product with Serializable
 
 final case class CompositeNotRun(name: AssertionName)
