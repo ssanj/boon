@@ -1,4 +1,5 @@
 package boon
+package model
 
 //This may not need to be a typeclass.
 trait Difference[A] {

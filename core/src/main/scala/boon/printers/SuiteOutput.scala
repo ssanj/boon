@@ -11,8 +11,10 @@ package printers
 //    - assertion2 [/]
 //
 
-import Boon.suiteResultToPassable
-import Boon.testResultToPassable
+import boon.model._
+import boon.model.TestResult.testResultToPassable
+import boon.model.SuiteResult.suiteResultToPassable
+
 
 final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], pass: Passable)
 final case class TestOutput(name: String, assertions: NonEmptySeq[AssertionOutput], pass: Passable)

@@ -1,4 +1,6 @@
 package boon
+package model
+
 
 trait StringRep[A] {
   def strRep(a: A): String

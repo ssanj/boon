@@ -3,6 +3,8 @@ package printers
 
 import scala.compat.Platform.EOL
 
+import boon.model.Failed
+import boon.model.Passed
 
 object SimplePrinter {
 

@@ -1,22 +1,5 @@
 package boon
-
-sealed trait Passable
-case object Passed extends Passable
-case object Failed extends Passable
-
-object Passable {
-  def hasPassed(passable: Passable): Boolean = passable == Passed
-
-  def hasFailed(passable: Passable): Boolean = !hasPassed(passable)
-}
-
-final case class Defer[A](value: () => A) {
-  def map[B](f: A => B): Defer[B] = Defer(() => f(value()))
-
-  def flatMap[B](f: A => Defer[B]): Defer[B] = Defer(() => f(value()).value())
-
-  def run(): A = value()
-}
+package model
 
 final case class AssertionTriple(name: AssertionName, context: Map[String, String], location: SourceLocation)
 
@@ -69,6 +52,15 @@ object AssertionResult {
     case CompositeAssertionResult(AllPassed(name, _)) => name
     case CompositeAssertionResult(StoppedOnFirstFailed(FirstFailed(name, _, _, _))) => name
   }
+
+  def assertionResultToPassable(ar: AssertionResult): Passable = ar match {
+    case SingleAssertionResult(_: AssertionPassed)         => Passed
+    case SingleAssertionResult(_: AssertionFailed)         => Failed
+    case SingleAssertionResult(_: AssertionThrew )         => Failed
+    case CompositeAssertionResult(_: AllPassed)            => Passed
+    case CompositeAssertionResult(_: StoppedOnFirstFailed) => Failed
+  }
+
 }
 
 final case class CompositeNotRun(name: AssertionName)
@@ -88,35 +80,11 @@ final case class AssertionThrew(value: AssertionThrow) extends SingleAssertionSt
 final case class SingleAssertionResult(value: SingleAssertionState) extends AssertionResult
 final case class CompositeAssertionResult(value: CompositeAssertionResultState) extends AssertionResult
 
-final case class TestName(value: String)
-final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion])
-final case class TestResult(test: DeferredTest, assertionResults: NonEmptySeq[AssertionResult])
-
-final case class SuiteName(value: String)
-final case class DeferredSuite(name: SuiteName, tests: NonEmptySeq[DeferredTest])
-final case class SuiteResult(suite: DeferredSuite, testResults: NonEmptySeq[TestResult])
-
-sealed trait EqualityType
-case object IsEqual extends EqualityType
-case object IsNotEqual extends EqualityType
-
-object EqualityType {
-  final case class FoldSyntax(et: EqualityType) {
-    def fold[A](isNotEqual: => A, isEqual: => A): A = et match {
-      case IsEqual    => isEqual
-      case IsNotEqual => isNotEqual
-    }
-  }
-
-  implicit def foldEqualityType(et: EqualityType): FoldSyntax = FoldSyntax(et)
-}
-
-sealed trait FailableAssertion
-final case class FailedAssertion(reason: String) extends FailableAssertion
-object PassedAssertion extends FailableAssertion
-
 sealed trait AssertionCombinator
 case object Independent extends AssertionCombinator
 case object Sequential extends AssertionCombinator
 
+sealed trait FailableAssertion
+final case class FailedAssertion(reason: String) extends FailableAssertion
+object PassedAssertion extends FailableAssertion
 

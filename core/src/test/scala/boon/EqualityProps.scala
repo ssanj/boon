@@ -1,5 +1,7 @@
 package boon
 
+import boon.model.Equality
+import boon.model.FailableAssertion
 import org.scalacheck.Properties
 import org.scalacheck._
 import Prop.forAll

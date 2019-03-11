@@ -1,6 +1,14 @@
 package boon
 package syntax
 
+import boon.model.Assertion
+import boon.model.Defer
+import boon.model.Equality
+import boon.model.EqualityType
+import boon.model.IsEqual
+import boon.model.IsNotEqual
+import boon.model.StringRep
+import boon.model.Difference
 import Boon.defineAssertion
 import Boon.defineAssertionWithContext
 import Boon.defineCompositeAssertion
@@ -43,10 +51,10 @@ final class EqSyntax[A](value1: => A) {
 }
 
 final class DescSyntax[A](pair: (Defer[A], Defer[A]), equalityType: EqualityType) {
-  def |(name: => String)(implicit E: boon.Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax =
+  def |(name: => String)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax =
     new ContinueSyntax(NonEmptySeq.nes(defineAssertion[A](name, (pair), equalityType)))
 
-  def |#(name: => String, ctx: (String, String)*)(implicit E: boon.Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax =
+  def |#(name: => String, ctx: (String, String)*)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax =
     new ContinueSyntax(NonEmptySeq.nes(defineAssertionWithContext[A](name, (pair), equalityType, Map(ctx:_*))))
 }
 

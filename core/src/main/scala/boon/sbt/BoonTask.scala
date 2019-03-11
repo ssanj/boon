@@ -7,11 +7,11 @@ import sbt.testing.Logger
 import sbt.testing.Status
 
 import boon.Boon
-import boon.Failed
-import boon.Passed
+import boon.model.Failed
+import boon.model.Passed
 import boon.printers.ColourOutput
 import boon.printers.SuiteOutput
-import boon.SuiteResult
+import boon.model.SuiteResult
 
 import boon.sbt.Event.createEvent
 import boon.sbt.Event.createErrorEvent
@@ -49,7 +49,7 @@ final class BoonTask(val taskDef: TaskDef,
   }
 
   private def suiteResultToStatus(sr: SuiteResult): Status =
-    Boon.suiteResultToPassable(sr) match {
+    SuiteResult.suiteResultToPassable(sr) match {
       case Passed => Status.Success
       case Failed => Status.Failure
     }

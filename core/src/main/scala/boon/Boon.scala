@@ -1,5 +1,7 @@
 package boon
 
+import boon.model._
+
 import scala.util.Try
 
 object Boon {
@@ -89,32 +91,6 @@ object Boon {
   def runSuite(dSuite: DeferredSuite): SuiteResult = {
     val testResults = dSuite.tests.map(runTest)
     SuiteResult(dSuite, testResults)
-  }
-
-  def assertionResultToPassable(ar: AssertionResult): Passable = ar match {
-    case SingleAssertionResult(_: AssertionPassed)         => Passed
-    case SingleAssertionResult(_: AssertionFailed)         => Failed
-    case SingleAssertionResult(_: AssertionThrew )         => Failed
-    case CompositeAssertionResult(_: AllPassed)            => Passed
-    case CompositeAssertionResult(_: StoppedOnFirstFailed) => Failed
-  }
-
-  def testResultToPassable(tr: TestResult): Passable = {
-    val failedOp = tr.assertionResults.map(assertionResultToPassable).find {
-      case Failed => true
-      case Passed => false
-    }
-
-    failedOp.fold[Passable](Passed)(_ => Failed)
-  }
-
-  def suiteResultToPassable(sr: SuiteResult): Passable = {
-    val failedOp = sr.testResults.map(testResultToPassable).find {
-      case Failed => true
-      case Passed => false
-    }
-
-   failedOp.fold[Passable](Passed)(_ => Failed)
   }
 }
 

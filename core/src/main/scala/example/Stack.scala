@@ -1,9 +1,9 @@
 package example
 
 import _root_.boon.NonEmptySeq
-import _root_.boon.Equality
-import _root_.boon.Difference
-import _root_.boon.StringRep
+import _root_.boon.model.Equality
+import _root_.boon.model.Difference
+import _root_.boon.model.StringRep
 
 class Stack[A](private var internal: NonEmptySeq[A]) {
   def push(value: A): Stack[A] = new Stack[A](internal.prepend(value))

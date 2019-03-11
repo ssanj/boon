@@ -1,4 +1,5 @@
 package boon
+package model
 
 trait Testable {
   type Actual

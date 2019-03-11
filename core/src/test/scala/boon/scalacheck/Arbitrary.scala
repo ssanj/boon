@@ -1,6 +1,8 @@
 package boon.scalacheck
 
-import boon._
+import boon.model.FailableAssertion
+import boon.model.FailedAssertion
+import boon.model.PassedAssertion
 import org.scalacheck._
 import Arbitrary.arbitrary
 

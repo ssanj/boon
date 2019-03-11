@@ -1,5 +1,7 @@
 package object boon {
 
+import boon.model._
+
 import syntax.toStrRep
 
   def test(name: => String)(assertions: NonEmptySeq[Assertion]): DeferredTest = DeferredTest(TestName(name), assertions)

@@ -1,5 +1,7 @@
 package boon
 
+import boon.model._
+
 package object syntax {
 
   implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)

@@ -1,4 +1,6 @@
 package boon
+package model
+
 
 trait Equality[A] {
 
