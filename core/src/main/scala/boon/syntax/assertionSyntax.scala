@@ -3,6 +3,7 @@ package syntax
 
 import Boon.defineAssertion
 import Boon.defineAssertionWithContext
+import Boon.defineCompositeAssertion
 
 import scala.util.Try
 import scala.reflect.ClassTag
@@ -53,5 +54,9 @@ final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
     def &(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
 
     def and(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
+
+    def seq(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): ContinueSyntax = ContinueSyntax(
+      NonEmptySeq.nes(defineCompositeAssertion(name, assertions, Map(ctx:_*), loc))
+    )
 }
 

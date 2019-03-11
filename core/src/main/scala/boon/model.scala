@@ -4,6 +4,12 @@ sealed trait Passable
 case object Passed extends Passable
 case object Failed extends Passable
 
+object Passable {
+  def hasPassed(passable: Passable): Boolean = passable == Passed
+
+  def hasFailed(passable: Passable): Boolean = !hasPassed(passable)
+}
+
 final case class Defer[A](value: () => A) {
   def map[B](f: A => B): Defer[B] = Defer(() => f(value()))
 
@@ -13,10 +19,39 @@ final case class Defer[A](value: () => A) {
 }
 
 final case class AssertionName(value: String)
-final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], location: SourceLocation)
+
+sealed trait Assertion
+final case class SingleAssertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], location: SourceLocation) extends Assertion
+final case class CompositeAssertion(name: AssertionName, assertions: NonEmptySeq[Assertion], context: Map[String, String], location: SourceLocation) extends Assertion
+// final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], location: SourceLocation)
 final case class AssertionError(assertion: Assertion, error: String)
 
+object Assertion {
+  def assertionName(assertion: Assertion): AssertionName = assertion match {
+    case SingleAssertion(name, _, _, _)    => name
+    case CompositeAssertion(name, _, _, _) => name
+  }
+
+  def assertionContext(assertion: Assertion): Map[String, String] = assertion match {
+    case SingleAssertion(_, _, ctx, _)    => ctx
+    case CompositeAssertion(_, _, ctx, _) => ctx
+  }
+
+  def assertionLocation(assertion: Assertion): SourceLocation = assertion match {
+    case SingleAssertion(_, _, _, loc)    => loc
+    case CompositeAssertion(_, _, _, loc) => loc
+  }
+}
+
 sealed trait AssertionResult extends Product with Serializable
+
+final case class CompositePass(name: AssertionName)
+final case class CompositeFail(value: AssertionError)
+final case class CompositeThrew(thrownFrom: AssertionName, value: Throwable, location: SourceLocation)
+
+final case class CompositeAssertionAllPassed(name: AssertionName, pass: NonEmptySeq[CompositePass]) extends AssertionResult
+final case class CompositeAssertionFirstFailed(name: AssertionName, failed: Either[CompositeFail, CompositeThrew], passed: Seq[CompositePass]) extends AssertionResult
+
 final case class AssertionPassed(assertion: Assertion) extends AssertionResult
 final case class AssertionFailed(value: AssertionError) extends AssertionResult
 final case class AssertionThrew(name: AssertionName, value: Throwable, location: SourceLocation) extends AssertionResult
@@ -47,4 +82,9 @@ object EqualityType {
 sealed trait FailableAssertion
 final case class FailedAssertion(reason: String) extends FailableAssertion
 object PassedAssertion extends FailableAssertion
+
+sealed trait AssertionCombinator
+case object Independent extends AssertionCombinator
+case object Sequential extends AssertionCombinator
+
 

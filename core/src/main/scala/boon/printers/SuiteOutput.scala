@@ -17,16 +17,27 @@ import Boon.testResultToPassable
 final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], pass: Passable)
 final case class TestOutput(name: String, assertions: NonEmptySeq[AssertionOutput], pass: Passable)
 
+final case class CompositePassData(name: String)
+final case class CompositeFailData(name: String, error: String, context: Map[String, String], location: Option[String])
 sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
 final case class FailedOutput(name: String, error: String, context: Map[String, String], location: Option[String]) extends AssertionOutput
+final case class CompositePassedOutput(name: String, passed: NonEmptySeq[CompositePassData]) extends AssertionOutput
+//There should be only a single failure not a NES.
+final case class CompositeFailedOutput(name: String, failed: CompositeFailData, passed: Seq[CompositePassData]) extends AssertionOutput
+
 
 object AssertionOutput {
 
   final case class FoldSyntax(ao: AssertionOutput) {
-    def fold[A](failed: (String, String, Map[String, String], Option[String]) => A, passed: String => A): A = ao match {
+    def fold[A](failed: (String, String, Map[String, String], Option[String]) => A,
+                passed: String => A,
+                compositePassed: (String, NonEmptySeq[CompositePassData]) => A,
+                compositeFailed: (String, CompositeFailData, Seq[CompositePassData]) => A): A = ao match {
       case PassedOutput(name) => passed(name)
       case FailedOutput(name, error, context, loc) => failed(name, error, context, loc)
+      case CompositePassedOutput(name, passed) => compositePassed(name, passed)
+      case CompositeFailedOutput(name, failed, passed) => compositeFailed(name, failed, passed)
     }
   }
 
@@ -38,11 +49,27 @@ object SuiteOutput {
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
       val assertionOutputs = tr.assertionResults.map {
-        case AssertionPassed(Assertion(AssertionName(name), _, _, _)) => PassedOutput(name)
-        case AssertionFailed(AssertionError(Assertion(AssertionName(name), _, ctx, loc), error)) =>
+        case AssertionPassed(SingleAssertion(AssertionName(name), _, _, _)) => PassedOutput(name)
+        case AssertionPassed(CompositeAssertion(AssertionName(name), _, _, _)) => PassedOutput(name) //make this different
+        case AssertionFailed(AssertionError(SingleAssertion(AssertionName(name), _, ctx, loc), error)) =>
           FailedOutput(name, error, ctx, sourceLocation(loc))
+        case AssertionFailed(AssertionError(CompositeAssertion(AssertionName(name), _, ctx, loc), error)) =>
+          FailedOutput(name, error, ctx, sourceLocation(loc))
+
         case AssertionThrew(AssertionName(name), error, loc) =>
           FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
+
+        case CompositeAssertionAllPassed(AssertionName(name), passed) => CompositePassedOutput(name, passed.map(an => CompositePassData(an.name.value)))
+        case CompositeAssertionFirstFailed(AssertionName(name), failed,  passed) =>
+            val failedData =
+              failed.fold[CompositeFailData]({
+                case CompositeFail(AssertionError(SingleAssertion(AssertionName(name1), _, ctx, loc), error)) =>
+                  CompositeFailData(name1, error, ctx, sourceLocation(loc))
+                case CompositeFail(AssertionError(CompositeAssertion(AssertionName(name1), _, ctx, loc), error)) =>
+                  CompositeFailData(name1, error, ctx, sourceLocation(loc))
+                }, ct => CompositeFailData(ct.thrownFrom.value, ct.value.getMessage, Map.empty[String, String], sourceLocation(ct.location))
+              )
+            CompositeFailedOutput(name, failedData, passed.map(an => CompositePassData(an.name.value)))
       }
 
       TestOutput(tr.test.name.value, assertionOutputs, testResultToPassable(tr))
@@ -52,8 +79,10 @@ object SuiteOutput {
   }
 
   def assertionName(ao: AssertionOutput): String = ao match {
-    case PassedOutput(name) => name
-    case FailedOutput(name, _, _, _) => name
+    case PassedOutput(name)                => name
+    case FailedOutput(name, _, _, _)       => name
+    case CompositePassedOutput(name, _)    => name
+    case CompositeFailedOutput(name, _, _) => name
   }
 
   def sourceLocation(loc: SourceLocation): Option[String] =

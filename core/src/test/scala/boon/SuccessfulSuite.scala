@@ -28,7 +28,7 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
         val assertions2 = test2.assertions.toSeq
         assertions2.length =?= 1 | "no of test2.assertions" and
         SuiteOutput.assertionName(assertions2(0)) =?= "Hola" | "test2.assertion2.name"
-      }
+      } seq("test2", "test2" -> test.toString)
     }
   }
 
