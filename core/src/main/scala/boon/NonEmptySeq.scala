@@ -29,6 +29,9 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def append(last: A): NonEmptySeq[A] = NonEmptySeq[A](head, tail :+ last)
 
+  def foldLeft[B](z: B)(f:(B, A) => B): B =
+    tail.foldLeft(f(z, head))(f)
+
   def partition[B, C](f: A => Either[B, C]): These[NonEmptySeq[B], NonEmptySeq[C]] = {
     val eitherSeq: NonEmptySeq[Either[B, C]] = self.map(f).reverse
 

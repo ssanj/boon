@@ -49,9 +49,8 @@ object Boon {
         case assertion: CompositeAssertion =>
           val init = ResultCollector(pass = Vector.empty[AssertionResult], fail = None, notRun = Vector.empty[Assertion])
 
-          val results = assertion.assertions.toSeq.foldLeft(init){ (acc, a1) =>
-            if (acc.fail.nonEmpty) acc.copy(notRun = acc.notRun :+ a1) //fail on the first error
-            else {
+          val results = assertion.assertions.foldLeft(init){ (acc, a1) =>
+            acc.fail.fold({
               val a1Result = runAssertion(a1)
               a1Result match {
                 case (_: AssertionPassed | _: CompositeAssertionAllPassed) => acc.copy(pass = acc.pass :+ a1Result)
@@ -59,14 +58,13 @@ object Boon {
                 case at: AssertionThrew  => acc.copy(fail = Some(SingleAssertionThrew(at.name, at.value, at.location)))
                 case caff: CompositeAssertionFirstFailed => acc.copy(fail = Some(CompositeAssertionFailed(caff.name, caff.failed, caff.passed, caff.notRun)))
               }
-            }
+            })(_ => acc.copy(notRun = acc.notRun :+ a1))
           }
 
-          results.fail match {
-            case None =>
-              val passed = results.pass.map(ar => CompositePass(assertionNameFromResult(ar)))
-              CompositeAssertionAllPassed(assertion.name, NonEmptySeq.nes(passed.head, passed.tail:_*))
-            case Some(failure) =>
+          results.fail.fold[AssertionResult]({
+            val passed = results.pass.map(ar => CompositePass(assertionNameFromResult(ar)))
+            CompositeAssertionAllPassed(assertion.name, NonEmptySeq.nes(passed.head, passed.tail:_*))
+          })({ failure =>
               val failed = failure match {
                 case saf : SingleAssertionFailed => Left[CompositeFail, CompositeThrew](CompositeFail(saf.value))
                 case sat : SingleAssertionThrew  => Right[CompositeFail, CompositeThrew](CompositeThrew(sat.name, sat.value, sat.location))
@@ -76,7 +74,7 @@ object Boon {
               val passed = results.pass.map(ar => CompositePass(assertionNameFromResult(ar)))
               val notRun = results.notRun.map(assertion => CompositeNotRun(Assertion.assertionName(assertion)))
               CompositeAssertionFirstFailed(assertion.name, failed, passed, notRun)
-          }
+          })
       }
   }
 
