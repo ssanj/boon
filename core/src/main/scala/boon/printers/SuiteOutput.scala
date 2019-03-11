@@ -61,7 +61,7 @@ object SuiteOutput {
           FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
 
         case CompositeAssertionAllPassed(AssertionName(name), passed) => CompositePassedOutput(name, passed.map(an => CompositePassData(an.name.value)))
-        case CompositeAssertionFirstFailed(AssertionName(name), failed,  passed, notRun) =>
+        case CompositeAssertionFirstFailed(FirstFailed(AssertionName(name), failed,  passed, notRun)) =>
             val failedData =
               failed.fold[CompositeFailData]({
                 case CompositeFail(AssertionError(SingleAssertion(AssertionName(name1), _, ctx, loc), error)) =>

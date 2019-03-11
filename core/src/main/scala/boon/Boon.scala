@@ -56,7 +56,7 @@ object Boon {
                 case (_: AssertionPassed | _: CompositeAssertionAllPassed) => acc.copy(pass = acc.pass :+ a1Result)
                 case af: AssertionFailed => acc.copy(fail = Some(SingleAssertionFailed(af.value)))
                 case at: AssertionThrew  => acc.copy(fail = Some(SingleAssertionThrew(at.value)))
-                case caff: CompositeAssertionFirstFailed => acc.copy(fail = Some(CompositeAssertionFailed(caff.name, caff.failed, caff.passed, caff.notRun)))
+                case caff: CompositeAssertionFirstFailed => acc.copy(fail = Some(CompositeAssertionFailed(caff.value)))
               }
             })(_ => acc.copy(notRun = acc.notRun :+ a1))
           }
@@ -68,12 +68,12 @@ object Boon {
               val failed = failure match {
                 case saf : SingleAssertionFailed => Left[CompositeFail, CompositeThrew](CompositeFail(saf.value))
                 case sat : SingleAssertionThrew  => Right[CompositeFail, CompositeThrew](CompositeThrew(sat.value))
-                case caf: CompositeAssertionFailed => caf.failed
+                case caf: CompositeAssertionFailed => caf.value.failed
               }
 
               val passed = results.pass.map(ar => CompositePass(assertionNameFromResult(ar)))
               val notRun = results.notRun.map(assertion => CompositeNotRun(Assertion.assertionName(assertion)))
-              CompositeAssertionFirstFailed(assertion.name, failed, passed, notRun)
+              CompositeAssertionFirstFailed(FirstFailed(assertion.name, failed, passed, notRun))
           })
       }
   }
@@ -122,7 +122,7 @@ object Boon {
     case AssertionFailed(AssertionError(assertion, _)) => Assertion.assertionName(assertion)
     case AssertionThrew(AssertionThrow(name, _, _)) => name
     case CompositeAssertionAllPassed(name, _) => name
-    case CompositeAssertionFirstFailed(name, _, _, _) => name
+    case CompositeAssertionFirstFailed(FirstFailed(name, _, _, _)) => name
   }
 }
 
