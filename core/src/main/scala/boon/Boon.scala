@@ -41,10 +41,10 @@ object Boon {
 
             val eqFunc = testable.equalityType.fold(testable.equality.neql _, testable.equality.eql _)
 
-            if (eqFunc(value1, value2)) AssertionPassed(AssertionTriple(assertion.name, assertion.context, assertion.location))
-            else AssertionFailed(AssertionError(assertion, testable.difference.diff(value1, value2)))
+            if (eqFunc(value1, value2)) SingleAssertionResult(AssertionPassed(AssertionTriple(assertion.name, assertion.context, assertion.location)))
+            else SingleAssertionResult(AssertionFailed(AssertionError(assertion, testable.difference.diff(value1, value2))))
 
-          }.fold(t => AssertionThrew(AssertionThrow(assertion.name, t, assertion.location)), identity _)
+          }.fold(t => SingleAssertionResult(AssertionThrew(AssertionThrow(assertion.name, t, assertion.location))), identity _)
 
         case assertion: CompositeAssertion =>
           val init = ResultCollector(pass = Vector.empty[AssertionResult], fail = None, notRun = Vector.empty[Assertion])
@@ -52,18 +52,19 @@ object Boon {
           val results = assertion.assertions.foldLeft(init){ (acc, a1) =>
             acc.fail.fold({
               val a1Result = runAssertion(a1)
-              a1Result match {
-                case (_: AssertionPassed | _: CompositeAssertionAllPassed) => acc.copy(pass = acc.pass :+ a1Result)
-                case af: AssertionFailed => acc.copy(fail = Some(SingleAssertionFailed(af.value)))
-                case at: AssertionThrew  => acc.copy(fail = Some(SingleAssertionThrew(at.value)))
-                case caff: CompositeAssertionFirstFailed => acc.copy(fail = Some(CompositeAssertionFailed(caff.value)))
+              a1Result match { //do we need to create separate types given that we have separate Single/Composite types?
+                case SingleAssertionResult(_: AssertionPassed) => acc.copy(pass = acc.pass :+ a1Result)
+                case CompositeAssertionResult(_: AllPassed) => acc.copy(pass = acc.pass :+ a1Result)
+                case SingleAssertionResult(af: AssertionFailed) => acc.copy(fail = Some(SingleAssertionFailed(af.value)))
+                case SingleAssertionResult(at: AssertionThrew)  => acc.copy(fail = Some(SingleAssertionThrew(at.value)))
+                case CompositeAssertionResult(caff: StoppedOnFirstFailed) => acc.copy(fail = Some(CompositeAssertionFailed(caff.value)))
               }
             })(_ => acc.copy(notRun = acc.notRun :+ a1))
           }
 
           results.fail.fold[AssertionResult]({
             val passed = results.pass.map(ar => CompositePass(AssertionResult.assertionNameFromResult(ar)))
-            CompositeAssertionAllPassed(assertion.name, NonEmptySeq.nes(passed.head, passed.tail:_*))
+            CompositeAssertionResult(AllPassed(assertion.name, NonEmptySeq.nes(passed.head, passed.tail:_*)))
           })({ failure =>
               val failed = failure match {
                 case saf : SingleAssertionFailed => Left[CompositeFail, CompositeThrew](CompositeFail(saf.value))
@@ -73,7 +74,7 @@ object Boon {
 
               val passed = results.pass.map(ar => CompositePass(AssertionResult.assertionNameFromResult(ar)))
               val notRun = results.notRun.map(assertion => CompositeNotRun(Assertion.assertionName(assertion)))
-              CompositeAssertionFirstFailed(FirstFailed(assertion.name, failed, passed, notRun))
+              CompositeAssertionResult(StoppedOnFirstFailed(FirstFailed(assertion.name, failed, passed, notRun)))
           })
       }
   }
@@ -91,12 +92,11 @@ object Boon {
   }
 
   def assertionResultToPassable(ar: AssertionResult): Passable = ar match {
-    case _: AssertionPassed => Passed
-    case _: AssertionFailed => Failed
-    case _: AssertionThrew  => Failed
-    case _: CompositeAssertionAllPassed => Passed
-    case _: CompositeAssertionFirstFailed => Failed
-
+    case SingleAssertionResult(_: AssertionPassed)         => Passed
+    case SingleAssertionResult(_: AssertionFailed)         => Failed
+    case SingleAssertionResult(_: AssertionThrew )         => Failed
+    case CompositeAssertionResult(_: AllPassed)            => Passed
+    case CompositeAssertionResult(_: StoppedOnFirstFailed) => Failed
   }
 
   def testResultToPassable(tr: TestResult): Passable = {

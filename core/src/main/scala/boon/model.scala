@@ -63,11 +63,11 @@ sealed trait AssertionResult extends Product with Serializable
 
 object AssertionResult {
   def assertionNameFromResult(ar: AssertionResult): AssertionName = ar match {
-    case AssertionPassed(AssertionTriple(name, _, _)) => name
-    case AssertionFailed(AssertionError(assertion, _)) => Assertion.assertionName(assertion)
-    case AssertionThrew(AssertionThrow(name, _, _)) => name
-    case CompositeAssertionAllPassed(name, _) => name
-    case CompositeAssertionFirstFailed(FirstFailed(name, _, _, _)) => name
+    case SingleAssertionResult(AssertionPassed(AssertionTriple(name, _, _))) => name
+    case SingleAssertionResult(AssertionFailed(AssertionError(assertion, _))) => Assertion.assertionName(assertion)
+    case SingleAssertionResult(AssertionThrew(AssertionThrow(name, _, _))) => name
+    case CompositeAssertionResult(AllPassed(name, _)) => name
+    case CompositeAssertionResult(StoppedOnFirstFailed(FirstFailed(name, _, _, _))) => name
   }
 }
 
@@ -76,11 +76,17 @@ final case class CompositePass(name: AssertionName)
 final case class CompositeFail(value: AssertionError)
 final case class CompositeThrew(value: AssertionThrow)
 
-final case class CompositeAssertionAllPassed(name: AssertionName, pass: NonEmptySeq[CompositePass]) extends AssertionResult
-final case class CompositeAssertionFirstFailed(value: FirstFailed) extends AssertionResult
-final case class AssertionPassed(value: AssertionTriple) extends AssertionResult
-final case class AssertionFailed(value: AssertionError) extends AssertionResult
-final case class AssertionThrew(value: AssertionThrow) extends AssertionResult
+sealed trait CompositeAssertionResultState
+final case class AllPassed(name: AssertionName, pass: NonEmptySeq[CompositePass]) extends CompositeAssertionResultState
+final case class StoppedOnFirstFailed(value: FirstFailed) extends CompositeAssertionResultState
+
+sealed trait SingleAssertionState
+final case class AssertionPassed(value: AssertionTriple) extends SingleAssertionState
+final case class AssertionFailed(value: AssertionError) extends SingleAssertionState
+final case class AssertionThrew(value: AssertionThrow) extends SingleAssertionState
+
+final case class SingleAssertionResult(value: SingleAssertionState) extends AssertionResult
+final case class CompositeAssertionResult(value: CompositeAssertionResultState) extends AssertionResult
 
 final case class TestName(value: String)
 final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion])

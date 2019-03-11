@@ -50,17 +50,17 @@ object SuiteOutput {
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
       val assertionOutputs = tr.assertionResults.map {
-        case AssertionPassed(AssertionTriple(AssertionName(name), _, _)) => PassedOutput(name)
-        case AssertionFailed(AssertionError(SingleAssertion(AssertionName(name), _, ctx, loc), error)) =>
+        case SingleAssertionResult(AssertionPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
+        case SingleAssertionResult(AssertionFailed(AssertionError(SingleAssertion(AssertionName(name), _, ctx, loc), error))) =>
           FailedOutput(name, error, ctx, sourceLocation(loc))
-        case AssertionFailed(AssertionError(CompositeAssertion(AssertionName(name), _, ctx, loc), error)) =>
+        case SingleAssertionResult(AssertionFailed(AssertionError(CompositeAssertion(AssertionName(name), _, ctx, loc), error))) =>
           FailedOutput(name, error, ctx, sourceLocation(loc))
 
-        case AssertionThrew(AssertionThrow(AssertionName(name), error, loc)) =>
+        case SingleAssertionResult(AssertionThrew(AssertionThrow(AssertionName(name), error, loc))) =>
           FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
 
-        case CompositeAssertionAllPassed(AssertionName(name), passed) => CompositePassedOutput(name, passed.map(an => CompositePassData(an.name.value)))
-        case CompositeAssertionFirstFailed(FirstFailed(AssertionName(name), failed,  passed, notRun)) =>
+        case CompositeAssertionResult(AllPassed(AssertionName(name), passed)) => CompositePassedOutput(name, passed.map(an => CompositePassData(an.name.value)))
+        case CompositeAssertionResult(StoppedOnFirstFailed(FirstFailed(AssertionName(name), failed,  passed, notRun))) =>
             val failedData =
               failed.fold[CompositeFailData]({
                 case CompositeFail(AssertionError(SingleAssertion(AssertionName(name1), _, ctx, loc), error)) =>
