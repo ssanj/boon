@@ -53,23 +53,23 @@ object SimplePrinter {
       } else baseError
 
     case CompositePassedOutput(name, passed) =>
-      val compositePasses = passed.map(pa => s"${ps.assertion.padding + 2} - ${pa.name} ${ps.assertion.tokens.passed}").toSeq.mkString(EOL)
+      val compositePasses = passed.map(pa => s"${ps.assertion.compositePadding} - ${pa.name} ${ps.assertion.tokens.passed}").toSeq.mkString(EOL)
       s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.passed}${EOL}${compositePasses}"
 
     case CompositeFailedOutput(name, CompositeFailData(failedName, error, ctx, loc), passed) =>
       val location = loc.fold("")(l => s"[$l]")
 
-      val compositeAssertion = s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.failed}${EOL}"
+      val compositeAssertion = s"${ps.assertion.padding} >> ${name} ${ps.assertion.tokens.failed}${EOL}"
 
-      val failedAssertion = s"${ps.assertion.padding + 2} - ${failedName} ${ps.assertion.tokens.failed}${EOL}"
+      val failedAssertion = s"${ps.assertion.compositePadding} - ${failedName} ${ps.assertion.tokens.failed}${EOL}"
 
-      val compositePasses = passed.map(pa => s"${ps.assertion.padding + 2} - ${pa.name} ${ps.assertion.tokens.passed}").toSeq.mkString(EOL)
+      val compositePasses = passed.map(pa => s"${ps.assertion.compositePadding} - ${pa.name} ${ps.assertion.tokens.passed}").toSeq.mkString(EOL)
 
       val baseError =
-        s"${compositeAssertion}${EOL}" +
-        s"${compositePasses}${EOL}" +
-        s"${failedAssertion}${EOL}" +
-        s"${ps.assertion.failedPadding + 2} ${ps.colourError(s"=> ${error}")} ${location}"
+        s"${compositeAssertion}" +
+        s"${compositePasses}" +
+        s"${failedAssertion}" +
+        s"${ps.assertion.compositeFailedPadding} ${ps.colourError(s"=> ${error}")} ${location}"
 
       if (ctx.nonEmpty) {
         s"${baseError}${EOL}" +

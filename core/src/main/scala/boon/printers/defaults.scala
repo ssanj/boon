@@ -24,7 +24,9 @@ final case class TestPrinterSettings(tokens: Tokens, padding: String, colour: St
 final case class AssertionPrinterSettings(
   tokens: Tokens,
   padding: String,
+  compositePadding: String,
   failedPadding: String,
+  compositeFailedPadding: String,
   failedContextPadding: String,
   failedContextElementPadding: String
 )
@@ -57,7 +59,9 @@ object PrinterSetting {
         tokens = Tokens(colourise(green(showColours), "[✓]"),
                         colourise(red(showColours), "[✗]")),
         padding = " " * 2,
+        compositePadding = " " * 4,
         failedPadding = " " * 4,
+        compositeFailedPadding = " " * 6,
         failedContextPadding = " " * 7,
         failedContextElementPadding = " " * 10
       )

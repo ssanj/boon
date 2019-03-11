@@ -17,8 +17,8 @@ object StackSuite extends SuiteLike("NonEmptyStack"){
     {
       val pop3 = stack3.pop()
 
-      pop3._1 =?= 2            | "pop3 returns 2 as value"     and
-      pop3._2 =?= Some(stack2) | "pop3 returns stack2 as stack"
+      pop3._1 =?= 3            | "pop3 returns 2 as value"     and
+      pop3._2 =?= Some(stack2) | "pop3 returns stack2 as stack" seq("pop3 stuff")
 
     } and
     stack2.pop()._1  =?= 1                       | "popping stack2 returns 1 as value" and
