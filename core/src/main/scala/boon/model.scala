@@ -25,6 +25,7 @@ final case class SingleAssertion(name: AssertionName, testable: Defer[Testable],
 final case class CompositeAssertion(name: AssertionName, assertions: NonEmptySeq[Assertion], context: Map[String, String], location: SourceLocation) extends Assertion
 // final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], location: SourceLocation)
 final case class AssertionError(assertion: Assertion, error: String)
+final case class AssertionThrow(name: AssertionName, value: Throwable, location: SourceLocation)
 
 object Assertion {
   def assertionName(assertion: Assertion): AssertionName = assertion match {
@@ -45,7 +46,7 @@ object Assertion {
 
 sealed trait AssertionFailure
 final case class SingleAssertionFailed(value: AssertionError) extends AssertionFailure
-final case class SingleAssertionThrew(name: AssertionName, value: Throwable, location: SourceLocation) extends AssertionFailure
+final case class SingleAssertionThrew(value: AssertionThrow) extends AssertionFailure
 final case class CompositeAssertionFailed(name: AssertionName, failed: Either[CompositeFail, CompositeThrew], passed: Seq[CompositePass], notRun: Seq[CompositeNotRun]) extends AssertionFailure
 
 sealed trait AssertionResult extends Product with Serializable
@@ -53,14 +54,14 @@ sealed trait AssertionResult extends Product with Serializable
 final case class CompositeNotRun(name: AssertionName)
 final case class CompositePass(name: AssertionName)
 final case class CompositeFail(value: AssertionError)
-final case class CompositeThrew(thrownFrom: AssertionName, value: Throwable, location: SourceLocation)
+final case class CompositeThrew(value: AssertionThrow)
 
 final case class CompositeAssertionAllPassed(name: AssertionName, pass: NonEmptySeq[CompositePass]) extends AssertionResult
 final case class CompositeAssertionFirstFailed(name: AssertionName, failed: Either[CompositeFail, CompositeThrew], passed: Seq[CompositePass], notRun: Seq[CompositeNotRun]) extends AssertionResult
 
 final case class AssertionPassed(assertion: Assertion) extends AssertionResult
 final case class AssertionFailed(value: AssertionError) extends AssertionResult
-final case class AssertionThrew(name: AssertionName, value: Throwable, location: SourceLocation) extends AssertionResult
+final case class AssertionThrew(value: AssertionThrow) extends AssertionResult
 
 final case class TestName(value: String)
 final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion])

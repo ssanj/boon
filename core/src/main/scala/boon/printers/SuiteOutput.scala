@@ -57,7 +57,7 @@ object SuiteOutput {
         case AssertionFailed(AssertionError(CompositeAssertion(AssertionName(name), _, ctx, loc), error)) =>
           FailedOutput(name, error, ctx, sourceLocation(loc))
 
-        case AssertionThrew(AssertionName(name), error, loc) =>
+        case AssertionThrew(AssertionThrow(AssertionName(name), error, loc)) =>
           FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
 
         case CompositeAssertionAllPassed(AssertionName(name), passed) => CompositePassedOutput(name, passed.map(an => CompositePassData(an.name.value)))
@@ -68,7 +68,7 @@ object SuiteOutput {
                   CompositeFailData(name1, error, ctx, sourceLocation(loc))
                 case CompositeFail(AssertionError(CompositeAssertion(AssertionName(name1), _, ctx, loc), error)) =>
                   CompositeFailData(name1, error, ctx, sourceLocation(loc))
-                }, ct => CompositeFailData(ct.thrownFrom.value, ct.value.getMessage, Map.empty[String, String], sourceLocation(ct.location))
+                }, ct => CompositeFailData(ct.value.name.value, ct.value.value.getMessage, Map.empty[String, String], sourceLocation(ct.value.location))
               )
             CompositeFailedOutput(name, failedData, passed.map(an => CompositePassData(an.name.value)), notRun.map(an => CompositeNotRunData(an.name.value)))
       }

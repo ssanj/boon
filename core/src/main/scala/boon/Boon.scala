@@ -44,7 +44,7 @@ object Boon {
             if (eqFunc(value1, value2)) AssertionPassed(assertion)
             else AssertionFailed(AssertionError(assertion, testable.difference.diff(value1, value2)))
 
-          }.fold(AssertionThrew(assertion.name, _, assertion.location), identity _)
+          }.fold(t => AssertionThrew(AssertionThrow(assertion.name, t, assertion.location)), identity _)
 
         case assertion: CompositeAssertion =>
           val init = ResultCollector(pass = Vector.empty[AssertionResult], fail = None, notRun = Vector.empty[Assertion])
@@ -55,7 +55,7 @@ object Boon {
               a1Result match {
                 case (_: AssertionPassed | _: CompositeAssertionAllPassed) => acc.copy(pass = acc.pass :+ a1Result)
                 case af: AssertionFailed => acc.copy(fail = Some(SingleAssertionFailed(af.value)))
-                case at: AssertionThrew  => acc.copy(fail = Some(SingleAssertionThrew(at.name, at.value, at.location)))
+                case at: AssertionThrew  => acc.copy(fail = Some(SingleAssertionThrew(at.value)))
                 case caff: CompositeAssertionFirstFailed => acc.copy(fail = Some(CompositeAssertionFailed(caff.name, caff.failed, caff.passed, caff.notRun)))
               }
             })(_ => acc.copy(notRun = acc.notRun :+ a1))
@@ -67,7 +67,7 @@ object Boon {
           })({ failure =>
               val failed = failure match {
                 case saf : SingleAssertionFailed => Left[CompositeFail, CompositeThrew](CompositeFail(saf.value))
-                case sat : SingleAssertionThrew  => Right[CompositeFail, CompositeThrew](CompositeThrew(sat.name, sat.value, sat.location))
+                case sat : SingleAssertionThrew  => Right[CompositeFail, CompositeThrew](CompositeThrew(sat.value))
                 case caf: CompositeAssertionFailed => caf.failed
               }
 
@@ -120,7 +120,7 @@ object Boon {
   def assertionNameFromResult(ar: AssertionResult): AssertionName = ar match {
     case AssertionPassed(assertion) => Assertion.assertionName(assertion)
     case AssertionFailed(AssertionError(assertion, _)) => Assertion.assertionName(assertion)
-    case AssertionThrew(name, _, _) => name
+    case AssertionThrew(AssertionThrow(name, _, _)) => name
     case CompositeAssertionAllPassed(name, _) => name
     case CompositeAssertionFirstFailed(name, _, _, _) => name
   }
