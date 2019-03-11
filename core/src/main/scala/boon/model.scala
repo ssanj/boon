@@ -45,12 +45,13 @@ object Assertion {
 
 sealed trait AssertionResult extends Product with Serializable
 
+final case class CompositeNotRun(name: AssertionName)
 final case class CompositePass(name: AssertionName)
 final case class CompositeFail(value: AssertionError)
 final case class CompositeThrew(thrownFrom: AssertionName, value: Throwable, location: SourceLocation)
 
 final case class CompositeAssertionAllPassed(name: AssertionName, pass: NonEmptySeq[CompositePass]) extends AssertionResult
-final case class CompositeAssertionFirstFailed(name: AssertionName, failed: Either[CompositeFail, CompositeThrew], passed: Seq[CompositePass]) extends AssertionResult
+final case class CompositeAssertionFirstFailed(name: AssertionName, failed: Either[CompositeFail, CompositeThrew], passed: Seq[CompositePass], notRun: Seq[CompositeNotRun]) extends AssertionResult
 
 final case class AssertionPassed(assertion: Assertion) extends AssertionResult
 final case class AssertionFailed(value: AssertionError) extends AssertionResult

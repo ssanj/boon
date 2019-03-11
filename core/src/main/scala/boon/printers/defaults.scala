@@ -17,12 +17,14 @@ object ColourOutput {
 
 final case class Tokens(passed: String, failed: String)
 
+final case class AssertionToken(common: Tokens, notRun: String)
+
 final case class SuitePrinterSettings(tokens: Tokens)
 
 final case class TestPrinterSettings(tokens: Tokens, padding: String, colour: String => String)
 
 final case class AssertionPrinterSettings(
-  tokens: Tokens,
+  tokens: AssertionToken,
   padding: String,
   compositePadding: String,
   failedPadding: String,
@@ -56,8 +58,11 @@ object PrinterSetting {
 
     val assertion =
       AssertionPrinterSettings(
-        tokens = Tokens(colourise(green(showColours), "[✓]"),
-                        colourise(red(showColours), "[✗]")),
+        tokens = AssertionToken(
+                    Tokens(colourise(green(showColours), "[✓]"),
+                           colourise(red(showColours), "[✗]")),
+                    colourise(red(showColours), "(not run)")
+                 ),
         padding = " " * 2,
         compositePadding = " " * 4,
         failedPadding = " " * 4,

@@ -29,7 +29,7 @@ object Boon {
   def defineCompositeAssertion(name: => String, assertions: NonEmptySeq[Assertion], context: Map[String, String], loc: SourceLocation): Assertion =
     CompositeAssertion(AssertionName(name), assertions, context, loc)
 
-  private case class PassFailPair(pass: Vector[AssertionResult], fail: Vector[AssertionResult])
+  private case class ResultCollector(pass: Vector[AssertionResult], fail: Vector[AssertionResult], notRun: Vector[Assertion])
 
   def runAssertion(assertion: Assertion): AssertionResult = {
       assertion match {
@@ -47,11 +47,11 @@ object Boon {
           }.fold(AssertionThrew(assertion.name, _, assertion.location), identity _)
 
         case assertion: CompositeAssertion =>
-          val init = PassFailPair(pass = Vector.empty[AssertionResult], fail = Vector.empty[AssertionResult])
+          val init = ResultCollector(pass = Vector.empty[AssertionResult], fail = Vector.empty[AssertionResult], notRun = Vector.empty[Assertion])
 
           //Could we have an ADT for PassFailPair? Pass(one, rest), fail(one)
           val results = assertion.assertions.toSeq.foldLeft(init){ (acc, a1) =>
-            if (acc.fail.nonEmpty) acc //fail on the first error
+            if (acc.fail.nonEmpty) acc.copy(notRun = acc.notRun :+ a1) //fail on the first error
             else {
               val a1Result = runAssertion(a1)
               assertionResultToPassable(a1Result) match {
@@ -75,7 +75,8 @@ object Boon {
             }
 
             val passed = results.pass.map(ar => CompositePass(assertionNameFromResult(ar)))
-            CompositeAssertionFirstFailed(assertion.name, failed, passed)
+            val notRun = results.notRun.map(assertion => CompositeNotRun(Assertion.assertionName(assertion)))
+            CompositeAssertionFirstFailed(assertion.name, failed, passed, notRun)
           }
       }
   }
@@ -124,7 +125,7 @@ object Boon {
     case AssertionFailed(AssertionError(assertion, _)) => Assertion.assertionName(assertion)
     case AssertionThrew(name, _, _) => name
     case CompositeAssertionAllPassed(name, _) => name
-    case CompositeAssertionFirstFailed(name, _, _) => name
+    case CompositeAssertionFirstFailed(name, _, _, _) => name
   }
 }
 
