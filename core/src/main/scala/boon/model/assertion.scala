@@ -7,7 +7,7 @@ object AssertionTriple {
 
   def from(assertion: Assertion): AssertionTriple = assertion match {
     case SingleAssertion(name, _, context, location) => AssertionTriple(name, context, location)
-    case CompositeAssertion(name, _, context, location) => AssertionTriple(name, context, location)
+    case CompositeAssertion(name, _, location) => AssertionTriple(name, noContext, location)
   }
 }
 
@@ -15,25 +15,25 @@ final case class AssertionName(value: String)
 
 sealed trait Assertion
 final case class SingleAssertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], location: SourceLocation) extends Assertion
-final case class CompositeAssertion(name: AssertionName, assertions: NonEmptySeq[Assertion], context: Map[String, String], location: SourceLocation) extends Assertion
+final case class CompositeAssertion(name: AssertionName, assertions: NonEmptySeq[Assertion], location: SourceLocation) extends Assertion
 final case class AssertionError(assertion: Assertion, error: String)
 final case class AssertionThrow(name: AssertionName, value: Throwable, location: SourceLocation)
 final case class FirstFailed(name: AssertionName, failed: Either[CompositeFail, CompositeThrew], passed: Seq[CompositePass], notRun: Seq[CompositeNotRun])
 
 object Assertion {
   def assertionName(assertion: Assertion): AssertionName = assertion match {
-    case SingleAssertion(name, _, _, _)    => name
-    case CompositeAssertion(name, _, _, _) => name
+    case SingleAssertion(name, _, _, _) => name
+    case CompositeAssertion(name, _, _) => name
   }
 
   def assertionContext(assertion: Assertion): Map[String, String] = assertion match {
-    case SingleAssertion(_, _, ctx, _)    => ctx
-    case CompositeAssertion(_, _, ctx, _) => ctx
+    case SingleAssertion(_, _, ctx, _) => ctx
+    case CompositeAssertion(_, _, _)   => noContext
   }
 
   def assertionLocation(assertion: Assertion): SourceLocation = assertion match {
-    case SingleAssertion(_, _, _, loc)    => loc
-    case CompositeAssertion(_, _, _, loc) => loc
+    case SingleAssertion(_, _, _, loc) => loc
+    case CompositeAssertion(_, _, loc) => loc
   }
 }
 

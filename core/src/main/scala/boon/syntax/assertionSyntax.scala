@@ -63,8 +63,8 @@ final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
 
     def and(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
 
-    def seq(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): ContinueSyntax = ContinueSyntax(
-      NonEmptySeq.nes(defineCompositeAssertion(name, assertions, Map(ctx:_*), loc))
+    def sequentially(name: => String)(implicit loc: SourceLocation): ContinueSyntax = ContinueSyntax(
+      NonEmptySeq.nes(defineCompositeAssertion(name, assertions, loc))
     )
 }
 

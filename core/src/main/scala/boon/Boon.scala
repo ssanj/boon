@@ -28,8 +28,8 @@ object Boon {
       testable[A](a1, a2, equalityType)
     }, context, loc)
 
-  def defineCompositeAssertion(name: => String, assertions: NonEmptySeq[Assertion], context: Map[String, String], loc: SourceLocation): Assertion =
-    CompositeAssertion(AssertionName(name), assertions, context, loc)
+  def defineCompositeAssertion(name: => String, assertions: NonEmptySeq[Assertion], loc: SourceLocation): Assertion =
+    CompositeAssertion(AssertionName(name), assertions, loc)
 
   private case class ResultCollector(pass: Vector[AssertionResult], fail: Option[AssertionFailure], notRun: Vector[Assertion])
 

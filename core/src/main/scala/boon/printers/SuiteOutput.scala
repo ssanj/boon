@@ -22,11 +22,11 @@ final case class TestOutput(name: String, assertions: NonEmptySeq[AssertionOutpu
 final case class CompositePassData(name: String)
 final case class CompositeNotRunData(name: String)
 final case class CompositeFailData(name: String, error: String, context: Map[String, String], location: Option[String])
+
 sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
 final case class FailedOutput(name: String, error: String, context: Map[String, String], location: Option[String]) extends AssertionOutput
 final case class CompositePassedOutput(name: String, passed: NonEmptySeq[CompositePassData]) extends AssertionOutput
-//There should be only a single failure not a NES.
 final case class CompositeFailedOutput(name: String, failed: CompositeFailData, passed: Seq[CompositePassData], notRun: Seq[CompositeNotRunData]) extends AssertionOutput
 
 
@@ -55,8 +55,8 @@ object SuiteOutput {
         case SingleAssertionResult(AssertionPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
         case SingleAssertionResult(AssertionFailed(AssertionError(SingleAssertion(AssertionName(name), _, ctx, loc), error))) =>
           FailedOutput(name, error, ctx, sourceLocation(loc))
-        case SingleAssertionResult(AssertionFailed(AssertionError(CompositeAssertion(AssertionName(name), _, ctx, loc), error))) =>
-          FailedOutput(name, error, ctx, sourceLocation(loc))
+        case SingleAssertionResult(AssertionFailed(AssertionError(CompositeAssertion(AssertionName(name), _, loc), error))) =>
+          FailedOutput(name, error, noContext, sourceLocation(loc))
 
         case SingleAssertionResult(AssertionThrew(AssertionThrow(AssertionName(name), error, loc))) =>
           FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
@@ -67,8 +67,8 @@ object SuiteOutput {
               failed.fold[CompositeFailData]({
                 case CompositeFail(AssertionError(SingleAssertion(AssertionName(name1), _, ctx, loc), error)) =>
                   CompositeFailData(name1, error, ctx, sourceLocation(loc))
-                case CompositeFail(AssertionError(CompositeAssertion(AssertionName(name1), _, ctx, loc), error)) =>
-                  CompositeFailData(name1, error, ctx, sourceLocation(loc))
+                case CompositeFail(AssertionError(CompositeAssertion(AssertionName(name1), _, loc), error)) =>
+                  CompositeFailData(name1, error, noContext, sourceLocation(loc))
                 }, ct => CompositeFailData(ct.value.name.value, ct.value.value.getMessage, Map.empty[String, String], sourceLocation(ct.value.location))
               )
             CompositeFailedOutput(name, failedData, passed.map(an => CompositePassData(an.name.value)), notRun.map(an => CompositeNotRunData(an.name.value)))

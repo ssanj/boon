@@ -19,7 +19,7 @@ object StackSuite extends SuiteLike("NonEmptyStack"){
 
       pop3._1  =?= 2                        | "pop3 returns 2 as value"     and
       pop3._2  =?= Some(stack2)             | "pop3 returns stack2 as stack" and
-      pop3     =?= Tuple2(2, Some(stack2))  | "pop3 pair" seq("pop3 stuff")
+      pop3     =?= Tuple2(2, Some(stack2))  | "pop3 pair" sequentially "pop3 stuff"
     } and
     stack2.pop()._1  =?= 1                       | "popping stack2 returns 1 as value" and
     stack2.pop()._2  =?= Some(stack1)            | "popping stack2 returns stack1 as stack" and
