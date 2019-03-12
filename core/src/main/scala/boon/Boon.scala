@@ -48,6 +48,10 @@ object Boon {
 
           }.fold(t => SingleAssertionResult(AssertionThrew(AssertionThrow(assertion.name, t, assertion.location))), identity _)
 
+        //This seems broken
+        //We only want CompositeAssertion to be comprised of SingleAssertion
+        //do this through the type system
+        //So move back to single Assertions?
         case assertion: CompositeAssertion =>
           val init = ResultCollector(pass = Vector.empty[AssertionResult], fail = None, notRun = Vector.empty[Assertion])
 

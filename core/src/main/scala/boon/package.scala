@@ -1,10 +1,17 @@
 package object boon {
 
 import boon.model._
-
 import syntax.toStrRep
+import syntax.fail
+
+import scala.util.Try
 
   def test(name: => String)(assertions: NonEmptySeq[Assertion]): DeferredTest = DeferredTest(TestName(name), assertions)
+
+  def test2(name: => String)(assertions: => NonEmptySeq[Assertion]): DeferredTest =
+    Try(assertions).fold(ex => {
+      DeferredTest(TestName(name), fail(ex.getMessage) | "Test threw an Exception")
+    } , DeferredTest(TestName(name), _))
 
   def table[T: StringRep, U: Equality : Difference: StringRep](name: => String, values: NonEmptyMap[T, (U, SourceLocation)])(f: T => U): DeferredTest = {
     DeferredTest(TestName(name), values.map {
