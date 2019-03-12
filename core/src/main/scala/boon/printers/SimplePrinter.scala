@@ -61,34 +61,28 @@ object SimplePrinter {
     case CompositeFailedOutput(name, CompositeFailData(failedName, error, ctx, loc), passed, notRun) =>
       val location = loc.fold("")(l => s"[$l]")
 
-      val compositeAssertion = s"${ps.assertion.padding} + ${name} ${ps.assertion.tokens.common.failed}${EOL}"
+      val compositeAssertion = s"${ps.assertion.padding} + ${name} ${ps.assertion.tokens.common.failed}"
 
       val compositePasses = passed.map(pa => s"${ps.assertion.compositePadding} ↓ ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
 
-      val failedAssertion = s"${ps.assertion.compositePadding} ${ps.assertion.compositePrefix} ${failedName} ${ps.assertion.tokens.common.failed}${EOL}"
-
-      val failedAssertionWithNL = if (passed.nonEmpty) s"${EOL}${failedAssertion}" else failedAssertion
+      val failedAssertion = s"${ps.assertion.compositePadding} ${ps.assertion.compositePrefix} ${failedName} ${ps.assertion.tokens.common.failed}"
 
       val errorReason = s"${ps.assertion.compositeFailedPadding} ${ps.colourError(s"=> ${error}")} ${location}"
 
       val compositeNotRun = notRun.map(nr => s"${ps.assertion.compositePadding} ${ps.assertion.compositePrefix} ${nr.name} ${ps.assertion.tokens.notRun}").toSeq.mkString(EOL)
 
-      val errorReasonNL = if (notRun.nonEmpty) s"${errorReason}${EOL}" else errorReason
-
       val baseError =
-        s"${compositeAssertion}" +
-        s"${compositePasses}" +
-        s"${failedAssertionWithNL}" +
-        s"${errorReasonNL}" +
-        s"${compositeNotRun}"
+        s"${compositeAssertion}${EOL}" +
+        (if (passed.nonEmpty) s"${compositePasses}${EOL}" else "") +
+        s"${failedAssertion}${EOL}" +
+        s"${errorReason}" +
+        (if (notRun.nonEmpty) s"${EOL}${compositeNotRun}" else "")
 
       if (ctx.nonEmpty) {
         s"${baseError}${EOL}" +
         s"${ps.assertion.failedContextPadding}#: " +
         s"${ctx.mkString(s"${EOL}${ps.assertion.failedContextElementPadding}")}"
       } else baseError
-
-
   }
 
 }
