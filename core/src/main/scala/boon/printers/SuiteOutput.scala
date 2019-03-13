@@ -51,30 +51,31 @@ object SuiteOutput {
 
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
-      val assertionOutputs = tr.assertionResults.map {
-        case SingleAssertionResult(AssertionPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
-        case SingleAssertionResult(AssertionFailed(AssertionError(SingleAssertion(AssertionName(name), _, ctx, loc), error))) =>
-          FailedOutput(name, error, ctx, sourceLocation(loc))
-        case SingleAssertionResult(AssertionFailed(AssertionError(CompositeAssertion(AssertionName(name), _, loc), error))) =>
-          FailedOutput(name, error, noContext, sourceLocation(loc))
+      val assertionOutputs: NonEmptySeq[AssertionOutput] = tr match {
+        case SingleTestResult(test, assertionResults) =>
+          assertionResults.map {
+            case SingleAssertionResult(AssertionPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
+            case SingleAssertionResult(AssertionFailed(AssertionError(SingleAssertion(AssertionName(name), _, ctx, loc), error))) =>
+              FailedOutput(name, error, ctx, sourceLocation(loc))
 
-        case SingleAssertionResult(AssertionThrew(AssertionThrow(AssertionName(name), error, loc))) =>
-          FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
+            case SingleAssertionResult(AssertionThrew(AssertionThrow(AssertionName(name), error, loc))) =>
+              FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
+          }
 
-        case CompositeAssertionResult(AllPassed(AssertionName(name), passed)) => CompositePassedOutput(name, passed.map(an => CompositePassData(an.name.value)))
-        case CompositeAssertionResult(StoppedOnFirstFailed(FirstFailed(AssertionName(name), failed,  passed, notRun))) =>
+        case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(AssertionName(name), failed,  passed, notRun))) =>
             val failedData =
               failed.fold[CompositeFailData]({
                 case CompositeFail(AssertionError(SingleAssertion(AssertionName(name1), _, ctx, loc), error)) =>
                   CompositeFailData(name1, error, ctx, sourceLocation(loc))
-                case CompositeFail(AssertionError(CompositeAssertion(AssertionName(name1), _, loc), error)) =>
-                  CompositeFailData(name1, error, noContext, sourceLocation(loc))
                 }, ct => CompositeFailData(ct.value.name.value, ct.value.value.getMessage, Map.empty[String, String], sourceLocation(ct.value.location))
               )
-            CompositeFailedOutput(name, failedData, passed.map(an => CompositePassData(an.name.value)), notRun.map(an => CompositeNotRunData(an.name.value)))
+            NonEmptySeq.one(CompositeFailedOutput(name, failedData, passed.map(an => CompositePassData(an.name.value)), notRun.map(an => CompositeNotRunData(an.name.value))))
+
+        case CompositeTestResult(AllPassed(TestName(name), passed)) =>
+          NonEmptySeq.one(CompositePassedOutput(name, passed.map(an => CompositePassData(an.name.value))))
       }
 
-      TestOutput(tr.test.name.value, assertionOutputs, testResultToPassable(tr))
+      TestOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
     }
 
     SuiteOutput(suiteResult.suite.name.value, testOutputs, suiteResultToPassable(suiteResult))

@@ -29,7 +29,7 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
         assertions2.length =?= 1 | "no of test2.assertions" and
         SuiteOutput.assertionName(assertions2(0)) =?= "Hola" | "test2.assertion2.name"
       }
-    } sequentially "has 2 tests"
+    }
   }
 
   override val tests = NonEmptySeq.nes(t1)

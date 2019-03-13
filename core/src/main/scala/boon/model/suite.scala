@@ -3,19 +3,39 @@ package model
 
 final case class TestName(value: String)
 
-final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion])
+final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion], combinator: AssertionCombinator)
 
-final case class TestResult(test: DeferredTest, assertionResults: NonEmptySeq[AssertionResult])
+sealed trait CompositeTestResultState
+final case class AllPassed(name: TestName, pass: NonEmptySeq[CompositePass]) extends CompositeTestResultState
+final case class StoppedOnFirstFailed(name: TestName, value: FirstFailed) extends CompositeTestResultState
+
+sealed trait TestResult
+//TODO: Come up with a better name for these
+//example IndependentAssertionTestResult
+//example SequentialAssertionTestResult
+final case class SingleTestResult(test: DeferredTest, assertionResults: NonEmptySeq[AssertionResult])  extends TestResult
+final case class CompositeTestResult(value: CompositeTestResultState) extends TestResult
 
 object TestResult {
 
-  def testResultToPassable(tr: TestResult): Passable = {
-    val failedOp = tr.assertionResults.map(AssertionResult.assertionResultToPassable).find {
-      case Failed => true
-      case Passed => false
-    }
+  def testResultToPassable(tr: TestResult): Passable = tr match {
+    case SingleTestResult(_, ar) =>
+      val failedOp = ar.map(AssertionResult.assertionResultToPassable).find {
+        case Failed => true
+        case Passed => false
+      }
 
-    failedOp.fold[Passable](Passed)(_ => Failed)
+      failedOp.fold[Passable](Passed)(_ => Failed)
+
+    case CompositeTestResult(_: AllPassed) => Passed
+
+    case CompositeTestResult(_: StoppedOnFirstFailed) => Failed
+  }
+
+  def testName(tr: TestResult): TestName = tr match {
+    case SingleTestResult(DeferredTest(name, _, _), _)      => name
+    case CompositeTestResult(AllPassed(name, _))            => name
+    case CompositeTestResult(StoppedOnFirstFailed(name, _)) => name
   }
 }
 

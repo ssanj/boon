@@ -9,9 +9,11 @@ import boon.model.IsEqual
 import boon.model.IsNotEqual
 import boon.model.StringRep
 import boon.model.Difference
+import boon.model.TestData
+import boon.model.Sequential
+
 import Boon.defineAssertion
 import Boon.defineAssertionWithContext
-import Boon.defineCompositeAssertion
 
 import scala.util.Try
 import scala.reflect.ClassTag
@@ -63,8 +65,6 @@ final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
 
     def and(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
 
-    def sequentially(name: => String)(implicit loc: SourceLocation): ContinueSyntax = ContinueSyntax(
-      NonEmptySeq.nes(defineCompositeAssertion(name, assertions, loc))
-    )
+    def sequentially: TestData = TestData(assertions, Sequential)
 }
 
