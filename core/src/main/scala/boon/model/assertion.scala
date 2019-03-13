@@ -5,52 +5,34 @@ final case class AssertionTriple(name: AssertionName, context: Map[String, Strin
 
 object AssertionTriple {
 
-  def from(assertion: Assertion): AssertionTriple = assertion match {
-    case SingleAssertion(name, _, context, location) => AssertionTriple(name, context, location)
-  }
+  def from(assertion: Assertion): AssertionTriple = AssertionTriple(assertion.name, assertion.context, assertion.location)
 }
 
 final case class AssertionName(value: String)
 
-sealed trait Assertion
-final case class SingleAssertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], location: SourceLocation) extends Assertion
+final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], location: SourceLocation)
 
 final case class AssertionError(assertion: Assertion, error: String)
 final case class AssertionThrow(name: AssertionName, value: Throwable, location: SourceLocation)
 final case class FirstFailed(name: AssertionName, failed: Either[SequentialFail, SequentialThrew], passed: Seq[SequentialPass], notRun: Seq[SequentialNotRun])
 
-object Assertion {
-  def assertionName(assertion: Assertion): AssertionName = assertion match {
-    case SingleAssertion(name, _, _, _) => name
-  }
-
-  def assertionContext(assertion: Assertion): Map[String, String] = assertion match {
-    case SingleAssertion(_, _, ctx, _) => ctx
-  }
-
-  def assertionLocation(assertion: Assertion): SourceLocation = assertion match {
-    case SingleAssertion(_, _, _, loc) => loc
-  }
-}
-
 sealed trait AssertionFailure
-final case class SingleAssertionFailed(value: AssertionError) extends AssertionFailure
-final case class SingleAssertionThrew(value: AssertionThrow) extends AssertionFailure
-// final case class SequentialAssertionFailed(value: FirstFailed) extends AssertionFailure
+final case class AssertionFailed(value: AssertionError) extends AssertionFailure
+final case class AssertionThrew(value: AssertionThrow) extends AssertionFailure
 
 sealed trait AssertionResult extends Product with Serializable
 
 object AssertionResult {
   def assertionNameFromResult(ar: AssertionResult): AssertionName = ar match {
-    case SingleAssertionResult(AssertionPassed(AssertionTriple(name, _, _))) => name
-    case SingleAssertionResult(AssertionFailed(AssertionError(assertion, _))) => Assertion.assertionName(assertion)
-    case SingleAssertionResult(AssertionThrew(AssertionThrow(name, _, _))) => name
+    case SingleAssertionResult(AssertionResultPassed(AssertionTriple(name, _, _))) => name
+    case SingleAssertionResult(AssertionResultFailed(AssertionError(assertion, _))) => assertion.name
+    case SingleAssertionResult(AssertionResultThrew(AssertionThrow(name, _, _))) => name
   }
 
   def assertionResultToPassable(ar: AssertionResult): Passable = ar match {
-    case SingleAssertionResult(_: AssertionPassed)         => Passed
-    case SingleAssertionResult(_: AssertionFailed)         => Failed
-    case SingleAssertionResult(_: AssertionThrew )         => Failed
+    case SingleAssertionResult(_: AssertionResultPassed)         => Passed
+    case SingleAssertionResult(_: AssertionResultFailed)         => Failed
+    case SingleAssertionResult(_: AssertionResultThrew )         => Failed
   }
 }
 
@@ -61,12 +43,12 @@ final case class SequentialPass(name: AssertionName)
 final case class SequentialFail(value: AssertionError)
 final case class SequentialThrew(value: AssertionThrow)
 
-sealed trait SingleAssertionState
-final case class AssertionPassed(value: AssertionTriple) extends SingleAssertionState
-final case class AssertionFailed(value: AssertionError) extends SingleAssertionState
-final case class AssertionThrew(value: AssertionThrow) extends SingleAssertionState
+sealed trait AssertionResultState
+final case class AssertionResultPassed(value: AssertionTriple) extends AssertionResultState
+final case class AssertionResultFailed(value: AssertionError) extends AssertionResultState
+final case class AssertionResultThrew(value: AssertionThrow) extends AssertionResultState
 
-final case class SingleAssertionResult(value: SingleAssertionState) extends AssertionResult
+final case class SingleAssertionResult(value: AssertionResultState) extends AssertionResult
 
 
 sealed trait AssertionCombinator

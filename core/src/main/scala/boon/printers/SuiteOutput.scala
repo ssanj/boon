@@ -54,18 +54,18 @@ object SuiteOutput {
       val assertionOutputs: NonEmptySeq[AssertionOutput] = tr match {
         case SingleTestResult(test, assertionResults) =>
           assertionResults.map {
-            case SingleAssertionResult(AssertionPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
-            case SingleAssertionResult(AssertionFailed(AssertionError(SingleAssertion(AssertionName(name), _, ctx, loc), error))) =>
+            case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
+            case SingleAssertionResult(AssertionResultFailed(AssertionError(Assertion(AssertionName(name), _, ctx, loc), error))) =>
               FailedOutput(name, error, ctx, sourceLocation(loc))
 
-            case SingleAssertionResult(AssertionThrew(AssertionThrow(AssertionName(name), error, loc))) =>
+            case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(name), error, loc))) =>
               FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
           }
 
         case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(AssertionName(name), failed,  passed, notRun))) =>
             val failedData =
               failed.fold[SequentialFailData]({
-                case SequentialFail(AssertionError(SingleAssertion(AssertionName(name1), _, ctx, loc), error)) =>
+                case SequentialFail(AssertionError(Assertion(AssertionName(name1), _, ctx, loc), error)) =>
                   SequentialFailData(name1, error, ctx, sourceLocation(loc))
                 }, ct => SequentialFailData(ct.value.name.value, ct.value.value.getMessage, Map.empty[String, String], sourceLocation(ct.value.location))
               )
