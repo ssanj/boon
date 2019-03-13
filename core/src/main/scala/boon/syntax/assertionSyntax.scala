@@ -65,6 +65,6 @@ final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
 
     def and(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
 
-    def sequentially: TestData = TestData(assertions, Sequential)
+    def sequentially(): TestData = TestData(assertions, Sequential)
 }
 

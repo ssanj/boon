@@ -14,10 +14,10 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
       name    =?= "Frodo is a hobbit" | "assertion.name"  and
       error   =?= "false is not true" | "assertion.error" and
       context =?= Map("allHobbits" -> "Bilbo,Sam,Bingo,Merimas", "missing" -> "Frodo") | "assertion.context"
-    }, fo => fail(s"Incorrect assertion type: $fo") | "assertionType",
-       (name, _) => fail(s"composite passed: $name") | "assertionOutput type",
-       (name, _, _, _) => fail(s"composite failed: $name") | "assertionOutput type"
-    )
+    }, fo => fail(s"assertion passed: $fo") | "assertionOutput",
+       (name, _) => fail(s"assertion passed: $name") | "assertionOutput type",
+       (name, _, _, _) => fail(s"assertion failed: $name") | "assertionOutput type"
+    ) sequentially()
   }
 
   override val tests = NonEmptySeq.nes(t1)

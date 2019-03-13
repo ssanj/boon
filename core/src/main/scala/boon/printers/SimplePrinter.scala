@@ -55,24 +55,21 @@ object SimplePrinter {
       } else baseError
 
     case CompositePassedOutput(name, passed) =>
-      val compositePasses = passed.map(pa => s"${ps.assertion.compositePadding} ${ps.assertion.compositePrefix} ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
-      s"${ps.assertion.padding} + ${name} ${ps.assertion.tokens.common.passed}${EOL}${compositePasses}"
+      val compositePasses = passed.map(pa => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
+      s"${compositePasses}"
 
     case CompositeFailedOutput(name, CompositeFailData(failedName, error, ctx, loc), passed, notRun) =>
       val location = loc.fold("")(l => s"[$l]")
 
-      val compositeAssertion = s"${ps.assertion.padding} + ${name} ${ps.assertion.tokens.common.failed}"
+      val compositePasses = passed.map(pa => s"${ps.assertion.padding} ↓ ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
 
-      val compositePasses = passed.map(pa => s"${ps.assertion.compositePadding} ↓ ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
+      val failedAssertion = s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${failedName} ${ps.assertion.tokens.common.failed}"
 
-      val failedAssertion = s"${ps.assertion.compositePadding} ${ps.assertion.compositePrefix} ${failedName} ${ps.assertion.tokens.common.failed}"
+      val errorReason = s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${location}"
 
-      val errorReason = s"${ps.assertion.compositeFailedPadding} ${ps.colourError(s"=> ${error}")} ${location}"
-
-      val compositeNotRun = notRun.map(nr => s"${ps.assertion.compositePadding} ${ps.assertion.compositePrefix} ${nr.name} ${ps.assertion.tokens.notRun}").toSeq.mkString(EOL)
+      val compositeNotRun = notRun.map(nr => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${nr.name} ${ps.assertion.tokens.notRun}").toSeq.mkString(EOL)
 
       val baseError =
-        s"${compositeAssertion}${EOL}" +
         (if (passed.nonEmpty) s"${compositePasses}${EOL}" else "") +
         s"${failedAssertion}${EOL}" +
         s"${errorReason}" +

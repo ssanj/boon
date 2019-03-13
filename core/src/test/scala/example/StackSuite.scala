@@ -23,7 +23,7 @@ object StackSuite extends SuiteLike("NonEmptyStack"){
     } and
     stack2.pop()._1  =?= 1                       | "popping stack2 returns 1 as value" and
     stack2.pop()._2  =?= Some(stack1)            | "popping stack2 returns stack1 as stack" and
-    stack1.pop()     =?= Tuple2(0, noStack[Int]) | "popping stack1 returns 0 as value and no further stacks"
+    stack1.pop()     =?= Tuple2(0, noStack[Int]) | "popping stack1 returns 0 as value and no further stacks"  sequentially()
   }
 
   override def tests = NonEmptySeq.nes(test1)
