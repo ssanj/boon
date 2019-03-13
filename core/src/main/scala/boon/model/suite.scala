@@ -6,7 +6,7 @@ final case class TestName(value: String)
 final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion], combinator: AssertionCombinator)
 
 sealed trait CompositeTestResultState
-final case class AllPassed(name: TestName, pass: NonEmptySeq[CompositePass]) extends CompositeTestResultState
+final case class AllPassed(name: TestName, pass: NonEmptySeq[SequentialPass]) extends CompositeTestResultState
 final case class StoppedOnFirstFailed(name: TestName, value: FirstFailed) extends CompositeTestResultState
 
 sealed trait TestResult

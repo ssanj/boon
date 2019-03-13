@@ -17,7 +17,7 @@ final case class SingleAssertion(name: AssertionName, testable: Defer[Testable],
 
 final case class AssertionError(assertion: Assertion, error: String)
 final case class AssertionThrow(name: AssertionName, value: Throwable, location: SourceLocation)
-final case class FirstFailed(name: AssertionName, failed: Either[CompositeFail, CompositeThrew], passed: Seq[CompositePass], notRun: Seq[CompositeNotRun])
+final case class FirstFailed(name: AssertionName, failed: Either[SequentialFail, SequentialThrew], passed: Seq[SequentialPass], notRun: Seq[SequentialNotRun])
 
 object Assertion {
   def assertionName(assertion: Assertion): AssertionName = assertion match {
@@ -36,7 +36,7 @@ object Assertion {
 sealed trait AssertionFailure
 final case class SingleAssertionFailed(value: AssertionError) extends AssertionFailure
 final case class SingleAssertionThrew(value: AssertionThrow) extends AssertionFailure
-// final case class CompositeAssertionFailed(value: FirstFailed) extends AssertionFailure
+// final case class SequentialAssertionFailed(value: FirstFailed) extends AssertionFailure
 
 sealed trait AssertionResult extends Product with Serializable
 
@@ -56,10 +56,10 @@ object AssertionResult {
 
 final case class TestData(assertions: NonEmptySeq[Assertion], combinator: AssertionCombinator)
 
-final case class CompositeNotRun(name: AssertionName)
-final case class CompositePass(name: AssertionName)
-final case class CompositeFail(value: AssertionError)
-final case class CompositeThrew(value: AssertionThrow)
+final case class SequentialNotRun(name: AssertionName)
+final case class SequentialPass(name: AssertionName)
+final case class SequentialFail(value: AssertionError)
+final case class SequentialThrew(value: AssertionThrow)
 
 sealed trait SingleAssertionState
 final case class AssertionPassed(value: AssertionTriple) extends SingleAssertionState

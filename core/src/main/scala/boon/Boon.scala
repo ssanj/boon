@@ -65,19 +65,19 @@ object Boon {
           }
 
           results.fail.fold[TestResult]({
-            val passed = results.pass.map(ar => CompositePass(AssertionResult.assertionNameFromResult(ar)))
+            val passed = results.pass.map(ar => SequentialPass(AssertionResult.assertionNameFromResult(ar)))
             CompositeTestResult(AllPassed(dTest.name, NonEmptySeq.nes(passed.head, passed.tail:_*)))
           })({ failure =>
               val failed = failure match {
-                case saf : SingleAssertionFailed => Left[CompositeFail, CompositeThrew](CompositeFail(saf.value))
-                case sat : SingleAssertionThrew  => Right[CompositeFail, CompositeThrew](CompositeThrew(sat.value))
+                case saf : SingleAssertionFailed => Left[SequentialFail, SequentialThrew](SequentialFail(saf.value))
+                case sat : SingleAssertionThrew  => Right[SequentialFail, SequentialThrew](SequentialThrew(sat.value))
                 // case caf: CompositeAssertionFailed => caf.value.failed
               }
 
               val failedAssertionName = failed.fold(cf => Assertion.assertionName(cf.value.assertion), _.value.name)
 
-              val passed = results.pass.map(ar => CompositePass(AssertionResult.assertionNameFromResult(ar)))
-              val notRun = results.notRun.map(assertion => CompositeNotRun(Assertion.assertionName(assertion)))
+              val passed = results.pass.map(ar => SequentialPass(AssertionResult.assertionNameFromResult(ar)))
+              val notRun = results.notRun.map(assertion => SequentialNotRun(Assertion.assertionName(assertion)))
               CompositeTestResult(StoppedOnFirstFailed(dTest.name, FirstFailed(failedAssertionName, failed, passed, notRun)))
           })
       }

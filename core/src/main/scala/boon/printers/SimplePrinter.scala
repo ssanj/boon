@@ -54,11 +54,11 @@ object SimplePrinter {
         s"${ctx.mkString(s"${EOL}${ps.assertion.failedContextElementPadding}")}"
       } else baseError
 
-    case CompositePassedOutput(name, passed) =>
+    case SequentialPassedOutput(name, passed) =>
       val compositePasses = passed.map(pa => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
       s"${compositePasses}"
 
-    case CompositeFailedOutput(name, CompositeFailData(failedName, error, ctx, loc), passed, notRun) =>
+    case SequentialFailedOutput(name, SequentialFailData(failedName, error, ctx, loc), passed, notRun) =>
       val location = loc.fold("")(l => s"[$l]")
 
       val compositePasses = passed.map(pa => s"${ps.assertion.padding} ↓ ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
