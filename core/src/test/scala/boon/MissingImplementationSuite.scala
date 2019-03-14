@@ -13,6 +13,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
     so.tests.head.name =?= "test for missing impl" | "test name" and
     so.tests.head.assertions.length =?= 3 | "no of assertions" and
     {
+      println(so.tests.head.assertions)
       so.tests.head.assertions.head.fold({
         case (name, error, _, Some(loc)) =>
           pass | "assertionOutput type" and
@@ -42,7 +43,8 @@ object MissingImplFixtures {
     val missingImplTest = test("test for missing impl") {
       new SomeClass().predicate | "Boolean test" and /* Tests for a bug with lazy evaluation */
       new SomeClass().priority =?= 10 | "Int test" and
-      {
+      assertion("Unsafe test block") {
+        println("called")
         val message = new SomeClass().message
         message =?= "it's a trap" | "Unsafe test"
       }

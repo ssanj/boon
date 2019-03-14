@@ -2,6 +2,8 @@ package boon
 
 import boon.model._
 
+import scala.util.Try
+
 package object syntax {
 
   implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
@@ -35,4 +37,8 @@ package object syntax {
     upcast[PassedAssertion.type, FailableAssertion](PassedAssertion) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
 
   def upcast[Sub, Super](value: Sub)(implicit CAST:Sub <:< Super): Super = CAST(value)
+
+  def assertion(name: String)(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
+    Try(cs).fold(ex => frameworkFail(ex.getMessage) | s"${name} !!threw an Exception!!", identity _)
+  }
 }
