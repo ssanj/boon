@@ -5,7 +5,7 @@ import printers._
 
 object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite") {
 
-  private val t1 = test("can handle missing implementations") {
+  private val t1 = test2("can handle missing implementations") {
 
     val so = MissingImplFixtures.run
 
@@ -24,7 +24,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
          (name, _) => fail(s"composite passed: $name") | "assertionOutput type",
          (name, _, _, _) => fail(s"composite failed: $name") | "assertionOutput type"
       )
-    }
+    } sequentially()
   }
 
   override val tests = NonEmptySeq.nes(t1)
@@ -43,7 +43,7 @@ object MissingImplFixtures {
       new SomeClass().predicate | "Boolean test" and /* Tests for a bug with lazy evaluation */
       new SomeClass().priority =?= 10 | "Int test" and
       {
-        val message = defer(new SomeClass().message)
+        val message = new SomeClass().message
         message =?= "it's a trap" | "Unsafe test"
       }
     }

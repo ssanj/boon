@@ -23,8 +23,13 @@ package object syntax {
 
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 
-  def fail(reason: String): DescSyntax[FailableAssertion] =
+  def failAssertion(reason: String): DescSyntax[FailableAssertion] = {
     upcast[FailedAssertion, FailableAssertion](FailedAssertion(reason)) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
+  }
+
+  def fail(reason: String): DescSyntax[FailableAssertion] = failAssertion(s"explicit fail: $reason")
+
+  def frameworkFail(reason: String): DescSyntax[FailableAssertion] = failAssertion(s"boon framework error: $reason")
 
   def pass: DescSyntax[FailableAssertion] =
     upcast[PassedAssertion.type, FailableAssertion](PassedAssertion) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)

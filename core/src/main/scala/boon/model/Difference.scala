@@ -68,11 +68,11 @@ object Difference extends LowPriorityDifference {
     override def diff(map1: Map[A, B], map2: Map[A, B]): String = s"${rep.strRep(map1)} != ${rep.strRep(map2)}"
   }
 
-  //breaks the laws (if any)
+  //TODO: breaks the laws (if any). Fix
   implicit object FailableAssertionDifference extends Difference[FailableAssertion] {
     override def diff(a1: FailableAssertion, a2: FailableAssertion): String = (a1, a2) match {
-      case (FailedAssertion(r1), _) => s"explicit fail: $r1"
-      case (PassedAssertion, FailedAssertion(r1)) => s"explicit fail: $r1"
+      case (FailedAssertion(r1), _) => r1
+      case (PassedAssertion, FailedAssertion(r1)) => r1
       case (PassedAssertion, PassedAssertion)  => s"explicit pass"
     }
   }

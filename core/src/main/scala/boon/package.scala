@@ -2,16 +2,18 @@ package object boon {
 
 import boon.model._
 import syntax.toStrRep
-// import syntax.fail
+import syntax.frameworkFail
 
-// import scala.util.Try
+import scala.util.Try
 
-  def test(name: => String)(data: TestData): DeferredTest = DeferredTest(TestName(name), data.assertions, data.combinator)
+  def test(name: => String)(data: => TestData): DeferredTest = DeferredTest(TestName(name), data.assertions, data.combinator)
 
-  // def test2(name: => String)(assertions: => NonEmptySeq[Assertion]): DeferredTest =
-  //   Try(assertions).fold(ex => {
-  //     DeferredTest(TestName(name), fail(ex.getMessage) | "Test threw an Exception")
-  //   } , DeferredTest(TestName(name), _))
+  def test2(name: => String)(data: => TestData)(implicit testLocation: SourceLocation): DeferredTest =
+    Try(data).fold(ex => {
+      DeferredTest(TestName(name), frameworkFail(s"${ex.getMessage}") | "!!Test threw an Exception!!", Independent)
+    } , td => {
+      DeferredTest(TestName(name), td.assertions, td.combinator)
+    })
 
   def table[T: StringRep, U: Equality : Difference: StringRep](name: => String, values: NonEmptyMap[T, (U, SourceLocation)])(f: T => U): DeferredTest = {
     DeferredTest(
