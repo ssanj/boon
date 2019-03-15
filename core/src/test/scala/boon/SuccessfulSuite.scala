@@ -11,20 +11,20 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
 
     val runTests = so.tests.toSeq
     runTests.length =?= 2 | "no of tests" and
-    {
+    assertion {
       val test1 = runTests(0)
       test1.name =?= "String.length" | "test1.name" and
-      {
+      assertion {
         val assertions1 = test1.assertions.toSeq
         assertions1.length =?= 2 | "no of test1.assertions" and
         SuiteOutput.assertionName(assertions1(0)) =?= "empty" | "test1.assertion1.name" and
         SuiteOutput.assertionName(assertions1(1)) =?= "hello" | "test1.assertion2.name"
       }
     } and
-    {
+    assertion {
       val test2 = runTests(1)
       test2.name =?= "String.reverse" | "test2.name" and
-      {
+      assertion {
         val assertions2 = test2.assertions.toSeq
         assertions2.length =?= 1 | "no of test2.assertions" and
         SuiteOutput.assertionName(assertions2(0)) =?= "Hola" | "test2.assertion2.name"

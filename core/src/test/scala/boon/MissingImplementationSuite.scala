@@ -19,7 +19,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
           pass | "assertionOutput type" and
           name =?= "Boolean test" | "assertion name" and
           error =?= "an implementation is missing" | "assertion error" and
-          loc.endsWith("MissingImplementationSuite.scala:43") |# ("error location", "loc" -> loc)
+          loc.endsWith("MissingImplementationSuite.scala:44") |# ("error location", "loc" -> loc)
         case (name, error, _, None) => fail("Assertion location is missing") | "assertionOutput location missing"
       }, fo => fail(s"Invalid assertion type: $fo") | "assertionOutput type",
          (name, _) => fail(s"composite passed: $name") | "assertionOutput type",
@@ -43,8 +43,7 @@ object MissingImplFixtures {
     val missingImplTest = test("test for missing impl") {
       new SomeClass().predicate | "Boolean test" and /* Tests for a bug with lazy evaluation */
       new SomeClass().priority =?= 10 | "Int test" and
-      assertion("Unsafe test block") {
-        println("called")
+      assertion {
         val message = new SomeClass().message
         message =?= "it's a trap" | "Unsafe test"
       }

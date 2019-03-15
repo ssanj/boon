@@ -38,7 +38,12 @@ package object syntax {
 
   def upcast[Sub, Super](value: Sub)(implicit CAST:Sub <:< Super): Super = CAST(value)
 
-  def assertion(name: String)(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
+  def assertion(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
+    val nameOp = for {
+      fn  <- loc.fileName
+    } yield s"assertion @ (${fn}:${loc.line})"
+
+    val name = nameOp.fold(s"assertion @ (-:${loc.line})")(identity _)
     Try(cs).fold(ex => frameworkFail(ex.getMessage) | s"${name} !!threw an Exception!!", identity _)
   }
 }
