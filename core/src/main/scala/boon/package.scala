@@ -6,9 +6,7 @@ import syntax.frameworkFail
 
 import scala.util.Try
 
-  def test(name: => String)(data: => TestData): DeferredTest = DeferredTest(TestName(name), data.assertions, data.combinator)
-
-  def test2(name: => String)(data: => TestData)(implicit testLocation: SourceLocation): DeferredTest =
+  def test(name: => String)(data: => TestData)(implicit testLocation: SourceLocation): DeferredTest =
     Try(data).fold(ex => {
       DeferredTest(TestName(name), frameworkFail(s"${ex.getMessage}") | "!!Test threw an Exception!!", Independent)
     } , td => {
