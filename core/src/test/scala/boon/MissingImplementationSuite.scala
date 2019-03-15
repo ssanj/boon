@@ -43,7 +43,7 @@ object MissingImplFixtures {
     val missingImplTest = test("test for missing impl") {
       new SomeClass().predicate | "Boolean test" and /* Tests for a bug with lazy evaluation */
       new SomeClass().priority =?= 10 | "Int test" and
-      assertion {
+      % {
         val message = new SomeClass().message
         message =?= "it's a trap" | "Unsafe test"
       }
