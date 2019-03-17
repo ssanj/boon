@@ -1,12 +1,14 @@
 package boon.sbt
 
-import boon.model.stats.StatusCount
 import boon.model.stats.SuiteStats
-import boon.model.stats.AssertionCount
 import boon.model.SuiteResult
 import boon.model.TestResult
 import boon.model.Failed
 import boon.model.Passed
+import boon.Monoid
+
+import boon.model.stats.AssertionCount
+import boon.model.stats.StatusCount
 
 import java.util.concurrent.atomic.AtomicReference
 
@@ -16,10 +18,10 @@ trait TestStatusListener {
 }
 
 
-final class BoonTestStatusListener(atomicStats: AtomicReference[Vector[SuiteStats]]) extends TestStatusListener {
+final class BoonTestStatusListener(atomicStats: AtomicReference[List[SuiteStats]]) extends TestStatusListener {
 
   override def suiteResult(result: SuiteResult): Unit = {
-    val stats = SuiteStats(suites = StatusCount(0, 0), tests = StatusCount(0, 0), assertions = AssertionCount(StatusCount(0, 0), 0))
+    val stats = Monoid[SuiteStats].mempty
     val suiteCounts =
       SuiteResult.suiteResultToPassable(result) match {
         case Passed =>  stats.copy(suites = stats.suites.copy(passed = stats.suites.passed + 1))
@@ -34,7 +36,7 @@ final class BoonTestStatusListener(atomicStats: AtomicReference[Vector[SuiteStat
 
       val newStats =
         result.testResults.map(TestResult.testResultToAssertionCount).foldLeft(testCounts) {
-          case (acc, (pass, fail, notRun)) =>
+          case (acc, AssertionCount(StatusCount(pass, fail), notRun)) =>
             acc.copy(assertions =
                       acc.assertions.copy(statusCount =
                                             acc.assertions.statusCount.copy(passed = acc.assertions.statusCount.passed + pass,
@@ -47,7 +49,7 @@ final class BoonTestStatusListener(atomicStats: AtomicReference[Vector[SuiteStat
     }
 
   override def suiteFailed(reason: String): Unit = {
-    val stats = SuiteStats(suites = StatusCount(0, 0), tests = StatusCount(0, 0), assertions = AssertionCount(StatusCount(0, 0), 0))
+    val stats = Monoid[SuiteStats].mempty
     val newStats = stats.copy(suites = stats.suites.copy(failed =stats.suites.failed + 1))
     val _ = atomicStats.updateAndGet(newStats +: _)
     ()

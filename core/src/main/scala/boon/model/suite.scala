@@ -32,17 +32,24 @@ object TestResult {
     case CompositeTestResult(_: StoppedOnFirstFailed) => Failed
   }
 
+  import stats.AssertionCount
+  import stats.StatusCount
 
-  def testResultToAssertionCount(tr: TestResult): (Int, Int, Int) = tr match {
+  def testResultToAssertionCount(tr: TestResult): AssertionCount = tr match {
     case SingleTestResult(_, ar) =>
-      ar.map(AssertionResult.assertionResultToPassable).foldLeft((0,0,0))({
-        case (acc, Failed) => (acc._1, acc._2 + 1, acc._3)
-        case (acc, Passed) =>  (acc._1 + 1, acc._2, acc._3)
-      })
+      val triple =
+        ar.map(AssertionResult.assertionResultToPassable).foldLeft((0,0,0))({
+          case (acc, Failed) => (acc._1, acc._2 + 1, acc._3) //it's easier to copy tuples than case classes with nested fields
+          case (acc, Passed) =>  (acc._1 + 1, acc._2, acc._3)
+        })
 
-    case CompositeTestResult(AllPassed(_, pass)) => (pass.length, 0, 0)
+      AssertionCount(StatusCount(triple._1, triple._2), triple._3)
 
-    case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(_, _, passed, notRun))) => (passed.length, 1, notRun.length)
+    case CompositeTestResult(AllPassed(_, pass)) =>
+      AssertionCount(StatusCount(pass.length, 0), 0)
+
+    case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(_, _, passed, notRun))) =>
+      AssertionCount(StatusCount(passed.length, 1), notRun.length)
   }
 
   def testName(tr: TestResult): TestName = tr match {
