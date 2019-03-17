@@ -6,7 +6,6 @@ final case class StatusCount(passed: Int, failed: Int)
 
 object StatusCount {
 
-  //check Laws
   implicit val statusCountMonoid: Monoid[StatusCount] = new Monoid[StatusCount] {
 
     override def mempty: StatusCount = StatusCount(0, 0)
@@ -21,7 +20,6 @@ final case class AssertionCount(statusCount: StatusCount, notRun: Int)
 
 object AssertionCount {
 
-  //check Laws
   implicit val assertionCountMonoid: Monoid[AssertionCount] = new Monoid[AssertionCount] {
 
     private val monoidStatusCount = Monoid[StatusCount]
@@ -39,7 +37,6 @@ final case class SuiteStats(suites: StatusCount, tests: StatusCount, assertions:
 
 object SuiteStats {
 
-  //check Laws
   implicit val suiteStatusMonoid: Monoid[SuiteStats] = new Monoid[SuiteStats] {
 
     private val monoidStatusCount = Monoid[StatusCount]

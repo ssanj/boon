@@ -37,18 +37,29 @@ final class BoonRunner(
 
     import math.max
 
-    val stats         = statsVecAtomic.get.foldLeft(Monoid[SuiteStats].mempty)(Monoid[SuiteStats].mappend)
-    val suiteLine     = s"Suites: passed - ${stats.suites.passed}, failed - ${stats.suites.failed}"
-    val testLine      = s"Test: passed - ${stats.tests.passed}, failed - ${stats.tests.failed}"
-    val assertionLine = s"Assertions: passed - ${stats.assertions.statusCount.passed}, failed - ${stats.assertions.statusCount.failed}, notRun: ${stats.assertions.notRun}"
+    val stats = statsVecAtomic.get
 
-    val underscoreLength =
-      max(max(max(suiteLine.length, testLine.length), assertionLine.length), 1.0D).toInt
+    if (stats.nonEmpty) {
+      val stats         = statsVecAtomic.get.foldLeft(Monoid[SuiteStats].mempty)(Monoid[SuiteStats].mappend)
+      val suiteLine     = s"Suites: passed - ${stats.suites.passed}, failed - ${stats.suites.failed}"
+      val testLine      = s"Test: passed - ${stats.tests.passed}, failed - ${stats.tests.failed}"
+      val assertionLine = s"Assertions: passed - ${stats.assertions.statusCount.passed}, failed - ${stats.assertions.statusCount.failed}, notRun: ${stats.assertions.notRun}"
 
-    s"${"-" * underscoreLength}\n" +
-      s"${suiteLine}\n" +
-      s"${testLine}\n"  +
-      s"${assertionLine}\n" +
-    s"${"-" * underscoreLength}\n"
+      val underscoreLength =
+        max(max(max(suiteLine.length, testLine.length), assertionLine.length), 1.0D).toInt
+
+      s"${"-" * underscoreLength}\n" +
+        s"${suiteLine}\n" +
+        s"${testLine}\n"  +
+        s"${assertionLine}\n" +
+      s"${"-" * underscoreLength}\n"
+    } else {
+      val message = "No tests run through Boon"
+      val underscoreLength = message.length
+
+      s"${"-" * underscoreLength}\n" +
+        s"${message}\n" +
+      s"${"-" * underscoreLength}"
+    }
   }
 }
