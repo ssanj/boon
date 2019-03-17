@@ -44,7 +44,10 @@ package object syntax {
     } yield s"assertion @ (${fn}:${loc.line})"
 
     val name = nameOp.fold(s"assertion @ (-:${loc.line})")(identity _)
-    Try(cs).fold(ex => frameworkFail(ex.getMessage) | s"${name} !!threw an Exception!!", identity _)
+    Try(cs).fold(ex => {
+      // ex.printStackTrace
+      frameworkFail(ex.getMessage) | s"${name} !!threw an Exception!!"
+    }, identity _)
   }
 
   def %(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertion(cs)(loc)

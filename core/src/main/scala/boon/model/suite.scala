@@ -32,6 +32,19 @@ object TestResult {
     case CompositeTestResult(_: StoppedOnFirstFailed) => Failed
   }
 
+
+  def testResultToAssertionCount(tr: TestResult): (Int, Int, Int) = tr match {
+    case SingleTestResult(_, ar) =>
+      ar.map(AssertionResult.assertionResultToPassable).foldLeft((0,0,0))({
+        case (acc, Failed) => (acc._1, acc._2 + 1, acc._3)
+        case (acc, Passed) =>  (acc._1 + 1, acc._2, acc._3)
+      })
+
+    case CompositeTestResult(AllPassed(_, pass)) => (pass.length, 0, 0)
+
+    case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(_, _, passed, notRun))) => (passed.length, 1, notRun.length)
+  }
+
   def testName(tr: TestResult): TestName = tr match {
     case SingleTestResult(DeferredTest(name, _, _), _)      => name
     case CompositeTestResult(AllPassed(name, _))            => name
