@@ -34,6 +34,8 @@ package object syntax {
 
   def ->|>(first: ContinueSyntax, rest: ContinueSyntax*) = assertions(first, rest:_*).seq()
 
+  def ->%(first: ContinueSyntax, rest: ContinueSyntax*) = assertions(first, rest:_*)
+
   private def failAssertion(reason: String): DescSyntax[FailableAssertion] = {
     upcast[FailedAssertion, FailableAssertion](FailedAssertion(reason)) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
   }
