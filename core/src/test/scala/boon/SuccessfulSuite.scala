@@ -2,8 +2,9 @@ package boon
 
 import syntax._
 import model.Passed
+import model.Passable
 import result.SuiteOutput
-import result.XPassedOutput
+import result.AssertionOutput
 import result.TestPassedOutput
 import result.TestThrewOutput
 
@@ -11,17 +12,17 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
 
   final case class XFailedOutput(name: String)
 
+  final case class XPassedOutput(name: String, assertions: NonEmptySeq[AssertionOutput], pass: Passable)
+
   private val t1 = test("can run a successful test with assertions") {
 
     val so = SuccessfulTestFixture.run
 
     val runResult = so.tests.partition {
       case tpo@TestPassedOutput(_, _, Passed) => Left(XPassedOutput(tpo.name, tpo.assertions, tpo.pass))
-      case TestPassedOutput(name, _, _) => Right(XFailedOutput(name))
-      case TestThrewOutput(name, _, _, _) => Right(XFailedOutput(name))
+      case TestPassedOutput(name, _, _)       => Right(XFailedOutput(name))
+      case TestThrewOutput(name, _, _, _)     => Right(XFailedOutput(name))
     }
-
-    println(runResult)
 
     runResult.fold(po => {
       val passed = po.toSeq

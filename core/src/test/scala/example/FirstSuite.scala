@@ -7,8 +7,6 @@ object FirstSuite extends SuiteLike("FirstSuite") {
 
   private val t1 = test("String methods") {
 
-    null.toString
-
     "Hello" + " " + "World" =?= "Hello World"    | "concat"    and
     "yohoho"                =?= "ohohoy".reverse | "reversing" and
     % {

@@ -16,11 +16,6 @@ import boon.model.TestResult.testResultToPassable
 import boon.model.SuiteResult.suiteResultToPassable
 import boon.result.Exception.getTraces
 
-//TODO: Rename
-final case class XPassedOutput(name: String, assertions: NonEmptySeq[AssertionOutput], pass: Passable)
-
-final case class XThrewOutput(name: String, error: String, trace: Seq[Trace], loc: SourceLocation)
-
 final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], pass: Passable)
 
 sealed trait TestOutput extends Product with Serializable
