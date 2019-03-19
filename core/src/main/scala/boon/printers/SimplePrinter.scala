@@ -5,6 +5,16 @@ import scala.compat.Platform.EOL
 
 import boon.model.Failed
 import boon.model.Passed
+import boon.result.SuiteOutput
+import boon.result.PassedOutput
+import boon.result.FailedOutput
+import boon.result.TestOutput
+import boon.result.SequentialFailedOutput
+import boon.result.SequentialPassedOutput
+import boon.result.AssertionOutput
+import boon.result.SequentialFailData
+import boon.result.Trace
+
 
 object SimplePrinter {
 
@@ -40,13 +50,20 @@ object SimplePrinter {
     case PassedOutput(name)        =>
       s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.common.passed}"
 
-    case FailedOutput(name, error, ctx, loc) =>
+    case FailedOutput(name, error, trace, ctx, loc) =>
       val location = loc.fold("")(l => s"[$l]")
 
       val baseError =
         s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.common.failed}${EOL}" +
-        s"${ps.assertion.failedPadding} " +
-        s"${ps.colourError(s"=> ${error}")} ${location}"
+        (if (trace.nonEmpty) {
+          s"${ps.assertion.failedPadding} !!Exception thrown!!${EOL}" +
+            trace.map(traceString).
+              mkString(s" ${ps.assertion.failedPadding}> ",
+                         s"${EOL} ${ps.assertion.failedPadding}> ",
+                       EOL)
+         } else ""
+        ) +
+        s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${location}"
 
       if (ctx.nonEmpty) {
         s"${baseError}${EOL}" +
@@ -80,6 +97,15 @@ object SimplePrinter {
         s"${ps.assertion.failedContextPadding}#: " +
         s"${ctx.mkString(s"${EOL}${ps.assertion.failedContextElementPadding}")}"
       } else baseError
+  }
+
+  private def traceString(trace: Trace): String = {
+    val className  = trace.className
+    val fileName   = trace.fileName.getOrElse("-")
+    val methodName = trace.methodName
+    val lineNumber = trace.lineNumber.fold("?")(_.toString)
+
+    s"${className}${methodName}(${fileName}:${lineNumber})"
   }
 
 }

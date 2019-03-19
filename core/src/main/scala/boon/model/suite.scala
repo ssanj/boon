@@ -4,17 +4,20 @@ package model
 final case class TestName(value: String)
 
 final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion], combinator: AssertionCombinator)
+final case class ThrownTest(name: TestName, error: Throwable, loc: SourceLocation)
+
+sealed trait Test
+final case class SuccessfulTest(test: DeferredTest) extends Test
+final case class UnsuccessfulTest(test: ThrownTest) extends Test
 
 sealed trait CompositeTestResultState
 final case class AllPassed(name: TestName, pass: NonEmptySeq[SequentialPass]) extends CompositeTestResultState
 final case class StoppedOnFirstFailed(name: TestName, value: FirstFailed) extends CompositeTestResultState
 
 sealed trait TestResult
-//TODO: Come up with a better name for these
-//example IndependentAssertionTestResult
-//example SequentialAssertionTestResult
 final case class SingleTestResult(test: DeferredTest, assertionResults: NonEmptySeq[AssertionResult])  extends TestResult
 final case class CompositeTestResult(value: CompositeTestResultState) extends TestResult
+final case class TestThrewResult(test: ThrownTest) extends TestResult
 
 object TestResult {
 
@@ -30,6 +33,8 @@ object TestResult {
     case CompositeTestResult(_: AllPassed) => Passed
 
     case CompositeTestResult(_: StoppedOnFirstFailed) => Failed
+
+    case _: TestThrewResult => Failed
   }
 
   import stats.AssertionCount
@@ -50,18 +55,21 @@ object TestResult {
 
     case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(_, _, passed, notRun))) =>
       AssertionCount(StatusCount(passed.length, 1), notRun.length)
+
+    case _: TestThrewResult => Monoid[AssertionCount].mempty
   }
 
   def testName(tr: TestResult): TestName = tr match {
     case SingleTestResult(DeferredTest(name, _, _), _)      => name
     case CompositeTestResult(AllPassed(name, _))            => name
     case CompositeTestResult(StoppedOnFirstFailed(name, _)) => name
+    case TestThrewResult(ThrownTest(name, _, _))            => name
   }
 }
 
 final case class SuiteName(value: String)
 
-final case class DeferredSuite(name: SuiteName, tests: NonEmptySeq[DeferredTest])
+final case class DeferredSuite(name: SuiteName, tests: NonEmptySeq[Test])
 
 final case class SuiteResult(suite: DeferredSuite, testResults: NonEmptySeq[TestResult])
 

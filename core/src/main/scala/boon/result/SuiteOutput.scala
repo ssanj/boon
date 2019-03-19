@@ -1,5 +1,5 @@
 package boon
-package printers
+package result
 
 //  SuiteName [passed]
 //  - test1 [passed]
@@ -14,6 +14,7 @@ package printers
 import boon.model._
 import boon.model.TestResult.testResultToPassable
 import boon.model.SuiteResult.suiteResultToPassable
+import boon.result.Exception.getTraces
 
 
 final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], pass: Passable)
@@ -25,7 +26,7 @@ final case class SequentialFailData(name: String, error: String, context: Map[St
 
 sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
-final case class FailedOutput(name: String, error: String, context: Map[String, String], location: Option[String]) extends AssertionOutput
+final case class FailedOutput(name: String, error: String, trace: Seq[Trace], context: Map[String, String], location: Option[String]) extends AssertionOutput
 final case class SequentialPassedOutput(name: String, passed: NonEmptySeq[SequentialPassData]) extends AssertionOutput
 final case class SequentialFailedOutput(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]) extends AssertionOutput
 
@@ -38,7 +39,7 @@ object AssertionOutput {
                 sequentialPassed: (String, NonEmptySeq[SequentialPassData]) => A,
                 sequentialFailed: (String, SequentialFailData, Seq[SequentialPassData], Seq[SequentialNotRunData]) => A): A = ao match {
       case PassedOutput(name) => passed(name)
-      case FailedOutput(name, error, context, loc) => failed(name, error, context, loc)
+      case FailedOutput(name, error, trace, context, loc) => failed(name, error, context, loc)
       case SequentialPassedOutput(name, passed) => sequentialPassed(name, passed)
       case SequentialFailedOutput(name, failed, passed, notRun) => sequentialFailed(name, failed, passed, notRun)
     }
@@ -49,6 +50,8 @@ object AssertionOutput {
 
 object SuiteOutput {
 
+  val stackDepth = 5
+
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
       val assertionOutputs: NonEmptySeq[AssertionOutput] = tr match {
@@ -56,10 +59,10 @@ object SuiteOutput {
           assertionResults.map {
             case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
             case SingleAssertionResult(AssertionResultFailed(AssertionError(Assertion(AssertionName(name), _, ctx, loc), error))) =>
-              FailedOutput(name, error, ctx, sourceLocation(loc))
+              FailedOutput(name, error, Nil, ctx, sourceLocation(loc))
 
             case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(name), error, loc))) =>
-              FailedOutput(name, error.getMessage, Map.empty[String, String], sourceLocation(loc))
+              FailedOutput(name, error.getMessage, getTraces(error, stackDepth), Map.empty[String, String], sourceLocation(loc))
           }
 
         case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(AssertionName(name), failed,  passed, notRun))) =>
@@ -73,6 +76,9 @@ object SuiteOutput {
 
         case CompositeTestResult(AllPassed(TestName(name), passed)) =>
           NonEmptySeq.one(SequentialPassedOutput(name, passed.map(an => SequentialPassData(an.name.value))))
+
+        case TestThrewResult(ThrownTest(TestName(name), error, loc)) =>
+          NonEmptySeq.one(FailedOutput(name, error.getMessage, getTraces(error, stackDepth), Map.empty[String, String], sourceLocation(loc)))
       }
 
       TestOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
@@ -83,7 +89,7 @@ object SuiteOutput {
 
   def assertionName(ao: AssertionOutput): String = ao match {
     case PassedOutput(name)                   => name
-    case FailedOutput(name, _, _, _)          => name
+    case FailedOutput(name, _, _, _, _)       => name
     case SequentialPassedOutput(name, _)       => name
     case SequentialFailedOutput(name, _, _, _) => name
   }

@@ -2,27 +2,29 @@ package object boon {
 
 import boon.model._
 import syntax.toStrRep
-import syntax.frameworkFail
 
 import scala.util.Try
 
-  def test(name: => String)(data: => TestData)(implicit testLocation: SourceLocation): DeferredTest =
+  def test(name: => String)(data: => TestData)(implicit testLocation: SourceLocation): Test =
     Try(data).fold(ex => {
       // ex.printStackTrace
-      DeferredTest(TestName(name), (frameworkFail(s"${ex.getMessage}") | "!!Test threw an Exception!!").assertions, Independent)
+      UnsuccessfulTest(ThrownTest(TestName(name), ex, testLocation))
     } , td => {
-      DeferredTest(TestName(name), td.assertions, td.combinator)
+      SuccessfulTest(DeferredTest(TestName(name), td.assertions, td.combinator))
     })
 
-  def table[T: StringRep, U: Equality : Difference: StringRep](name: => String, values: NonEmptyMap[T, (U, SourceLocation)])(f: T => U): DeferredTest = {
-    DeferredTest(
-      TestName(name),
-      values.map {
-        case (t, (u, loc)) =>
-          implicit val sl: SourceLocation = loc
-          Boon.defineAssertion[U](s"with ${t.strRep} is ${u.strRep}", (Defer(() => f(t)), Defer(() => u)), IsEqual)
-      },
-      Independent
+  def table[T: StringRep, U: Equality : Difference: StringRep](name: => String, values: NonEmptyMap[T, (U, SourceLocation)])(f: T => U): Test = {
+    SuccessfulTest(
+      DeferredTest(
+        TestName(name),
+        //TODO: we may need to Try over these values
+        values.map {
+          case (t, (u, loc)) =>
+            implicit val sl: SourceLocation = loc
+            Boon.defineAssertion[U](s"with ${t.strRep} is ${u.strRep}", (Defer(() => f(t)), Defer(() => u)), IsEqual)
+        },
+        Independent
+      )
     )
   }
 

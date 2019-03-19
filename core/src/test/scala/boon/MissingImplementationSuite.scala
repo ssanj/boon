@@ -1,7 +1,7 @@
 package boon
 
 import syntax._
-import printers._
+import result.SuiteOutput
 
 object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite") {
 

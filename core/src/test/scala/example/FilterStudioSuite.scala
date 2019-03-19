@@ -2,7 +2,10 @@ package example
 
 import boon._
 import syntax._
-import printers._
+import result.SuiteOutput
+import printers.SimplePrinter
+import printers.PrinterSetting
+import printers.ShowColours
 
 object FilterStudioSuite extends SuiteLike("FilterStudio") {
   import FilterStudio._

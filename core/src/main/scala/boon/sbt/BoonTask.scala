@@ -10,7 +10,7 @@ import boon.Boon
 import boon.model.Failed
 import boon.model.Passed
 import boon.printers.ColourOutput
-import boon.printers.SuiteOutput
+import boon.result.SuiteOutput
 import boon.model.SuiteResult
 
 import boon.sbt.Event.createEvent

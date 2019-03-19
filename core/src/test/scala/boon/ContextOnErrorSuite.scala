@@ -1,7 +1,7 @@
 package boon
 
 import syntax._
-import printers.SuiteOutput
+import result.SuiteOutput
 
 object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
 
