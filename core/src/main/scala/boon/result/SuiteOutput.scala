@@ -18,7 +18,10 @@ import boon.result.Exception.getTraces
 
 
 final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], pass: Passable)
-final case class TestOutput(name: String, assertions: NonEmptySeq[AssertionOutput], pass: Passable)
+
+sealed trait TestOutput extends Product with Serializable
+final case class TestPassedOutput(name: String, assertions: NonEmptySeq[AssertionOutput], pass: Passable) extends TestOutput
+final case class TestThrewOutput(name: String, error: String, trace: Seq[Trace], loc: SourceLocation) extends TestOutput
 
 final case class SequentialPassData(name: String)
 final case class SequentialNotRunData(name: String)
@@ -26,6 +29,7 @@ final case class SequentialFailData(name: String, error: String, context: Map[St
 
 sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
+
 final case class FailedOutput(name: String, error: String, trace: Seq[Trace], context: Map[String, String], location: Option[String]) extends AssertionOutput
 final case class SequentialPassedOutput(name: String, passed: NonEmptySeq[SequentialPassData]) extends AssertionOutput
 final case class SequentialFailedOutput(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]) extends AssertionOutput
@@ -54,16 +58,20 @@ object SuiteOutput {
 
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
-      val assertionOutputs: NonEmptySeq[AssertionOutput] = tr match {
+      tr match {
         case SingleTestResult(test, assertionResults) =>
-          assertionResults.map {
-            case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
-            case SingleAssertionResult(AssertionResultFailed(AssertionError(Assertion(AssertionName(name), _, ctx, loc), error))) =>
-              FailedOutput(name, error, Nil, ctx, sourceLocation(loc))
 
-            case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(name), error, loc))) =>
-              FailedOutput(name, error.getMessage, getTraces(error, stackDepth), Map.empty[String, String], sourceLocation(loc))
-          }
+          val assertionOutputs: NonEmptySeq[AssertionOutput] =
+            assertionResults.map {
+              case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
+              case SingleAssertionResult(AssertionResultFailed(AssertionError(Assertion(AssertionName(name), _, ctx, loc), error))) =>
+                FailedOutput(name, error, Nil, ctx, sourceLocation(loc))
+
+              case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(name), error, loc))) =>
+                FailedOutput(name, error.getMessage, getTraces(error, stackDepth), Map.empty[String, String], sourceLocation(loc))
+            }
+
+          TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
 
         case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(AssertionName(name), failed,  passed, notRun))) =>
             val failedData =
@@ -72,16 +80,21 @@ object SuiteOutput {
                   SequentialFailData(name1, error, ctx, sourceLocation(loc))
                 }, ct => SequentialFailData(ct.value.name.value, ct.value.value.getMessage, Map.empty[String, String], sourceLocation(ct.value.location))
               )
-            NonEmptySeq.one(SequentialFailedOutput(name, failedData, passed.map(an => SequentialPassData(an.name.value)), notRun.map(an => SequentialNotRunData(an.name.value))))
+
+            val assertionOutputs: NonEmptySeq[AssertionOutput] =
+              NonEmptySeq.one(SequentialFailedOutput(name, failedData, passed.map(an => SequentialPassData(an.name.value)), notRun.map(an => SequentialNotRunData(an.name.value))))
+
+          TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
 
         case CompositeTestResult(AllPassed(TestName(name), passed)) =>
-          NonEmptySeq.one(SequentialPassedOutput(name, passed.map(an => SequentialPassData(an.name.value))))
+          val assertionOutputs: NonEmptySeq[AssertionOutput] =
+            NonEmptySeq.one(SequentialPassedOutput(name, passed.map(an => SequentialPassData(an.name.value))))
+
+          TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
 
         case TestThrewResult(ThrownTest(TestName(name), error, loc)) =>
-          NonEmptySeq.one(FailedOutput(name, error.getMessage, getTraces(error, stackDepth), Map.empty[String, String], sourceLocation(loc)))
+          TestThrewOutput(name, error.getMessage, getTraces(error, stackDepth), loc)
       }
-
-      TestOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
     }
 
     SuiteOutput(suiteResult.suite.name.value, testOutputs, suiteResultToPassable(suiteResult))

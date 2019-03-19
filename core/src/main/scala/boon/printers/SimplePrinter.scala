@@ -13,6 +13,8 @@ import boon.result.SequentialFailedOutput
 import boon.result.SequentialPassedOutput
 import boon.result.AssertionOutput
 import boon.result.SequentialFailData
+import boon.result.TestPassedOutput
+import boon.result.TestThrewOutput
 import boon.result.Trace
 
 
@@ -34,7 +36,7 @@ object SimplePrinter {
   }
 
   private def testOutputString(to: TestOutput, ps: PrinterSetting): String = to match {
-    case TestOutput(name, assertions, pass) =>
+    case TestPassedOutput(name, assertions, pass) =>
       val token = pass match {
         case Passed => ps.test.tokens.passed
         case Failed => ps.test.tokens.failed
@@ -44,6 +46,22 @@ object SimplePrinter {
 
       s"${ps.test.padding} - ${colouredTestName} ${token}${EOL}" +
         assertions.map(assertionOutputString(_, ps)).toSeq.mkString(EOL)
+
+    case TestThrewOutput(name, error, trace, loc) =>
+      val token = ps.test.tokens.failed
+      val colouredTestName = ps.test.colour(name)
+
+      s"${ps.test.padding} - ${colouredTestName} ${token}${EOL}" +
+      (
+        if (trace.nonEmpty) {
+        s"${ps.assertion.failedPadding} !!Exception thrown!!${EOL}" +
+          trace.map(traceString).
+            mkString(s" ${ps.assertion.failedPadding}> ",
+                       s"${EOL} ${ps.assertion.failedPadding}> ",
+                     EOL)
+       } else ""
+     ) +
+     s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${loc}"
   }
 
   private def assertionOutputString(ao: AssertionOutput, ps: PrinterSetting): String = ao match {
@@ -55,14 +73,14 @@ object SimplePrinter {
 
       val baseError =
         s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.common.failed}${EOL}" +
-        (if (trace.nonEmpty) {
-          s"${ps.assertion.failedPadding} !!Exception thrown!!${EOL}" +
-            trace.map(traceString).
-              mkString(s" ${ps.assertion.failedPadding}> ",
-                         s"${EOL} ${ps.assertion.failedPadding}> ",
-                       EOL)
-         } else ""
-        ) +
+        // (if (trace.nonEmpty) {
+        //   s"${ps.assertion.failedPadding} !!Exception thrown!!${EOL}" +
+        //     trace.map(traceString).
+        //       mkString(s" ${ps.assertion.failedPadding}> ",
+        //                  s"${EOL} ${ps.assertion.failedPadding}> ",
+        //                EOL)
+        //  } else ""
+        // ) +
         s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${location}"
 
       if (ctx.nonEmpty) {
