@@ -9,7 +9,7 @@ import scala.util.Try
   def test(name: => String)(data: => TestData)(implicit testLocation: SourceLocation): DeferredTest =
     Try(data).fold(ex => {
       // ex.printStackTrace
-      DeferredTest(TestName(name), frameworkFail(s"${ex.getMessage}") | "!!Test threw an Exception!!", Independent)
+      DeferredTest(TestName(name), (frameworkFail(s"${ex.getMessage}") | "!!Test threw an Exception!!").assertions, Independent)
     } , td => {
       DeferredTest(TestName(name), td.assertions, td.combinator)
     })

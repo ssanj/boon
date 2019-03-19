@@ -17,7 +17,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
     }, fo => fail(s"assertion passed: $fo") | "assertionOutput",
        (name, _) => fail(s"assertion passed: $name") | "assertionOutput type",
        (name, _, _, _) => fail(s"assertion failed: $name") | "assertionOutput type"
-    ) sequentially()
+    ) seq()
   }
 
   override val tests = NonEmptySeq.nes(t1)

@@ -11,8 +11,8 @@ package object syntax {
   implicit def deferAToEqSyntax[A](dValue: Defer[A]): EqSyntax[A] =
     new EqSyntax[A](dValue.run) //this is safe because EqSyntax is lazy
 
-  implicit def toNonEmptySeqOfAssertions(continueSyntax: ContinueSyntax): NonEmptySeq[Assertion] =
-    continueSyntax.assertions
+  implicit def toContinueSyntaxFromSeqOfContinueSyntax(continueSyntaxes: NonEmptySeq[ContinueSyntax]): ContinueSyntax =
+    continueSyntaxes.tail.foldLeft(continueSyntaxes.head)(_ and _)
 
   implicit def toTestData(continueSyntax: ContinueSyntax): TestData =
     TestData(continueSyntax.assertions, Independent)
@@ -23,9 +23,18 @@ package object syntax {
   implicit def deferBooleanToDescSyntax(value: Defer[Boolean]): DescSyntax[Boolean] =
     new DescSyntax[Boolean]((value, defer(true)), IsEqual)
 
+  //TODO: Do we need this?
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 
-  def failAssertion(reason: String): DescSyntax[FailableAssertion] = {
+  def assertions(first: ContinueSyntax, rest: ContinueSyntax*): ContinueSyntax = {
+    NonEmptySeq.nes(first, rest:_*)
+  }
+
+  def ->>(first: ContinueSyntax, rest: ContinueSyntax*) = assertions(first, rest:_*).ind()
+
+  def ->|>(first: ContinueSyntax, rest: ContinueSyntax*) = assertions(first, rest:_*).seq()
+
+  private def failAssertion(reason: String): DescSyntax[FailableAssertion] = {
     upcast[FailedAssertion, FailableAssertion](FailedAssertion(reason)) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
   }
 
@@ -36,9 +45,9 @@ package object syntax {
   def pass: DescSyntax[FailableAssertion] =
     upcast[PassedAssertion.type, FailableAssertion](PassedAssertion) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
 
-  def upcast[Sub, Super](value: Sub)(implicit CAST:Sub <:< Super): Super = CAST(value)
+  private def upcast[Sub, Super](value: Sub)(implicit CAST:Sub <:< Super): Super = CAST(value)
 
-  def assertion(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
+  private def assertionBlock(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
     val nameOp = for {
       fn  <- loc.fileName
     } yield s"assertion @ (${fn}:${loc.line})"
@@ -50,5 +59,5 @@ package object syntax {
     }, identity _)
   }
 
-  def %(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertion(cs)(loc)
+  def %(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs)(loc)
 }

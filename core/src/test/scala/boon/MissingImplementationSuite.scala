@@ -24,7 +24,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
          (name, _) => fail(s"composite passed: $name") | "assertionOutput type",
          (name, _, _, _) => fail(s"composite failed: $name") | "assertionOutput type"
       )
-    } sequentially()
+    } seq()
   }
 
   override val tests = NonEmptySeq.nes(t1)

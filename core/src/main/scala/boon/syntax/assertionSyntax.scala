@@ -11,6 +11,7 @@ import boon.model.StringRep
 import boon.model.Difference
 import boon.model.TestData
 import boon.model.Sequential
+import boon.model.Independent
 
 import Boon.defineAssertion
 import Boon.defineAssertionWithContext
@@ -65,6 +66,7 @@ final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
 
     def and(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
 
-    def sequentially(): TestData = TestData(assertions, Sequential)
-}
+    def seq(): TestData = TestData(assertions, Sequential)
 
+    def ind(): TestData = TestData(assertions, Independent)
+}
