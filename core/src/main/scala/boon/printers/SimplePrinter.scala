@@ -56,31 +56,13 @@ object SimplePrinter {
       s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${loc}"
   }
 
-  private def exceptionTrace(ps: PrinterSetting, trace: Seq[Trace]): String = {
-    if (trace.nonEmpty) {
-      s"${ps.assertion.failedPadding} ${ps.colourError("!!Exception thrown!!")}${EOL}" +
-        trace.map(traceString).
-          mkString(s" ${ps.assertion.failedPadding}> ",
-                   s"${EOL} ${ps.assertion.failedPadding}> ",
-                   EOL
-          )
-    } else ""
-  }
-
-  private def contextString(ps: PrinterSetting, ctx: Map[String, String], baseError: String): String = {
-    if (ctx.nonEmpty) {
-      s"${baseError}${EOL}" +
-      s"${ps.assertion.failedContextPadding}#: " +
-      s"${ctx.mkString(s"${EOL}${ps.assertion.failedContextElementPadding}")}"
-    } else baseError
-  }
 
   private def assertionOutputString(ao: AssertionOutput, ps: PrinterSetting): String = ao match {
     case PassedOutput(name)        =>
       s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.common.passed}"
 
     case FailedOutput(name, error, trace, ctx, loc) =>
-      val location = loc.fold("")(l => s"[$l]")
+      val location = correlateLocation(trace, loc).getOrElse("")
 
       val baseError =
         s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.common.failed}${EOL}" +
@@ -113,6 +95,25 @@ object SimplePrinter {
       contextString(ps, ctx, baseError)
   }
 
+  private def exceptionTrace(ps: PrinterSetting, trace: Seq[Trace]): String = {
+    if (trace.nonEmpty) {
+      s"${ps.assertion.failedPadding} ${ps.colourError("!!Exception thrown!!")}${EOL}" +
+        trace.map(traceString).
+          mkString(s" ${ps.assertion.failedPadding}> ",
+                   s"${EOL} ${ps.assertion.failedPadding}> ",
+                   EOL
+          )
+    } else ""
+  }
+
+  private def contextString(ps: PrinterSetting, ctx: Map[String, String], baseError: String): String = {
+    if (ctx.nonEmpty) {
+      s"${baseError}${EOL}" +
+      s"${ps.assertion.failedContextPadding}#: " +
+      s"${ctx.mkString(s"${EOL}${ps.assertion.failedContextElementPadding}")}"
+    } else baseError
+  }
+
   private def traceString(trace: Trace): String = {
     val className  = trace.className
     val fileName   = trace.fileName.getOrElse("-")
@@ -120,6 +121,15 @@ object SimplePrinter {
     val lineNumber = trace.lineNumber.fold("?")(_.toString)
 
     s"${className}${methodName}(${fileName}:${lineNumber})"
+  }
+
+  private def correlateLocation(trace: Seq[Trace], location: SourceLocation): Option[String] = {
+    (for {
+       locFilePath  <- location.filePath
+       matchedTrace <- trace.find(tr => locFilePath.endsWith(tr.fileName.getOrElse("")))
+       line <- matchedTrace.lineNumber
+      } yield s"${locFilePath}:${line}"
+    ).fold(SuiteOutput.sourceLocation(location))(Option(_))
   }
 
 }

@@ -29,7 +29,7 @@ final case class SequentialFailData(name: String, error: String, context: Map[St
 sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
 
-final case class FailedOutput(name: String, error: String, trace: Seq[Trace], context: Map[String, String], location: Option[String]) extends AssertionOutput
+final case class FailedOutput(name: String, error: String, trace: Seq[Trace], context: Map[String, String], location: SourceLocation) extends AssertionOutput
 final case class SequentialPassedOutput(name: String, passed: NonEmptySeq[SequentialPassData]) extends AssertionOutput
 final case class SequentialFailedOutput(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]) extends AssertionOutput
 
@@ -37,7 +37,7 @@ final case class SequentialFailedOutput(name: String, failed: SequentialFailData
 object AssertionOutput {
 
   final case class FoldSyntax(ao: AssertionOutput) {
-    def fold[A](failed: (String, String, Map[String, String], Option[String]) => A,
+    def fold[A](failed: (String, String, Map[String, String], SourceLocation) => A,
                 passed: String => A,
                 sequentialPassed: (String, NonEmptySeq[SequentialPassData]) => A,
                 sequentialFailed: (String, SequentialFailData, Seq[SequentialPassData], Seq[SequentialNotRunData]) => A): A = ao match {
@@ -64,10 +64,10 @@ object SuiteOutput {
             assertionResults.map {
               case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(name), _, _))) => PassedOutput(name)
               case SingleAssertionResult(AssertionResultFailed(AssertionError(Assertion(AssertionName(name), _, ctx, loc), error))) =>
-                FailedOutput(name, error, Nil, ctx, sourceLocation(loc))
+                FailedOutput(name, error, Nil, ctx, loc)
 
               case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(name), error, loc))) =>
-                FailedOutput(name, error.getMessage, getTraces(error, stackDepth), Map.empty[String, String], sourceLocation(loc))
+                FailedOutput(name, error.getMessage, getTraces(error, stackDepth), Map.empty[String, String], loc)
             }
 
           TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
