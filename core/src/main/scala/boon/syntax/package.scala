@@ -30,11 +30,9 @@ package object syntax {
     NonEmptySeq.nes(first, rest:_*)
   }
 
-  def ->>(first: ContinueSyntax, rest: ContinueSyntax*) = assertions(first, rest:_*).ind()
+  def ->>(first: ContinueSyntax, rest: ContinueSyntax*): TestData = assertions(first, rest:_*).ind()
 
-  def ->|>(first: ContinueSyntax, rest: ContinueSyntax*) = assertions(first, rest:_*).seq()
-
-  def ->%(first: ContinueSyntax, rest: ContinueSyntax*) = assertions(first, rest:_*)
+  def ->|>(first: ContinueSyntax, rest: ContinueSyntax*): TestData = assertions(first, rest:_*).seq()
 
   private def failAssertion(reason: String): DescSyntax[FailableAssertion] = {
     upcast[FailedAssertion, FailableAssertion](FailedAssertion(reason)) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
@@ -49,7 +47,7 @@ package object syntax {
 
   private def upcast[Sub, Super](value: Sub)(implicit CAST:Sub <:< Super): Super = CAST(value)
 
-  private def assertionBlock(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
+  def assertionBlock(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
     val nameOp = for {
       fn  <- loc.fileName
     } yield s"assertion @ (${fn}:${loc.line})"
@@ -61,4 +59,6 @@ package object syntax {
   }
 
   def %(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs)(loc)
+
+  def ->%(first: ContinueSyntax, rest: ContinueSyntax*): ContinueSyntax = assertions(first, rest:_*)
 }

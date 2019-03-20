@@ -7,7 +7,6 @@ import scala.util.Try
 
   def test(name: => String)(data: => TestData)(implicit testLocation: SourceLocation): Test =
     Try(data).fold(ex => {
-      // ex.printStackTrace
       UnsuccessfulTest(ThrownTest(TestName(name), ex, testLocation))
     } , td => {
       SuccessfulTest(DeferredTest(TestName(name), td.assertions, td.combinator))
