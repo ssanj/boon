@@ -52,16 +52,27 @@ object SimplePrinter {
       val colouredTestName = ps.test.colour(name)
 
       s"${ps.test.padding} - ${colouredTestName} ${token}${EOL}" +
-      (
-        if (trace.nonEmpty) {
-        s"${ps.assertion.failedPadding} !!Exception thrown!!${EOL}" +
-          trace.map(traceString).
-            mkString(s" ${ps.assertion.failedPadding}> ",
-                       s"${EOL} ${ps.assertion.failedPadding}> ",
-                     EOL)
-       } else ""
-     ) +
-     s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${loc}"
+      exceptionTrace(ps, trace) +
+      s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${loc}"
+  }
+
+  private def exceptionTrace(ps: PrinterSetting, trace: Seq[Trace]): String = {
+    if (trace.nonEmpty) {
+      s"${ps.assertion.failedPadding} ${ps.colourError("!!Exception thrown!!")}${EOL}" +
+        trace.map(traceString).
+          mkString(s" ${ps.assertion.failedPadding}> ",
+                   s"${EOL} ${ps.assertion.failedPadding}> ",
+                   EOL
+          )
+    } else ""
+  }
+
+  private def contextString(ps: PrinterSetting, ctx: Map[String, String], baseError: String): String = {
+    if (ctx.nonEmpty) {
+      s"${baseError}${EOL}" +
+      s"${ps.assertion.failedContextPadding}#: " +
+      s"${ctx.mkString(s"${EOL}${ps.assertion.failedContextElementPadding}")}"
+    } else baseError
   }
 
   private def assertionOutputString(ao: AssertionOutput, ps: PrinterSetting): String = ao match {
@@ -73,21 +84,10 @@ object SimplePrinter {
 
       val baseError =
         s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.common.failed}${EOL}" +
-        // (if (trace.nonEmpty) {
-        //   s"${ps.assertion.failedPadding} !!Exception thrown!!${EOL}" +
-        //     trace.map(traceString).
-        //       mkString(s" ${ps.assertion.failedPadding}> ",
-        //                  s"${EOL} ${ps.assertion.failedPadding}> ",
-        //                EOL)
-        //  } else ""
-        // ) +
+        exceptionTrace(ps, trace) +
         s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${location}"
 
-      if (ctx.nonEmpty) {
-        s"${baseError}${EOL}" +
-        s"${ps.assertion.failedContextPadding}#: " +
-        s"${ctx.mkString(s"${EOL}${ps.assertion.failedContextElementPadding}")}"
-      } else baseError
+        contextString(ps, ctx, baseError)
 
     case SequentialPassedOutput(name, passed) =>
       val compositePasses = passed.map(pa => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
@@ -110,11 +110,7 @@ object SimplePrinter {
         s"${errorReason}" +
         (if (notRun.nonEmpty) s"${EOL}${compositeNotRun}" else "")
 
-      if (ctx.nonEmpty) {
-        s"${baseError}${EOL}" +
-        s"${ps.assertion.failedContextPadding}#: " +
-        s"${ctx.mkString(s"${EOL}${ps.assertion.failedContextElementPadding}")}"
-      } else baseError
+      contextString(ps, ctx, baseError)
   }
 
   private def traceString(trace: Trace): String = {

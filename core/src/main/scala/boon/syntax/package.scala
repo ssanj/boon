@@ -56,7 +56,7 @@ package object syntax {
 
     val name = nameOp.fold(s"assertion @ (-:${loc.line})")(identity _)
     Try(cs).fold(ex => {
-      frameworkFail(ex.getMessage) | s"${name} !!threw an Exception!!"
+      defer[Boolean](throw ex) | s"${name} !!threw an Exception!!"
     }, identity _)
   }
 
