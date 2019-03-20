@@ -6,6 +6,7 @@ import scala.util.Try
 
 package object syntax {
 
+  //implicits
   implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
 
   implicit def deferAToEqSyntax[A](dValue: Defer[A]): EqSyntax[A] =
@@ -26,27 +27,8 @@ package object syntax {
   //TODO: Do we need this?
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 
-  def assertions(first: ContinueSyntax, rest: ContinueSyntax*): ContinueSyntax = {
-    NonEmptySeq.nes(first, rest:_*)
-  }
 
-  def ->>(first: ContinueSyntax, rest: ContinueSyntax*): TestData = assertions(first, rest:_*).ind()
-
-  def ->|>(first: ContinueSyntax, rest: ContinueSyntax*): TestData = assertions(first, rest:_*).seq()
-
-  private def failAssertion(reason: String): DescSyntax[FailableAssertion] = {
-    upcast[FailedAssertion, FailableAssertion](FailedAssertion(reason)) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
-  }
-
-  def fail(reason: String): DescSyntax[FailableAssertion] = failAssertion(s"explicit fail: $reason")
-
-  def frameworkFail(reason: String): DescSyntax[FailableAssertion] = failAssertion(s"boon framework error: $reason")
-
-  def pass: DescSyntax[FailableAssertion] =
-    upcast[PassedAssertion.type, FailableAssertion](PassedAssertion) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
-
-  private def upcast[Sub, Super](value: Sub)(implicit CAST:Sub <:< Super): Super = CAST(value)
-
+  //descriptive
   def assertionBlock(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
     val nameOp = for {
       fn  <- loc.fileName
@@ -58,7 +40,30 @@ package object syntax {
     }, identity _)
   }
 
+  def assertions(first: ContinueSyntax, rest: ContinueSyntax*): ContinueSyntax = {
+    NonEmptySeq.nes(first, rest:_*)
+  }
+
+  def fail(reason: String): DescSyntax[FailableAssertion] = failAssertion(s"explicit fail: $reason")
+
+  def frameworkFail(reason: String): DescSyntax[FailableAssertion] = failAssertion(s"boon framework error: $reason")
+
+  def pass: DescSyntax[FailableAssertion] =
+    upcast[PassedAssertion.type, FailableAssertion](PassedAssertion) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
+
+  //Symbols
+  def ->>(first: ContinueSyntax, rest: ContinueSyntax*): TestData = assertions(first, rest:_*).ind()
+
+  def ->|>(first: ContinueSyntax, rest: ContinueSyntax*): TestData = assertions(first, rest:_*).seq()
+
   def %(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs)(loc)
 
   def ->%(first: ContinueSyntax, rest: ContinueSyntax*): ContinueSyntax = assertions(first, rest:_*)
+
+  private def failAssertion(reason: String): DescSyntax[FailableAssertion] = {
+    upcast[FailedAssertion, FailableAssertion](FailedAssertion(reason)) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
+  }
+
+  private def upcast[Sub, Super](value: Sub)(implicit CAST:Sub <:< Super): Super = CAST(value)
+
 }
