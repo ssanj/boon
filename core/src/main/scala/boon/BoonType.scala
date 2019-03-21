@@ -1,4 +1,8 @@
-package boon.model
+package boon
+
+import boon.model.Difference
+import boon.model.Equality
+import boon.model.StringRep
 
 trait BoonType[A] extends Equality[A] with StringRep[A] with Difference[A]
 

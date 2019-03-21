@@ -1,7 +1,6 @@
 package boon
 
 import syntax._
-import boon.model.BoonType
 
 object CustomClassesSuite extends SuiteLike("CustomClasses") {
 
