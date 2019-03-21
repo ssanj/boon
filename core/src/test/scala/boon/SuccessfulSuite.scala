@@ -3,6 +3,7 @@ package boon
 import syntax._
 import model.Passed
 import model.Passable
+import model.TestData
 import result.SuiteOutput
 import result.AssertionOutput
 import result.TestPassedOutput
@@ -56,8 +57,18 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
         }
       )
 
-    }, thrown   => fail(s"expected only successful tests but got: ${thrown}") | "test type",
-       (po, to) => fail(s"expected only successful tests but got both: ${po} and ${to}") | "test type")
+    }, unexpectedFailedOutput(f => s"expected only successful tests but got: ${f}", "test type"),
+       unexpectedMixedOutput((f, p) => s"expected only successful tests but got both: ${f} and ${p}", "test type"))
+  }
+
+  private def unexpectedFailedOutput(message: NonEmptySeq[XFailedOutput] => String,
+                                     assertionName: String): NonEmptySeq[XFailedOutput] => TestData = failures => {
+      fail(message(failures)) | assertionName
+  }
+
+  private def unexpectedMixedOutput(message: (NonEmptySeq[XPassedOutput], NonEmptySeq[XFailedOutput]) => String,
+                                     assertionName: String): (NonEmptySeq[XPassedOutput], NonEmptySeq[XFailedOutput]) => TestData = (failures, passes) => {
+      fail(message(failures, passes)) | assertionName
   }
 
   override val tests = NonEmptySeq.nes(t1)
