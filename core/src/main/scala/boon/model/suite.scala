@@ -9,6 +9,7 @@ final case class ThrownTest(name: TestName, error: Throwable, loc: SourceLocatio
 sealed trait Test
 final case class SuccessfulTest(test: DeferredTest) extends Test
 final case class UnsuccessfulTest(test: ThrownTest) extends Test
+final case class IgnoredTest(test: TestName) extends Test
 
 sealed trait CompositeTestResultState
 final case class AllPassed(name: TestName, pass: NonEmptySeq[SequentialPass]) extends CompositeTestResultState
@@ -18,6 +19,7 @@ sealed trait TestResult
 final case class SingleTestResult(test: DeferredTest, assertionResults: NonEmptySeq[AssertionResult])  extends TestResult
 final case class CompositeTestResult(value: CompositeTestResultState) extends TestResult
 final case class TestThrewResult(test: ThrownTest) extends TestResult
+final case class TestIgnoredResult(name: TestName) extends TestResult
 
 object TestResult {
 
@@ -35,6 +37,8 @@ object TestResult {
     case CompositeTestResult(_: StoppedOnFirstFailed) => Failed
 
     case _: TestThrewResult => Failed
+
+    case _: TestIgnoredResult => Passed
   }
 
   import stats.AssertionCount
@@ -57,6 +61,8 @@ object TestResult {
       AssertionCount(StatusCount(passed.length, 1), notRun.length)
 
     case _: TestThrewResult => Monoid[AssertionCount].mempty
+
+    case _: TestIgnoredResult => Monoid[AssertionCount].mempty
   }
 
   def testName(tr: TestResult): TestName = tr match {
@@ -64,6 +70,7 @@ object TestResult {
     case CompositeTestResult(AllPassed(name, _))            => name
     case CompositeTestResult(StoppedOnFirstFailed(name, _)) => name
     case TestThrewResult(ThrownTest(name, _, _))            => name
+    case TestIgnoredResult(name)                            => name
   }
 }
 

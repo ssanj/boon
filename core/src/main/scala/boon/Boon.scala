@@ -47,6 +47,8 @@ object Boon {
   def runTest(test: Test): TestResult = test match {
     case UnsuccessfulTest(tTest: ThrownTest) => TestThrewResult(tTest)
 
+    case IgnoredTest(name: TestName) => TestIgnoredResult(name)
+
     case SuccessfulTest(dTest: DeferredTest) =>
         dTest.combinator match {
           case Independent => SingleTestResult(dTest, dTest.assertions.map(runAssertion))

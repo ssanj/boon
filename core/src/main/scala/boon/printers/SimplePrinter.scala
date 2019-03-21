@@ -15,6 +15,7 @@ import boon.result.AssertionOutput
 import boon.result.SequentialFailData
 import boon.result.TestPassedOutput
 import boon.result.TestThrewOutput
+import boon.result.TestIgnoredOutput
 import boon.result.Trace
 
 
@@ -38,8 +39,8 @@ object SimplePrinter {
   private def testOutputString(to: TestOutput, ps: PrinterSetting): String = to match {
     case TestPassedOutput(name, assertions, pass) =>
       val token = pass match {
-        case Passed => ps.test.tokens.passed
-        case Failed => ps.test.tokens.failed
+        case Passed => ps.test.tokens.common.passed
+        case Failed => ps.test.tokens.common.failed
       }
 
       val colouredTestName = ps.test.colour(name)
@@ -48,12 +49,18 @@ object SimplePrinter {
         assertions.map(assertionOutputString(_, ps)).toSeq.mkString(EOL)
 
     case TestThrewOutput(name, error, trace, loc) =>
-      val token = ps.test.tokens.failed
+      val token = ps.test.tokens.common.failed
       val colouredTestName = ps.test.colour(name)
 
       s"${ps.test.padding} - ${colouredTestName} ${token}${EOL}" +
       exceptionTrace(ps, trace) +
       s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${loc}"
+
+    case TestIgnoredOutput(name) =>
+      val token = ps.test.tokens.ignored
+      val colouredTestName = ps.test.colour(name)
+
+      s"${ps.test.padding} ● ${colouredTestName} ${token}"
   }
 
 

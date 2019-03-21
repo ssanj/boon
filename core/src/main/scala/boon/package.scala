@@ -27,6 +27,11 @@ import scala.util.Try
     )
   }
 
+
+  def xtest(name: => String)(data: => TestData): Test = {
+    IgnoredTest(TestName(name))
+  }
+
   def defer[A](value: => A): Defer[A] = Defer[A](() => value)
 
   def tval[U](value: U)(implicit SL: SourceLocation): (U, SourceLocation) = (value, SL)

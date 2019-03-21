@@ -21,6 +21,7 @@ final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], pass:
 sealed trait TestOutput extends Product with Serializable
 final case class TestPassedOutput(name: String, assertions: NonEmptySeq[AssertionOutput], pass: Passable) extends TestOutput
 final case class TestThrewOutput(name: String, error: String, trace: Seq[Trace], loc: SourceLocation) extends TestOutput
+final case class TestIgnoredOutput(name: String) extends TestOutput
 
 final case class SequentialPassData(name: String)
 final case class SequentialNotRunData(name: String)
@@ -93,6 +94,9 @@ object SuiteOutput {
 
         case TestThrewResult(ThrownTest(TestName(name), error, loc)) =>
           TestThrewOutput(name, error.getMessage, getTraces(error, stackDepth), loc)
+
+        case TestIgnoredResult(TestName(name)) =>
+          TestIgnoredOutput(name)
       }
     }
 

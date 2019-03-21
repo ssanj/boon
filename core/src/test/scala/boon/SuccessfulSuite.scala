@@ -7,6 +7,7 @@ import result.SuiteOutput
 import result.AssertionOutput
 import result.TestPassedOutput
 import result.TestThrewOutput
+import result.TestIgnoredOutput
 
 object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
 
@@ -22,6 +23,7 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
       case tpo@TestPassedOutput(_, _, Passed) => Left(XPassedOutput(tpo.name, tpo.assertions, tpo.pass))
       case TestPassedOutput(name, _, _)       => Right(XFailedOutput(name))
       case TestThrewOutput(name, _, _, _)     => Right(XFailedOutput(name))
+      case TestIgnoredOutput(name)            => Right(XFailedOutput(name))
     }
 
     runResult.fold(po => {
