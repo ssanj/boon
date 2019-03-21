@@ -9,15 +9,13 @@ trait Equality[A] {
   def neql(a1: A, a2: A): Boolean = !eql(a1, a2)
 }
 
-trait LowPriorityEquality {
-  implicit def genericEquality[A]: Equality[A] = new Equality[A] {
-    override def eql(a1: A, a2: A): Boolean = a1 == a2
-  }
-}
-
-object Equality extends LowPriorityEquality {
+object Equality {
 
   def apply[A: Equality]: Equality[A] = implicitly[Equality[A]]
+
+  def genericEquality[A]: Equality[A] = new Equality[A] {
+    override def eql(a1: A, a2: A): Boolean = a1 == a2
+  }
 
   implicit object IntEquality extends Equality[Int] {
     override def eql(a1: Int, a2: Int): Boolean = a1 == a2
