@@ -1,40 +1,51 @@
-// package boon
+package boon
 
-// import syntax._
-// import result.SuiteOutput
+import syntax._
+import result.SuiteOutput
+import model.Failed
+import model.Passable
 
-// object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
+object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
 
-//   private val so = ContextOnErrorFixture.run
+  private val so = ContextOnErrorFixture.run
 
-//   private val t1 = test("show context on error") {
-//     so.tests.length =?= 1 | "have 1 test" and
-//     so.tests.toSeq(0).assertions.length =?= 1 | "have 1 assertion" and
-//     so.tests.toSeq(0).assertions.toSeq(0).fold({(name, error, context, _) =>
-//       name    =?= "Frodo is a hobbit" | "assertion.name"  and
-//       error   =?= "false is not true" | "assertion.error" and
-//       context =?= Map("allHobbits" -> "Bilbo,Sam,Bingo,Merimas", "missing" -> "Frodo") | "assertion.context"
-//     }, fo => fail(s"assertion passed: $fo") | "assertionOutput",
-//        (name, _) => fail(s"assertion passed: $name") | "assertionOutput type",
-//        (name, _, _, _) => fail(s"assertion failed: $name") | "assertionOutput type"
-//     ) seq()
-//   }
+  implicit val passableBoonType = BoonType.defaults[Passable]
 
-//   override val tests = NonEmptySeq.nes(t1)
-// }
+  private val t1 = test("show context on error") {
+    so.tests.length =?= 1 | "have 1 test" and %@(so.tests.head) { t1 =>
+      t1.fold({ (name, t1assertions, passable) =>
+        t1assertions.length =?= 1       | "have 1 assertion" and
+        passable            =?= Failed  | s"test: $name should have failed" and
+        t1assertions.head.fold({(name, error, context, _) =>
+          name    =?= "Frodo is a hobbit"          | "assertion.name"  and
+          error   =?= "false is not true"          | "assertion.error" and
+          context =?= Map(
+                          "allHobbits" -> "Bilbo,Sam,Bingo,Merimas",
+                          "missing"    -> "Frodo") | "assertion.context"
+        }, fo => fail(s"assertion passed : $fo") | "assertionOutput type",
+           (name, _)       => fail(s"single assertion passed but expected an assertion: $name") | "assertionOutput type",
+           (name, _, _, _) => fail(s"single assertion failed but expected an assertion: $name") | "assertionOutput type"
+        )
+      }, (name, _, _, _) => fail(s"test threw: $name") | "testoutput type",
+         name => fail(s"test ignored: $name")          | "testoutput type")
+    } seq()
+  }
 
-// object ContextOnErrorFixture {
+  override val tests = NonEmptySeq.nes(t1)
+}
 
-//   private val withContextSuite = new SuiteLike("WithContextSuite") {
-//     val frodoTest = test("LOTR") {
-//       val hobbits = List("Bilbo", "Sam", "Bingo", "Merimas")
-//       hobbits.contains("Frodo") |# ("Frodo is a hobbit",
-//                                     "allHobbits" -> hobbits.mkString(","),
-//                                     "missing"    -> "Frodo")
-//     }
+object ContextOnErrorFixture {
 
-//     override val tests = NonEmptySeq.nes(frodoTest)
-//   }
+  private val withContextSuite = new SuiteLike("WithContextSuite") {
+    val frodoTest = test("LOTR") {
+      val hobbits = List("Bilbo", "Sam", "Bingo", "Merimas")
+      hobbits.contains("Frodo") |# ("Frodo is a hobbit",
+                                    "allHobbits" -> hobbits.mkString(","),
+                                    "missing"    -> "Frodo")
+    }
 
-//   def run: SuiteOutput = SuiteOutput.toSuiteOutput(Boon.runSuiteLike(withContextSuite))
-// }
+    override val tests = NonEmptySeq.nes(frodoTest)
+  }
+
+  def run: SuiteOutput = SuiteOutput.toSuiteOutput(Boon.runSuiteLike(withContextSuite))
+}
