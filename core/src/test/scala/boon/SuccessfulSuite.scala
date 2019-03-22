@@ -27,38 +27,27 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
       case TestIgnoredOutput(name)            => Right(XFailedOutput(name))
     }
 
-    runResult.fold(po => {
-      val passed = po.toSeq
+    runResult.fold[TestData]( po =>
+      assertTestOutput(po.toSeq),
+      unexpectedFailedOutput(f => s"expected only successful tests but got: ${f}", "test type"),
+      unexpectedMixedOutput((f, p) => s"expected only successful tests but got both: ${f} and ${p}", "test type")
+    )
+  }
 
-      ->|>(
-        pass | "test type",
-
-        passed.length =?= 2 | "no of tests",
-
-        % {
-          val test1 = passed(0)
-          test1.name =?= "String.length" | "test1.name" and
-          % {
-            val assertions1 = test1.assertions.toSeq
-            assertions1.length =?= 2 | "no of test1.assertions" and
-            SuiteOutput.assertionName(assertions1(0)) =?= "empty" | "test1.assertion1.name" and
-            SuiteOutput.assertionName(assertions1(1)) =?= "hello" | "test1.assertion2.name"
-          }
-        },
-
-        % {
-          val test2 = passed(1)
-          test2.name =?= "String.reverse" | "test2.name" and
-          % {
-            val assertions2 = test2.assertions.toSeq
-            assertions2.length =?= 1 | "no of test2.assertions" and
-            SuiteOutput.assertionName(assertions2(0)) =?= "Hola" | "test2.assertion2.name"
-          }
-        }
-      )
-
-    }, unexpectedFailedOutput(f => s"expected only successful tests but got: ${f}", "test type"),
-       unexpectedMixedOutput((f, p) => s"expected only successful tests but got both: ${f} and ${p}", "test type"))
+  private def assertTestOutput(passed: Seq[XPassedOutput]): TestData = {
+    pass | "test type" and
+    passed.length =?= 2 | "no of tests" and %@(passed(0)) { test1 =>
+      test1.name =?= "String.length" | "test1.name" and %@(test1.assertions.toSeq) { assertions1 =>
+        assertions1.length =?= 2 | "no of test1.assertions" and
+        SuiteOutput.assertionName(assertions1(0)) =?= "empty" | "test1.assertion1.name" and
+        SuiteOutput.assertionName(assertions1(1)) =?= "hello" | "test1.assertion2.name"
+      }
+    } and %@(passed(1)) { test2 =>
+      test2.name =?= "String.reverse" | "test2.name" and %@(test2.assertions.toSeq) { assertions2 =>
+        assertions2.length =?= 1 | "no of test2.assertions" and
+        SuiteOutput.assertionName(assertions2(0)) =?= "Hola" | "test2.assertion2.name"
+      }
+    } seq()
   }
 
   private def unexpectedFailedOutput(message: NonEmptySeq[XFailedOutput] => String,

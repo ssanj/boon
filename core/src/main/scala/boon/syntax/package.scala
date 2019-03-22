@@ -58,6 +58,8 @@ package object syntax {
 
   def %(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs)(loc)
 
+  def %@[A](provide: => A)(cs: A => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs(provide))(loc)
+
   def ->%(first: ContinueSyntax, rest: ContinueSyntax*): ContinueSyntax = assertions(first, rest:_*)
 
   private def failAssertion(reason: String): DescSyntax[FailableAssertion] = {

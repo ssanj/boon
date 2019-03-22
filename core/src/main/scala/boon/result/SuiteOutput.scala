@@ -52,6 +52,21 @@ object AssertionOutput {
   implicit def foldAssertionOutput(ao: AssertionOutput): FoldSyntax = FoldSyntax(ao)
 }
 
+object TestOutput {
+
+  final case class FoldSyntax(to: TestOutput) {
+    def fold[A](passed: (String, NonEmptySeq[AssertionOutput], Passable) => A,
+                threw: (String, String, Seq[Trace], SourceLocation) => A,
+                ignored: String => A): A = to match {
+      case TestPassedOutput(name, assertions, passable) => passed(name, assertions, passable)
+      case TestThrewOutput(name, error, trace, loc)     => threw(name, error, trace, loc)
+      case TestIgnoredOutput(name)                      => ignored(name)
+    }
+  }
+
+  implicit def foldTestOutput(to: TestOutput): FoldSyntax = FoldSyntax(to)
+}
+
 object SuiteOutput {
 
   val stackDepth = 5
