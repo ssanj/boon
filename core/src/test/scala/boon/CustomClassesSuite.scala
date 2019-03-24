@@ -1,6 +1,7 @@
 package boon
 
 import syntax._
+import NonEmptySeq.one
 
 object CustomClassesSuite extends SuiteLike("CustomClasses") {
 
@@ -8,9 +9,9 @@ object CustomClassesSuite extends SuiteLike("CustomClasses") {
   final case class Age(value: Int)
   final case class Person(name: Name, age: Age)
 
-  implicit val personBoonType = BoonType.defaults[Person]
-  implicit val ageBoonType    = BoonType.defaults[Age]
-  implicit val nameBoonType   = BoonType.defaults[Name]
+  private implicit val personBoonType = BoonType.defaults[Person]
+  private implicit val ageBoonType    = BoonType.defaults[Age]
+  private implicit val nameBoonType   = BoonType.defaults[Name]
 
   private val t1 = test("use default TC instances") {
 
@@ -30,5 +31,5 @@ object CustomClassesSuite extends SuiteLike("CustomClasses") {
     n1 =?= n2 | "The same names are equal"
    }
 
-  val tests = NonEmptySeq.nes(t1)
+  override val tests = one(t1)
 }
