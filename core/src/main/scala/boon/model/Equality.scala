@@ -61,6 +61,14 @@ object Equality {
     }
   }
 
+  implicit def eitherEquality[A, B](implicit LE: Equality[A], RE: Equality[B]): Equality[Either[A, B]] = new Equality[Either[A, B]] {
+    override def eql(xs: Either[A, B], ys: Either[A, B]): Boolean = (xs, ys) match {
+      case (Right(x), Right(y)) => RE.eql(x, y)
+      case (Left(x), Left(y)) => LE.eql(x, y)
+      case _ => false
+    }
+  }
+
   implicit def pairEquality[A, B](implicit EA: Equality[A], EB: Equality[B]): Equality[Tuple2[A, B]] = new Equality[Tuple2[A, B]] {
     override def eql(xs: Tuple2[A, B], ys: Tuple2[A, B]): Boolean = (xs, ys) match {
       case ((x1, y1), (x2, y2)) => EA.eql(x1, x2) && EB.eql(y1, y2)

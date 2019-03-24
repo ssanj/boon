@@ -50,6 +50,10 @@ object StringRep {
     override def strRep(xs: Option[A]): String = xs.fold("None")(v => s"Some(${S.strRep(v)})")
   }
 
+  implicit def eitherStringRep[A, B](implicit LS: StringRep[A], RS: StringRep[B]): StringRep[Either[A, B]] = new StringRep[Either[A, B]] {
+    override def strRep(xs: Either[A, B]): String = xs.fold(l => s"Left(${LS.strRep(l)})", r => s"Right(${RS.strRep(r)})")
+  }
+
   implicit def pairStringRep[A, B](implicit SA: StringRep[A], SB: StringRep[B]): StringRep[Tuple2[A, B]] = new StringRep[Tuple2[A, B]] {
     override def strRep(pair: Tuple2[A, B]): String = s"(${SA.strRep(pair._1)}, ${SB.strRep(pair._2)})"
   }

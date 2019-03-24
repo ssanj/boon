@@ -55,6 +55,11 @@ object Difference {
     override def diff(xs: Option[A], ys: Option[A]): String = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
   }
 
+  implicit def eitherDifference[A: StringRep, B: StringRep]: Difference[Either[A, B]] = new Difference[Either[A, B]] {
+    val rep = StringRep[Either[A, B]]
+    override def diff(xs: Either[A, B], ys: Either[A, B]): String = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
+  }
+
   implicit def pairDifference[A: StringRep, B: StringRep]: Difference[Tuple2[A, B]] = new Difference[Tuple2[A, B]] {
     val rep = StringRep[Tuple2[A, B]]
     override def diff(pair1: Tuple2[A, B], pair2: Tuple2[A, B]): String = s"${rep.strRep(pair1)} != ${rep.strRep(pair2)}"
