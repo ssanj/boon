@@ -13,9 +13,9 @@ object StringSuite extends SuiteLike("StringSuite") {
     "Battlestar".endsWith("star")                     | "endsWith"   and
     "Bilbo".contains("lbo") |# (
       "contains",
-      "subject" -> "\"Bilbo\"",
+      "subject"   -> """"Bilbo"""",
       "predicate" -> "contains",
-      "value" -> "\"ob\"")
+      "value"     -> """"ob"""")
   }
 
   private val strTable =

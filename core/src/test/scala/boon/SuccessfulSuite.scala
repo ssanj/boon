@@ -68,7 +68,7 @@ object SuccessfulTestFixture {
 
   private val successfulSuite = new SuiteLike("SuccessfulSuite") {
     private val t1 = test("String.length") {
-       ("".length      =?= 0 | "empty") &
+       ("".length      =?= 0 | "empty") and
        ("hello".length =?= 5 | "hello")
     }
 
@@ -76,7 +76,7 @@ object SuccessfulTestFixture {
       ("Hola".reverse =?= "aloH" | "Hola")
     }
 
-    override val tests = NonEmptySeq.nes(t1, t2)
+    override val tests = oneOrMore(t1, t2)
   }
 
   def run: SuiteOutput = SuiteOutput.toSuiteOutput(Boon.runSuiteLike(successfulSuite))

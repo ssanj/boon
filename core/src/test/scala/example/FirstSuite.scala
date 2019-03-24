@@ -11,5 +11,5 @@ object FirstSuite extends SuiteLike("FirstSuite") {
     "yohoho"                =?= "ohohoy".reverse | "reversing"
   }
 
-  override def tests = NonEmptySeq.nes(t1)
+  override def tests = one(t1)
 }
