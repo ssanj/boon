@@ -16,7 +16,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
 
   private val t1 = test("show context on error") {
     so.tests.length =?= 1 | "have 1 test" and %@(so.tests.head) {
-      _.fold(testPassed, testThrew, testIgnored)
+      _.fold(testRan, testThrew, testIgnored)
     } seq()
   }
 
@@ -28,7 +28,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
     fail(s"test threw: $name") | "testoutput type"
   }
 
-  private def testPassed(name: String, t1assertions: NonEmptySeq[AssertionOutput], passable: Passable): ContinueSyntax = {
+  private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], passable: Passable): ContinueSyntax = {
     t1assertions.length =?= 1       | "have 1 assertion" and
     passable            =?= Failed  | s"test: $name should have failed" and
     t1assertions.head.fold(assertFailure,

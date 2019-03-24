@@ -11,11 +11,11 @@ abstract class ToBeImplementedSuite extends SuiteLike("ToBeImplementedSuite") {
   }
 
   val t1 = test("test for missing implementations") {
-    new SomeClass().predicate | "Boolean test" and /* Tests for a bug with lazy evaluation */
-    new SomeClass().priority =?= 10 | "Int test" and
-    %@(new SomeClass().message) { message =>
-      message =?= "it's a trap" | "Unsafe test"
-    }
+    val someClass = new SomeClass()
+
+    someClass.predicate                  | "Boolean test" and /* Tests for a bug with lazy evaluation */
+    someClass.priority =?= 10            | "Int test" and
+    someClass.message  =?= "it's a trap" | "Unsafe test"
   }
 
   override val tests = NonEmptySeq.nes(t1)
