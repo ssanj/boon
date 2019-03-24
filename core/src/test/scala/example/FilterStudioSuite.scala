@@ -18,12 +18,14 @@ object FilterStudioSuite extends SuiteLike("FilterStudio") {
     val abode = List("loft", "studio", "balh", "blee")
     val expectedAbode = List("loft","balh", "blee")
     val actualList = filterStudio(abode)
+
     actualList =?= expectedAbode | "only remove studio"
   }
 
   private val t3 = test("not remove anything else") {
     val abode = List("loft", "balh", "blee")
     val actualList = filterStudio(abode)
+
     actualList =?= abode | "leave others unchanged"
   }
 
