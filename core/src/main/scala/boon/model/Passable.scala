@@ -9,4 +9,6 @@ object Passable {
   def hasPassed(passable: Passable): Boolean = passable == Passed
 
   def hasFailed(passable: Passable): Boolean = !hasPassed(passable)
+
+  implicit val passableBoonType = BoonType.defaults[Passable]
 }
