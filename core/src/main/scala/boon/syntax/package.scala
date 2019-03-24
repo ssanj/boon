@@ -51,16 +51,7 @@ package object syntax {
   def pass: DescSyntax[FailableAssertion] =
     upcast[PassedAssertion.type, FailableAssertion](PassedAssertion) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
 
-  //Symbols
-  def ->>(first: ContinueSyntax, rest: ContinueSyntax*): TestData = assertions(first, rest:_*).ind()
-
-  def ->|>(first: ContinueSyntax, rest: ContinueSyntax*): TestData = assertions(first, rest:_*).seq()
-
-  def %(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs)(loc)
-
   def %@[A](provide: => A)(cs: A => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs(provide))(loc)
-
-  def ->%(first: ContinueSyntax, rest: ContinueSyntax*): ContinueSyntax = assertions(first, rest:_*)
 
   private def failAssertion(reason: String): DescSyntax[FailableAssertion] = {
     upcast[FailedAssertion, FailableAssertion](FailedAssertion(reason)) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
