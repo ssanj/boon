@@ -1,7 +1,6 @@
 package boon
 
 import syntax._
-import NonEmptySeq.one
 
 object CustomClassesSuite extends SuiteLike("CustomClasses") {
 

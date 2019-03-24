@@ -1,7 +1,6 @@
 package boon
 
 import syntax._
-import NonEmptySeq.oneOrMore
 
 object ExceptionSuite2 extends SuiteLike("ExceptionSuite2") {
 

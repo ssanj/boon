@@ -36,14 +36,14 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
     val eitherSeq: NonEmptySeq[Either[B, C]] = self.map(f).reverse
 
     val headResult: These[NonEmptySeq[B], NonEmptySeq[C]] = eitherSeq.head match {
-      case Left(value) => These.OnlyLeft(NonEmptySeq.one(value))
-      case Right(value) => These.OnlyRight(NonEmptySeq.one(value))
+      case Left(value) => These.OnlyLeft(one(value))
+      case Right(value) => These.OnlyRight(one(value))
     }
 
     eitherSeq.tail.foldLeft(headResult) {
       case (These.OnlyLeft(lacc), Left(l))    => These.OnlyLeft(lacc.prepend(l))
-      case (These.OnlyLeft(lacc), Right(r))   => These.Both(lacc, NonEmptySeq.one(r))
-      case (These.OnlyRight(racc), Left(l))   => These.Both(NonEmptySeq.one(l), racc)
+      case (These.OnlyLeft(lacc), Right(r))   => These.Both(lacc, one(r))
+      case (These.OnlyRight(racc), Left(l))   => These.Both(one(l), racc)
       case (These.OnlyRight(racc), Right(r))  => These.OnlyRight(racc.prepend(r))
       case (These.Both(lacc, racc), Left(l))  => These.Both(lacc.prepend(l), racc)
       case (These.Both(lacc, racc), Right(r)) => These.Both(lacc, racc.prepend(r))
@@ -59,10 +59,6 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 object NonEmptySeq {
 
   def nes[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
-
-  def oneOrMore[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
-
-  def one[A](head: A): NonEmptySeq[A] = nes[A](head)
 
   def isHeadOnly[A](xs: NonEmptySeq[A]): Boolean = xs.tail.isEmpty
 }

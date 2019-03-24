@@ -39,4 +39,9 @@ import scala.util.Try
   type NonEmptyMap[K, V] = NonEmptySeq[(K, V)]
 
   def noContext: Map[String, String] = Map.empty[String, String]
+
+  def oneOrMore[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
+
+  def one[A](head: A): NonEmptySeq[A] = NonEmptySeq.nes[A](head)
+
 }

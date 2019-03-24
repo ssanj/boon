@@ -97,13 +97,13 @@ object SuiteOutput {
               )
 
             val assertionOutputs: NonEmptySeq[AssertionOutput] =
-              NonEmptySeq.one(SequentialFailedOutput(name, failedData, passed.map(an => SequentialPassData(an.name.value)), notRun.map(an => SequentialNotRunData(an.name.value))))
+              one(SequentialFailedOutput(name, failedData, passed.map(an => SequentialPassData(an.name.value)), notRun.map(an => SequentialNotRunData(an.name.value))))
 
           TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
 
         case CompositeTestResult(AllPassed(TestName(name), passed)) =>
           val assertionOutputs: NonEmptySeq[AssertionOutput] =
-            NonEmptySeq.one(SequentialPassedOutput(name, passed.map(an => SequentialPassData(an.name.value))))
+            one(SequentialPassedOutput(name, passed.map(an => SequentialPassData(an.name.value))))
 
           TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
 

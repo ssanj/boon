@@ -27,21 +27,19 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
     name =?= "test for missing implementations" | "test name" and
     assertions.length =?= 3 | "no of assertions" and
     passable =?= Failed | "test failed" and %@(assertions(0)) {
-      _.fold(assertionFailed("Boolean test", 16),
-             assertionPassed,
-             sequentialAssertionPassed,
-             sequentialAssertionFailed)
+      asserNotImplementedTest("Boolean test", 16)
     } and %@(assertions(1)) {
-      _.fold(assertionFailed("Int test", 17),
-             assertionPassed,
-             sequentialAssertionPassed,
-             sequentialAssertionFailed)
+      asserNotImplementedTest("Int test", 17)
     } and %@(assertions(2)) {
-      _.fold(assertionFailed("Unsafe test", 18),
-             assertionPassed,
-             sequentialAssertionPassed,
-             sequentialAssertionFailed)
+      asserNotImplementedTest("Unsafe test", 18)
     }
+  }
+
+  private def asserNotImplementedTest(expectedName: String, expectedLoc: Int)(ao: AssertionOutput): ContinueSyntax = {
+    ao.fold(assertionFailed(expectedName, expectedLoc),
+            assertionPassed,
+            sequentialAssertionPassed,
+            sequentialAssertionFailed)
   }
 
   private def testThrew(name: String, error: String, trac: Seq[Trace], loc: SourceLocation): ContinueSyntax =
