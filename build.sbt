@@ -3,8 +3,10 @@ lazy val commonSettings = Seq(
   organization := "net.ssanj",
   version := "0.0.1-b28",
   scalacOptions ++= Seq(
+                      "-encoding", "utf-8",
                       "-unchecked",
                       "-deprecation",
+                      "-explaintypes",
                       "-feature",
                       "-Xfatal-warnings",
                       "-Xlint:_",
