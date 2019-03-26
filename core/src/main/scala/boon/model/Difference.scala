@@ -47,7 +47,15 @@ object Difference {
 
   implicit def listDifference[A: StringRep]: Difference[List[A]] = new Difference[List[A]] {
     val rep = StringRep[List[A]]
-    override def diff(xs: List[A], ys: List[A]): String = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
+    override def diff(xs: List[A], ys: List[A]): String = {
+      val summary = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
+      val both    = xs.filter(ys.contains(_)).mkString(",")
+      val left    = xs.filter(!ys.contains(_)).mkString(",")
+      val right   = ys.filter(!xs.contains(_)).mkString(",")
+      val sep     = ", "
+
+      s"${summary}${sep}both: [${both}]${sep}left: [${left}]${sep}right: [${right}]"
+    }
   }
 
   implicit def optionDifference[A: StringRep]: Difference[Option[A]] = new Difference[Option[A]] {
