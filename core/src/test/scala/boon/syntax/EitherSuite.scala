@@ -10,7 +10,7 @@ object EitherSuite extends SuiteLike("EitherSuite") {
     10.right[String] =?= 10.right[String]    | "equal right"    and
     10.right[String] =/= 19.right[String]    | "unequal right"  and
     50.right[String] =/= "error1".left[Int]  | "right != left"  and
-    right_?[String, Int](_ =/= 10 | "right is ten")(20.right[String])
+    right_?[String, Int](_ =/= 10 | "right is not ten")(20.right[String])
   }
 
   private val t2 = test("lefts") {
