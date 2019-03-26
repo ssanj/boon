@@ -12,8 +12,8 @@ package result
 //
 
 import boon.model._
-import boon.model.TestResult.testResultToPassable
-import boon.model.SuiteResult.suiteResultToPassable
+import boon.model.TestResult.testResultToTestState
+import boon.model.SuiteResult.suiteResultToSuiteState
 import boon.result.Exception.getTraces
 
 final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], state: SuiteState)
@@ -86,7 +86,7 @@ object SuiteOutput {
                 FailedOutput(name, error.getMessage, getTraces(error, stackDepth), Map.empty[String, String], loc)
             }
 
-          TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
+          TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToTestState(tr))
 
         case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(AssertionName(name), failed,  passed, notRun))) =>
             val failedData =
@@ -99,13 +99,13 @@ object SuiteOutput {
             val assertionOutputs: NonEmptySeq[AssertionOutput] =
               one(SequentialFailedOutput(name, failedData, passed.map(an => SequentialPassData(an.name.value)), notRun.map(an => SequentialNotRunData(an.name.value))))
 
-          TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
+          TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToTestState(tr))
 
         case CompositeTestResult(AllPassed(TestName(name), passed)) =>
           val assertionOutputs: NonEmptySeq[AssertionOutput] =
             one(SequentialPassedOutput(name, passed.map(an => SequentialPassData(an.name.value))))
 
-          TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToPassable(tr))
+          TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToTestState(tr))
 
         case TestThrewResult(ThrownTest(TestName(name), error, loc)) =>
           TestThrewOutput(name, error.getMessage, getTraces(error, stackDepth), loc)
@@ -115,7 +115,7 @@ object SuiteOutput {
       }
     }
 
-    SuiteOutput(suiteResult.suite.name.value, testOutputs, suiteResultToPassable(suiteResult))
+    SuiteOutput(suiteResult.suite.name.value, testOutputs, suiteResultToSuiteState(suiteResult))
   }
 
   def assertionName(ao: AssertionOutput): String = ao match {

@@ -21,9 +21,28 @@ final case class CompositeTestResult(value: CompositeTestResultState) extends Te
 final case class TestThrewResult(test: ThrownTest) extends TestResult
 final case class TestIgnoredResult(name: TestName) extends TestResult
 
+sealed trait TestState
+
+object TestState {
+  case object Passed  extends TestState
+  case object Failed  extends TestState
+  case object Ignored  extends TestState
+
+  implicit val assertionStateBoonType = BoonType.defaults[TestState]
+}
+
+sealed trait SuiteState
+
+object SuiteState {
+  case object Passed extends SuiteState
+  case object Failed extends SuiteState
+
+  implicit val assertionStateBoonType = BoonType.defaults[SuiteState]
+}
+
 object TestResult {
 
-  def testResultToPassable(tr: TestResult): TestState = tr match {
+  def testResultToTestState(tr: TestResult): TestState = tr match {
     case SingleTestResult(_, ar) =>
       val failedOp = ar.map(AssertionResult.assertionResultToAssertionState).find {
         case AssertionState.Failed => true
@@ -82,8 +101,8 @@ final case class SuiteResult(suite: DeferredSuite, testResults: NonEmptySeq[Test
 
 object SuiteResult {
 
-  def suiteResultToPassable(sr: SuiteResult): SuiteState = {
-    val failedOp = sr.testResults.map(TestResult.testResultToPassable).find {
+  def suiteResultToSuiteState(sr: SuiteResult): SuiteState = {
+    val failedOp = sr.testResults.map(TestResult.testResultToTestState).find {
       case TestState.Failed  => true
       case TestState.Passed  => false
       case TestState.Ignored => false

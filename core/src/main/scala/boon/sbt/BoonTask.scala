@@ -51,7 +51,7 @@ final class BoonTask(val taskDef: TaskDef,
   }
 
   private def suiteResultToStatus(sr: SuiteResult): Status =
-    SuiteResult.suiteResultToPassable(sr) match {
+    SuiteResult.suiteResultToSuiteState(sr) match {
       case SuiteState.Passed => Status.Success
       case SuiteState.Failed => Status.Failure
     }

@@ -43,6 +43,15 @@ final case class SequentialPass(name: AssertionName)
 final case class SequentialFail(value: AssertionError)
 final case class SequentialThrew(value: AssertionThrow)
 
+sealed trait AssertionState
+
+object AssertionState {
+  case object Passed extends AssertionState
+  case object Failed extends AssertionState
+
+  implicit val assertionStateBoonType = BoonType.defaults[AssertionState]
+}
+
 sealed trait AssertionResultState
 final case class AssertionResultPassed(value: AssertionTriple) extends AssertionResultState
 final case class AssertionResultFailed(value: AssertionError) extends AssertionResultState

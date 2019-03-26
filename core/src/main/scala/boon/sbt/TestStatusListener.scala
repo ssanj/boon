@@ -23,13 +23,13 @@ final class BoonTestStatusListener(atomicStats: AtomicReference[List[SuiteStats]
   override def suiteResult(result: SuiteResult): Unit = {
     val stats = Monoid[SuiteStats].mempty
     val suiteCounts =
-      SuiteResult.suiteResultToPassable(result) match {
+      SuiteResult.suiteResultToSuiteState(result) match {
         case SuiteState.Passed =>  stats.copy(suites = stats.suites.copy(passed = stats.suites.passed + 1))
         case SuiteState.Failed => stats.copy(suites = stats.suites.copy(failed = stats.suites.failed + 1))
       }
 
       val testCounts =
-        result.testResults.map(TestResult.testResultToPassable).foldLeft(suiteCounts) {
+        result.testResults.map(TestResult.testResultToTestState).foldLeft(suiteCounts) {
           case (acc, TestState.Passed)  => acc.copy(tests = acc.tests.copy(statusCount = acc.tests.statusCount.copy(passed  = acc.tests.statusCount.passed + 1)))
           case (acc, TestState.Failed)  => acc.copy(tests = acc.tests.copy(statusCount = acc.tests.statusCount.copy(failed  = acc.tests.statusCount.failed + 1)))
           case (acc, TestState.Ignored) => acc.copy(tests = acc.tests.copy(ignored = acc.tests.ignored + 1))
