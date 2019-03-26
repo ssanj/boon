@@ -1,0 +1,1 @@
+wartremoverErrors ++= Warts.all
