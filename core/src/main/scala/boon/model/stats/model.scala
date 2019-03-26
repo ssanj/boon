@@ -16,6 +16,22 @@ object StatusCount {
   }
 }
 
+final case class TestCount(statusCount: StatusCount, ignored: Int)
+
+object TestCount {
+  implicit val testCountMonoid: Monoid[TestCount] = new Monoid[TestCount] {
+
+    private val monoidStatusCount = Monoid[StatusCount]
+
+    def mappend(x: TestCount, y: TestCount): TestCount = (x, y) match {
+      case (TestCount(StatusCount(passed1, failed1), ignored1), TestCount(StatusCount(passed2, failed2), ignored2)) =>
+        TestCount(StatusCount(passed1 + passed2, failed1 + failed2), ignored1 + ignored2)
+    }
+
+    def mempty: TestCount = TestCount(monoidStatusCount.mempty, 0)
+  }
+}
+
 final case class AssertionCount(statusCount: StatusCount, notRun: Int)
 
 object AssertionCount {
@@ -33,21 +49,22 @@ object AssertionCount {
   }
 }
 
-final case class SuiteStats(suites: StatusCount, tests: StatusCount, assertions: AssertionCount)
+final case class SuiteStats(suites: StatusCount, tests: TestCount, assertions: AssertionCount)
 
 object SuiteStats {
 
   implicit val suiteStatusMonoid: Monoid[SuiteStats] = new Monoid[SuiteStats] {
 
-    private val monoidStatusCount = Monoid[StatusCount]
+    private val monoidStatusCount    = Monoid[StatusCount]
+    private val monoidTestCount      = Monoid[TestCount]
     private val monoidAssertionCount = Monoid[AssertionCount]
 
-    override def mempty: SuiteStats = SuiteStats(monoidStatusCount.mempty, monoidStatusCount.mempty, monoidAssertionCount.mempty)
+    override def mempty: SuiteStats = SuiteStats(monoidStatusCount.mempty, monoidTestCount.mempty, monoidAssertionCount.mempty)
 
     override def mappend(x: SuiteStats, y: SuiteStats): SuiteStats = (x, y) match {
       case (SuiteStats(suites1, tests1, assertions1), SuiteStats(suites2, tests2, assertions2)) =>
         SuiteStats(suites     = monoidStatusCount.mappend(suites1, suites2),
-                   tests      = monoidStatusCount.mappend(tests1, tests2),
+                   tests      = monoidTestCount.mappend(tests1, tests2),
                    assertions = monoidAssertionCount.mappend(assertions1, assertions2)
        )
     }

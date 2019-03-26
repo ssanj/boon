@@ -23,22 +23,22 @@ final case class TestIgnoredResult(name: TestName) extends TestResult
 
 object TestResult {
 
-  def testResultToPassable(tr: TestResult): Passable = tr match {
+  def testResultToPassable(tr: TestResult): TestState = tr match {
     case SingleTestResult(_, ar) =>
-      val failedOp = ar.map(AssertionResult.assertionResultToPassable).find {
-        case Failed => true
-        case Passed => false
+      val failedOp = ar.map(AssertionResult.assertionResultToAssertionState).find {
+        case AssertionState.Failed => true
+        case AssertionState.Passed => false
       }
 
-      failedOp.fold[Passable](Passed)(_ => Failed)
+      failedOp.fold[TestState](TestState.Passed)(_ => TestState.Failed)
 
-    case CompositeTestResult(_: AllPassed) => Passed
+    case CompositeTestResult(_: AllPassed) => TestState.Passed
 
-    case CompositeTestResult(_: StoppedOnFirstFailed) => Failed
+    case CompositeTestResult(_: StoppedOnFirstFailed) => TestState.Failed
 
-    case _: TestThrewResult => Failed
+    case _: TestThrewResult => TestState.Failed
 
-    case _: TestIgnoredResult => Passed
+    case _: TestIgnoredResult => TestState.Ignored
   }
 
   import stats.AssertionCount
@@ -47,9 +47,9 @@ object TestResult {
   def testResultToAssertionCount(tr: TestResult): AssertionCount = tr match {
     case SingleTestResult(_, ar) =>
       val triple =
-        ar.map(AssertionResult.assertionResultToPassable).foldLeft((0,0,0))({
-          case (acc, Failed) => (acc._1, acc._2 + 1, acc._3) //it's easier to copy tuples than case classes with nested fields
-          case (acc, Passed) =>  (acc._1 + 1, acc._2, acc._3)
+        ar.map(AssertionResult.assertionResultToAssertionState).foldLeft((0,0,0))({
+          case (acc, AssertionState.Failed) => (acc._1, acc._2 + 1, acc._3) //it's easier to copy tuples than case classes with nested fields
+          case (acc, AssertionState.Passed) =>  (acc._1 + 1, acc._2, acc._3)
         })
 
       AssertionCount(StatusCount(triple._1, triple._2), triple._3)
@@ -82,12 +82,13 @@ final case class SuiteResult(suite: DeferredSuite, testResults: NonEmptySeq[Test
 
 object SuiteResult {
 
-  def suiteResultToPassable(sr: SuiteResult): Passable = {
+  def suiteResultToPassable(sr: SuiteResult): SuiteState = {
     val failedOp = sr.testResults.map(TestResult.testResultToPassable).find {
-      case Failed => true
-      case Passed => false
+      case TestState.Failed  => true
+      case TestState.Passed  => false
+      case TestState.Ignored => false
     }
 
-   failedOp.fold[Passable](Passed)(_ => Failed)
+   failedOp.fold[SuiteState](SuiteState.Passed)(_ => SuiteState.Failed)
   }
 }

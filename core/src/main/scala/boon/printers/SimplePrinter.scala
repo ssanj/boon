@@ -3,8 +3,8 @@ package printers
 
 import scala.compat.Platform.EOL
 
-import boon.model.Failed
-import boon.model.Passed
+import boon.model.SuiteState
+import boon.model.TestState
 import boon.result.SuiteOutput
 import boon.result.PassedOutput
 import boon.result.FailedOutput
@@ -26,10 +26,10 @@ object SimplePrinter {
   }
 
   private def suiteOutputString(so: SuiteOutput, ps: PrinterSetting): String = so match {
-    case SuiteOutput(name, tests, pass) =>
-      val token = pass match {
-        case Passed => ps.suite.tokens.passed
-        case Failed => ps.suite.tokens.failed
+    case SuiteOutput(name, tests, state) =>
+      val token = state match {
+        case SuiteState.Passed => ps.suite.tokens.passed
+        case SuiteState.Failed => ps.suite.tokens.failed
       }
 
       s"${name} ${token}${EOL}" +
@@ -37,10 +37,11 @@ object SimplePrinter {
   }
 
   private def testOutputString(to: TestOutput, ps: PrinterSetting): String = to match {
-    case TestPassedOutput(name, assertions, pass) =>
-      val token = pass match {
-        case Passed => ps.test.tokens.common.passed
-        case Failed => ps.test.tokens.common.failed
+    case TestPassedOutput(name, assertions, state) =>
+      val token = state match {
+        case TestState.Passed  => ps.test.tokens.common.passed
+        case TestState.Failed  => ps.test.tokens.common.failed
+        case TestState.Ignored => ps.test.tokens.ignored
       }
 
       val colouredTestName = ps.test.colour(name)

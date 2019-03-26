@@ -42,7 +42,7 @@ final class BoonRunner(
     if (stats.nonEmpty) {
       val stats         = statsVecAtomic.get.foldLeft(Monoid[SuiteStats].mempty)(Monoid[SuiteStats].mappend)
       val suiteLine     = s"Suites: passed - ${stats.suites.passed}, failed - ${stats.suites.failed}"
-      val testLine      = s"Test: passed - ${stats.tests.passed}, failed - ${stats.tests.failed}"
+      val testLine      = s"Test: passed - ${stats.tests.statusCount.passed}, failed - ${stats.tests.statusCount.failed}, ignored: ${stats.tests.ignored}"
       val assertionLine = s"Assertions: passed - ${stats.assertions.statusCount.passed}, failed - ${stats.assertions.statusCount.failed}, notRun: ${stats.assertions.notRun}"
 
       val underscoreLength =

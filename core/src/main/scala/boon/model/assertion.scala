@@ -29,10 +29,10 @@ object AssertionResult {
     case SingleAssertionResult(AssertionResultThrew(AssertionThrow(name, _, _))) => name
   }
 
-  def assertionResultToPassable(ar: AssertionResult): Passable = ar match {
-    case SingleAssertionResult(_: AssertionResultPassed)         => Passed
-    case SingleAssertionResult(_: AssertionResultFailed)         => Failed
-    case SingleAssertionResult(_: AssertionResultThrew )         => Failed
+  def assertionResultToAssertionState(ar: AssertionResult): AssertionState = ar match {
+    case SingleAssertionResult(_: AssertionResultPassed)         => AssertionState.Passed
+    case SingleAssertionResult(_: AssertionResultFailed)         => AssertionState.Failed
+    case SingleAssertionResult(_: AssertionResultThrew )         => AssertionState.Failed
   }
 }
 

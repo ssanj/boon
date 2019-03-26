@@ -6,9 +6,8 @@ import result.SequentialPassData
 import result.SequentialFailData
 import result.SequentialNotRunData
 import result.AssertionOutput
-import model.Passable
 import result.Trace
-import model.Failed
+import model.TestState
 
 object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite") {
 
@@ -21,12 +20,12 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
       } seq()
   }
 
-  private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], passable: Passable): ContinueSyntax = {
+  private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], state: TestState): ContinueSyntax = {
     val assertions = t1assertions.toSeq
 
     name =?= "test for missing implementations" | "test name" and
     assertions.length =?= 3 | "no of assertions" and
-    passable =?= Failed | "test failed" and %@(assertions(0)) {
+    state =?= TestState.Failed | "test failed" and %@(assertions(0)) {
       asserNotImplementedTest("Boolean test", 16)
     } and %@(assertions(1)) {
       asserNotImplementedTest("Int test", 17)

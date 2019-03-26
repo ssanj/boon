@@ -1,14 +1,30 @@
 package boon
 package model
 
-sealed trait Passable
-case object Passed extends Passable
-case object Failed extends Passable
+sealed trait AssertionState
 
-object Passable {
-  def hasPassed(passable: Passable): Boolean = passable == Passed
+object AssertionState {
+  case object Passed extends AssertionState
+  case object Failed extends AssertionState
 
-  def hasFailed(passable: Passable): Boolean = !hasPassed(passable)
+  implicit val assertionStateBoonType = BoonType.defaults[AssertionState]
+}
 
-  implicit val passableBoonType = BoonType.defaults[Passable]
+sealed trait TestState
+
+object TestState {
+  case object Passed  extends TestState
+  case object Failed  extends TestState
+  case object Ignored  extends TestState
+
+  implicit val assertionStateBoonType = BoonType.defaults[TestState]
+}
+
+sealed trait SuiteState
+
+object SuiteState {
+  case object Passed extends SuiteState
+  case object Failed extends SuiteState
+
+  implicit val assertionStateBoonType = BoonType.defaults[SuiteState]
 }

@@ -6,9 +6,8 @@ import result.SequentialPassData
 import result.SequentialFailData
 import result.SequentialNotRunData
 import result.AssertionOutput
-import model.Passable
 import result.Trace
-import model.Failed
+import model.TestState
 
 object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
 
@@ -28,9 +27,9 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
     fail(s"test threw: $name") | "testoutput type"
   }
 
-  private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], passable: Passable): ContinueSyntax = {
-    t1assertions.length =?= 1       | "have 1 assertion" and
-    passable            =?= Failed  | s"test: $name should have failed" and
+  private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], state: TestState): ContinueSyntax = {
+    t1assertions.length =?= 1                 | "have 1 assertion" and
+    state               =?= TestState.Failed  | s"test: $name should have failed" and
     t1assertions.head.fold(assertFailure,
                            assertSuccess,
                            assertSequentialSuccess,

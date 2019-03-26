@@ -16,10 +16,10 @@ import boon.model.TestResult.testResultToPassable
 import boon.model.SuiteResult.suiteResultToPassable
 import boon.result.Exception.getTraces
 
-final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], pass: Passable)
+final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], state: SuiteState)
 
 sealed trait TestOutput extends Product with Serializable
-final case class TestPassedOutput(name: String, assertions: NonEmptySeq[AssertionOutput], pass: Passable) extends TestOutput
+final case class TestPassedOutput(name: String, assertions: NonEmptySeq[AssertionOutput], state: TestState) extends TestOutput
 final case class TestThrewOutput(name: String, error: String, trace: Seq[Trace], loc: SourceLocation) extends TestOutput
 final case class TestIgnoredOutput(name: String) extends TestOutput
 
@@ -55,12 +55,12 @@ object AssertionOutput {
 object TestOutput {
 
   final case class FoldSyntax(to: TestOutput) {
-    def fold[A](passed: (String, NonEmptySeq[AssertionOutput], Passable) => A,
+    def fold[A](passed: (String, NonEmptySeq[AssertionOutput], TestState) => A,
                 threw: (String, String, Seq[Trace], SourceLocation) => A,
                 ignored: String => A): A = to match {
-      case TestPassedOutput(name, assertions, passable) => passed(name, assertions, passable)
-      case TestThrewOutput(name, error, trace, loc)     => threw(name, error, trace, loc)
-      case TestIgnoredOutput(name)                      => ignored(name)
+      case TestPassedOutput(name, assertions, state) => passed(name, assertions, state)
+      case TestThrewOutput(name, error, trace, loc)  => threw(name, error, trace, loc)
+      case TestIgnoredOutput(name)                   => ignored(name)
     }
   }
 
@@ -119,8 +119,8 @@ object SuiteOutput {
   }
 
   def assertionName(ao: AssertionOutput): String = ao match {
-    case PassedOutput(name)                   => name
-    case FailedOutput(name, _, _, _, _)       => name
+    case PassedOutput(name)                    => name
+    case FailedOutput(name, _, _, _, _)        => name
     case SequentialPassedOutput(name, _)       => name
     case SequentialFailedOutput(name, _, _, _) => name
   }
