@@ -25,12 +25,12 @@ final case class TestIgnoredOutput(name: String) extends TestOutput
 
 final case class SequentialPassData(name: String)
 final case class SequentialNotRunData(name: String)
-final case class SequentialFailData(name: String, error: String, context: Map[String, String], location: Option[String])
+final case class SequentialFailData(name: String, errors: NonEmptySeq[String], context: Map[String, String], location: Option[String])
 
 sealed trait AssertionOutput extends Product with Serializable
 final case class PassedOutput(name: String) extends AssertionOutput
 
-final case class FailedOutput(name: String, error: String, trace: Seq[Trace], context: Map[String, String], location: SourceLocation) extends AssertionOutput
+final case class FailedOutput(name: String, errors: NonEmptySeq[String], trace: Seq[Trace], context: Map[String, String], location: SourceLocation) extends AssertionOutput
 final case class SequentialPassedOutput(name: String, passed: NonEmptySeq[SequentialPassData]) extends AssertionOutput
 final case class SequentialFailedOutput(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]) extends AssertionOutput
 
@@ -38,12 +38,12 @@ final case class SequentialFailedOutput(name: String, failed: SequentialFailData
 object AssertionOutput {
 
   final case class FoldSyntax(ao: AssertionOutput) {
-    def fold[A](failed: (String, String, Map[String, String], SourceLocation) => A,
+    def fold[A](failed: (String, NonEmptySeq[String], Map[String, String], SourceLocation) => A,
                 passed: String => A,
                 sequentialPassed: (String, NonEmptySeq[SequentialPassData]) => A,
                 sequentialFailed: (String, SequentialFailData, Seq[SequentialPassData], Seq[SequentialNotRunData]) => A): A = ao match {
       case PassedOutput(name) => passed(name)
-      case FailedOutput(name, error, trace, context, loc) => failed(name, error, context, loc)
+      case FailedOutput(name, errors, trace, context, loc) => failed(name, errors, context, loc)
       case SequentialPassedOutput(name, passed) => sequentialPassed(name, passed)
       case SequentialFailedOutput(name, failed, passed, notRun) => sequentialFailed(name, failed, passed, notRun)
     }
@@ -83,7 +83,7 @@ object SuiteOutput {
                 FailedOutput(name, error, Nil, ctx, loc)
 
               case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(name), error, loc))) =>
-                FailedOutput(name, error.getMessage, getTraces(error, stackDepth), Map.empty[String, String], loc)
+                FailedOutput(name, one(error.getMessage), getTraces(error, stackDepth), Map.empty[String, String], loc)
             }
 
           TestPassedOutput(TestResult.testName(tr).value, assertionOutputs, testResultToTestState(tr))
@@ -91,9 +91,9 @@ object SuiteOutput {
         case CompositeTestResult(StoppedOnFirstFailed(_, FirstFailed(AssertionName(name), failed,  passed, notRun))) =>
             val failedData =
               failed.fold[SequentialFailData]({
-                case SequentialFail(AssertionError(Assertion(AssertionName(name1), _, ctx, loc), error)) =>
-                  SequentialFailData(name1, error, ctx, sourceLocation(loc))
-                }, ct => SequentialFailData(ct.value.name.value, ct.value.value.getMessage, Map.empty[String, String], sourceLocation(ct.value.location))
+                case SequentialFail(AssertionError(Assertion(AssertionName(name1), _, ctx, loc), errors)) =>
+                  SequentialFailData(name1, errors, ctx, sourceLocation(loc))
+                }, ct => SequentialFailData(ct.value.name.value, one(ct.value.value.getMessage), Map.empty[String, String], sourceLocation(ct.value.location))
               )
 
             val assertionOutputs: NonEmptySeq[AssertionOutput] =

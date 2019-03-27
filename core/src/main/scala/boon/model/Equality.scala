@@ -53,6 +53,11 @@ object Equality {
     }
   }
 
+  implicit def nonEmptySeqEquality[A](implicit EL: Equality[List[A]]): Equality[NonEmptySeq[A]] = new Equality[NonEmptySeq[A]] {
+    override def eql(xs: NonEmptySeq[A], ys: NonEmptySeq[A]): Boolean =
+      EL.eql(xs.toList, ys.toList)
+  }
+
   implicit def optionEquality[A](implicit E: Equality[A]): Equality[Option[A]] = new Equality[Option[A]] {
     override def eql(xs: Option[A], ys: Option[A]): Boolean = (xs, ys) match {
       case (Some(x), Some(y)) => E.eql(x, y)

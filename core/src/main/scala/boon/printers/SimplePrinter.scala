@@ -3,6 +3,7 @@ package printers
 
 import scala.compat.Platform.EOL
 
+import boon.NonEmptySeq.nonEmptyTail
 import boon.model.SuiteState
 import boon.model.TestState
 import boon.result.SuiteOutput
@@ -69,13 +70,16 @@ object SimplePrinter {
     case PassedOutput(name)        =>
       s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.common.passed}"
 
-    case FailedOutput(name, error, trace, ctx, loc) =>
+    case FailedOutput(name, errors, trace, ctx, loc) =>
       val location = correlateLocation(trace, loc).getOrElse("")
 
       val baseError =
         s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.common.failed}${EOL}" +
         exceptionTrace(ps, trace) +
-        s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${location}"
+        s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${errors.head}")}${EOL}" +
+        errors.tail.map(error => s"${ps.assertion.failedPadding} ${ps.colourError(s"${error}")}").mkString(s"${EOL}") +
+        (if (nonEmptyTail(errors)) EOL else "") +
+        s"${ps.assertion.failedPadding} at ${location}"
 
         contextString(ps, ctx, baseError)
 
@@ -83,14 +87,18 @@ object SimplePrinter {
       val compositePasses = passed.map(pa => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
       s"${compositePasses}"
 
-    case SequentialFailedOutput(name, SequentialFailData(failedName, error, ctx, loc), passed, notRun) =>
+    case SequentialFailedOutput(name, SequentialFailData(failedName, errors, ctx, loc), passed, notRun) =>
       val location = loc.fold("")(l => s"[$l]")
 
       val compositePasses = passed.map(pa => s"${ps.assertion.padding} ↓ ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
 
       val failedAssertion = s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${failedName} ${ps.assertion.tokens.common.failed}"
 
-      val errorReason = s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${location}"
+      val errorReason =
+        s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${errors.head}")}${EOL}" +
+        errors.tail.map(error => s"${ps.assertion.failedPadding} ${ps.colourError(s"${error}")}").mkString(s"${EOL}") +
+        (if (nonEmptyTail(errors)) EOL else "") +
+        s"${ps.assertion.failedPadding} at ${location}"
 
       val compositeNotRun = notRun.map(nr => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${nr.name} ${ps.assertion.tokens.notRun}").toSeq.mkString(EOL)
 

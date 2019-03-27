@@ -46,6 +46,10 @@ object StringRep {
     override def strRep(xs: List[A]): String = xs.map(S.strRep).mkString("[", ",", "]")
   }
 
+  implicit def nonEmptySeqStringRep[A](implicit S: StringRep[A]): StringRep[NonEmptySeq[A]] = new StringRep[NonEmptySeq[A]] {
+    override def strRep(xs: NonEmptySeq[A]): String = xs.map(S.strRep).toSeq.mkString("nes(", ",", ")")
+  }
+
   implicit def optionStringRep[A](implicit S: StringRep[A]): StringRep[Option[A]] = new StringRep[Option[A]] {
     override def strRep(xs: Option[A]): String = xs.fold("None")(v => s"Some(${S.strRep(v)})")
   }

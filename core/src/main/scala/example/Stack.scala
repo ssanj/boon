@@ -19,6 +19,7 @@ class Stack[A](private var internal: NonEmptySeq[A]) {
 }
 
 //Custom types need to define `Equality`, `StringRep` and `Difference`.
+//TODO: Use default instances
 object Stack {
   implicit def stackEquality[A]: Equality[Stack[A]] = new Equality[Stack[A]] {
     override def eql(s1: Stack[A], s2: Stack[A]): Boolean = s1.internal == s2.internal
@@ -29,7 +30,7 @@ object Stack {
   }
 
   implicit def stackDifference[A: StringRep]: Difference[Stack[A]] = new Difference[Stack[A]] {
-    override def diff(s1: Stack[A], s2: Stack[A]): String =
+    override def diff(s1: Stack[A], s2: Stack[A]): NonEmptySeq[String] =
       Difference.genericDifference[Stack[A]].diff(s1, s2)
   }
 }

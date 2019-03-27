@@ -46,10 +46,10 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
 
   private def testIgnored(name: String): ContinueSyntax = fail(s"ignored test: $name") | "testType"
 
-  private def assertionFailed(expectedName: String, expectedLoc: Int)(name: String, error: String, context: Map[String, String], loc: SourceLocation): ContinueSyntax = {
+  private def assertionFailed(expectedName: String, expectedLoc: Int)(name: String, errors: NonEmptySeq[String], context: Map[String, String], loc: SourceLocation): ContinueSyntax = {
     pass | s"${expectedName}.assertionOutput type" and
     name =?= expectedName | s"${expectedName}.assertion name" and
-    error =?= "an implementation is missing" | s"${expectedName}.assertion error" and
+    errors =?= one("an implementation is missing") | s"${expectedName}.assertion error" and
     SuiteOutput.sourceLocation(loc).fold(
       fail("expected SourceLocation") | s"${expectedName}.error location"
     )(loc => loc.endsWith(s"ToBeImplementedSuite.scala:${expectedLoc}") |# (s"${expectedName}.error location", s"${expectedName}.loc" -> loc))

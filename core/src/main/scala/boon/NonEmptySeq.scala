@@ -12,6 +12,15 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
     tail.map(f).foldLeft(f(head))((acc, v) => acc.concat(v))
   }
 
+  def filter(f: A => Boolean): Seq[A] =
+    if (f(head)) head +: tail.filter(f) else tail.filter(f)
+
+  def contains(value: A): Boolean = filter(_ == value).nonEmpty
+
+  def mkString(sep: String): String = toSeq.mkString(sep)
+
+  def mkString(start: String, sep: String, end: String): String = toSeq.mkString(start, sep, end)
+
   def concat(other: NonEmptySeq[A]): NonEmptySeq[A] = self.copy(tail = self.tail ++ other.toSeq)
 
   def reverse: NonEmptySeq[A] = {
@@ -25,6 +34,8 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
   }
 
   def toSeq: Seq[A] = head +: tail
+
+  def toList: List[A] = head +: tail.toList
 
   def length: Int = tail.length + 1
 
@@ -63,5 +74,7 @@ object NonEmptySeq {
 
   def nes[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
 
-  def isHeadOnly[A](xs: NonEmptySeq[A]): Boolean = xs.tail.isEmpty
+  def headOnly[A](xs: NonEmptySeq[A]): Boolean = xs.tail.isEmpty
+
+  def nonEmptyTail[A](xs: NonEmptySeq[A]): Boolean = xs.tail.nonEmpty
 }
