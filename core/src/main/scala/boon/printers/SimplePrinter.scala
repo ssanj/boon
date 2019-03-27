@@ -76,10 +76,7 @@ object SimplePrinter {
       val baseError =
         s"${ps.assertion.padding} - ${name} ${ps.assertion.tokens.common.failed}${EOL}" +
         exceptionTrace(ps, trace) +
-        s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${errors.head}")}${EOL}" +
-        errors.tail.map(error => s"${ps.assertion.failedPadding} ${ps.colourError(s"${error}")}").mkString(s"${EOL}") +
-        (if (nonEmptyTail(errors)) EOL else "") +
-        s"${ps.assertion.failedPadding} at ${location}"
+        errorLines(errors, location, ps)
 
         contextString(ps, ctx, baseError)
 
@@ -94,11 +91,7 @@ object SimplePrinter {
 
       val failedAssertion = s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${failedName} ${ps.assertion.tokens.common.failed}"
 
-      val errorReason =
-        s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${errors.head}")}${EOL}" +
-        errors.tail.map(error => s"${ps.assertion.failedPadding} ${ps.colourError(s"${error}")}").mkString(s"${EOL}") +
-        (if (nonEmptyTail(errors)) EOL else "") +
-        s"${ps.assertion.failedPadding} at ${location}"
+      val errorReason = errorLines(errors, location, ps)
 
       val compositeNotRun = notRun.map(nr => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${nr.name} ${ps.assertion.tokens.notRun}").toSeq.mkString(EOL)
 
@@ -109,6 +102,13 @@ object SimplePrinter {
         (if (notRun.nonEmpty) s"${EOL}${compositeNotRun}" else "")
 
       contextString(ps, ctx, baseError)
+  }
+
+  private def errorLines(errors: NonEmptySeq[String], location: String, ps: PrinterSetting): String = {
+    s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${errors.head}")}${EOL}" +
+    errors.tail.map(error => s"${ps.assertion.failedPadding} ${ps.colourError(s"${error}")}").mkString(s"${EOL}") +
+    (if (nonEmptyTail(errors)) EOL else "") +
+    s"${ps.assertion.failedPadding} at ${location}"
   }
 
   private def exceptionTrace(ps: PrinterSetting, trace: Seq[Trace]): String = {
