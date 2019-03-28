@@ -15,6 +15,9 @@ package object syntax {
   implicit def toContinueSyntaxFromSeqOfContinueSyntax(continueSyntaxes: NonEmptySeq[ContinueSyntax]): ContinueSyntax =
     continueSyntaxes.tail.foldLeft(continueSyntaxes.head)(_ and _)
 
+  implicit def toTestDataFromSeqOfContinueSyntax(continueSyntaxes: NonEmptySeq[ContinueSyntax]): TestData =
+    toTestData(toContinueSyntaxFromSeqOfContinueSyntax(continueSyntaxes))
+
   implicit def toTestData(continueSyntax: ContinueSyntax): TestData =
     TestData(continueSyntax.assertions, Independent)
 

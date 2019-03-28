@@ -11,8 +11,7 @@ object HundredAssertionsSuite extends SuiteLike("HundredAssertionsSuite") {
   }
 
   private val t1 = test("A hundred assertions") {
-    val assertions: ContinueSyntax = oneOrMore(1, 2 to 100:_*).map(mkAssertion)
-    assertions
+    oneOrMore(1, 2 to 100:_*).map(mkAssertion)
   }
 
   override val tests = one(t1)
