@@ -47,7 +47,7 @@ object StringRep {
   }
 
   implicit def nonEmptySeqStringRep[A](implicit S: StringRep[A]): StringRep[NonEmptySeq[A]] = new StringRep[NonEmptySeq[A]] {
-    override def strRep(xs: NonEmptySeq[A]): String = xs.map(S.strRep).toSeq.mkString("nes(", ",", ")")
+    override def strRep(xs: NonEmptySeq[A]): String = xs.map(S.strRep).mkString("nes(", ",", ")")
   }
 
   implicit def optionStringRep[A](implicit S: StringRep[A]): StringRep[Option[A]] = new StringRep[Option[A]] {

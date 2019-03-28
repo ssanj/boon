@@ -15,7 +15,7 @@ class Stack[A](private var internal: NonEmptySeq[A]) {
 
   def peek: A = ???
 
-  override def toString: String = s"Stack(${internal.toSeq.mkString(",")})"
+  override def toString: String = s"Stack(${internal.mkString(",")})"
 }
 
 //Custom types need to define `Equality`, `StringRep` and `Difference`.
@@ -26,7 +26,7 @@ object Stack {
   }
 
   implicit def stackStringRep[A]: StringRep[Stack[A]] = new StringRep[Stack[A]] {
-    override def strRep(s1: Stack[A]): String = s"Stack[${s1.internal.toSeq.mkString(",")}]"
+    override def strRep(s1: Stack[A]): String = s"Stack[${s1.internal.mkString(",")}]"
   }
 
   implicit def stackDifference[A: StringRep]: Difference[Stack[A]] = new Difference[Stack[A]] {

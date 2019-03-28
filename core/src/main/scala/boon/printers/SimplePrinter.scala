@@ -34,7 +34,7 @@ object SimplePrinter {
       }
 
       s"${name} ${token}${EOL}" +
-        tests.map(testOutputString(_, ps)).toSeq.mkString(EOL)
+        tests.map(testOutputString(_, ps)).mkString(EOL)
   }
 
   private def testOutputString(to: TestOutput, ps: PrinterSetting): String = to match {
@@ -48,7 +48,7 @@ object SimplePrinter {
       val colouredTestName = ps.test.colour(name)
 
       s"${ps.test.padding} - ${colouredTestName} ${token}${EOL}" +
-        assertions.map(assertionOutputString(_, ps)).toSeq.mkString(EOL)
+        assertions.map(assertionOutputString(_, ps)).mkString(EOL)
 
     case TestThrewOutput(name, error, trace, loc) =>
       val token = ps.test.tokens.common.failed
@@ -81,19 +81,19 @@ object SimplePrinter {
         contextString(ps, ctx, baseError)
 
     case SequentialPassedOutput(name, passed) =>
-      val compositePasses = passed.map(pa => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
+      val compositePasses = passed.map(pa => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${pa.name} ${ps.assertion.tokens.common.passed}").mkString(EOL)
       s"${compositePasses}"
 
     case SequentialFailedOutput(name, SequentialFailData(failedName, errors, ctx, loc), passed, notRun) =>
       val location = loc.fold("")(l => s"[$l]")
 
-      val compositePasses = passed.map(pa => s"${ps.assertion.padding} ↓ ${pa.name} ${ps.assertion.tokens.common.passed}").toSeq.mkString(EOL)
+      val compositePasses = passed.map(pa => s"${ps.assertion.padding} ↓ ${pa.name} ${ps.assertion.tokens.common.passed}").mkString(EOL)
 
       val failedAssertion = s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${failedName} ${ps.assertion.tokens.common.failed}"
 
       val errorReason = errorLines(errors, location, ps)
 
-      val compositeNotRun = notRun.map(nr => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${nr.name} ${ps.assertion.tokens.notRun}").toSeq.mkString(EOL)
+      val compositeNotRun = notRun.map(nr => s"${ps.assertion.padding} ${ps.assertion.compositePrefix} ${nr.name} ${ps.assertion.tokens.notRun}").mkString(EOL)
 
       val baseError =
         (if (passed.nonEmpty) s"${compositePasses}${EOL}" else "") +
