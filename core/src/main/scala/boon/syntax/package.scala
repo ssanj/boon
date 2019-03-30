@@ -30,7 +30,6 @@ package object syntax {
   //TODO: Do we need this?
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 
-
   //descriptive
   def assertionBlock(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
     val nameOp = for {
