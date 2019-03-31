@@ -67,12 +67,12 @@ object SuccessfulTestFixture {
 
   private val successfulSuite = new SuiteLike("SuccessfulSuite") {
     private val t1 = test("String.length") {
-       ("".length      =?= 0 | "empty") and
-       ("hello".length =?= 5 | "hello")
+       "".length      =?= 0 | "empty" and
+       "hello".length =?= 5 | "hello"
     }
 
     private val t2 = test("String.reverse") {
-      ("Hola".reverse =?= "aloH" | "Hola")
+      "Hola".reverse =?= "aloH" | "Hola"
     }
 
     override val tests = oneOrMore(t1, t2)
