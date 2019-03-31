@@ -23,6 +23,8 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def concat(other: NonEmptySeq[A]): NonEmptySeq[A] = self.copy(tail = self.tail ++ other.toSeq)
 
+  def ++(other: Seq[A]): NonEmptySeq[A] = self.copy(tail = self.tail ++ other)
+
   def reverse: NonEmptySeq[A] = {
     val reversed = toSeq.reverse //we know this is not empty
     NonEmptySeq(reversed.head, reversed.tail)

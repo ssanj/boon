@@ -19,14 +19,14 @@ object Boon {
     Defer[Testable](t)
   }
 
-  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
-    defineAssertionWithContext[A](name, gen, equalityType, Map.empty[String, String])
+  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType, hints: Seq[String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
+    defineAssertionWithContext[A](name, gen, equalityType, Map.empty[String, String], hints)
 
-  def defineAssertionWithContext[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType, context: Map[String, String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
+  def defineAssertionWithContext[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType, context: Map[String, String], hints: Seq[String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
     Assertion(AssertionName(name), {
       val (a1, a2) = gen
       testable[A](a1, a2, equalityType)
-    }, context, loc)
+    }, context, hints, loc)
 
   private case class ResultCollector(pass: Vector[AssertionResult], fail: Option[AssertionFailure], notRun: Vector[Assertion])
 

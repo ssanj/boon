@@ -10,7 +10,7 @@ object AssertionTriple {
 
 final case class AssertionName(value: String)
 
-final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], location: SourceLocation)
+final case class Assertion(name: AssertionName, testable: Defer[Testable], context: Map[String, String], hints: Seq[String], location: SourceLocation)
 
 final case class AssertionError(assertion: Assertion, errors: NonEmptySeq[String])
 final case class AssertionThrow(name: AssertionName, value: Throwable, location: SourceLocation)

@@ -20,6 +20,10 @@ object BoonType {
       override def diff(a1: A, a2: A): NonEmptySeq[String] = diffy(a1, a2)
     }
 
+  def fromInstances[A](implicit equality: Equality[A], strRep: StringRep[A], diff: Difference[A]): BoonType[A] = {
+    BoonType.from[A](equality.eql, strRep.strRep, diff.diff)
+  }
+
   def defaults[A]: BoonType[A] = {
     implicit val sRep = StringRep.genericStringRep[A]
     BoonType.from[A](Equality.genericEquality[A].eql, sRep.strRep, Difference.genericDifference[A].diff)
@@ -38,5 +42,19 @@ object BoonType {
   def defaultsWithDiff[A](diff: (A, A) => NonEmptySeq[String]): BoonType[A] = {
     val defaultBoonType = defaults[A]
     from[A](defaultBoonType.eql, defaultBoonType.strRep, diff)
+  }
+
+  def contraBoonType[A, B](bToA: B => A)(implicit boonTypeA: BoonType[A]): BoonType[B] = {
+    from[B]((b1, b2) => boonTypeA.eql(bToA(b1), bToA(b2)),
+             b => boonTypeA.strRep(bToA(b)),
+             (b1, b2) => boonTypeA.diff(bToA(b1), bToA(b2))
+    )
+  }
+
+  implicit def fromListBoonTypeToSeq[A](
+    implicit listEquality: Equality[List[A]],
+             listStringRep: StringRep[List[A]],
+             listDiff: Difference[List[A]]): BoonType[Seq[A]] = {
+    contraBoonType[List[A], Seq[A]](_.toList)(fromInstances[List[A]])
   }
 }

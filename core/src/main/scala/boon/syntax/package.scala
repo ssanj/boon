@@ -21,11 +21,12 @@ package object syntax {
   implicit def toTestData(continueSyntax: ContinueSyntax): TestData =
     TestData(continueSyntax.assertions, Independent)
 
+  //TODO: Convert these to a type that takes hints
   implicit def booleanToDescSyntax(value1: => Boolean): DescSyntax[Boolean] =
-    new DescSyntax[Boolean]((defer(value1), defer(true)), IsEqual)
+    new DescSyntax[Boolean]((defer(value1), defer(true)), IsEqual, noHints)
 
   implicit def deferBooleanToDescSyntax(value: Defer[Boolean]): DescSyntax[Boolean] =
-    new DescSyntax[Boolean]((value, defer(true)), IsEqual)
+    new DescSyntax[Boolean]((value, defer(true)), IsEqual, noHints)
 
   //TODO: Do we need this?
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
