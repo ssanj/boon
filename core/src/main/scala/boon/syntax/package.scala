@@ -21,7 +21,6 @@ package object syntax {
   implicit def toTestData(continueSyntax: ContinueSyntax): TestData =
     TestData(continueSyntax.assertions, Independent)
 
-  //TODO: Convert these to a type that takes hints
   implicit def booleanToDescSyntax(value1: => Boolean): DescSyntax[Boolean] =
     new DescSyntax[Boolean]((defer(value1), defer(true)), IsEqual, noHints)
 
@@ -43,23 +42,10 @@ package object syntax {
     }, identity _)
   }
 
-  def assertions(first: ContinueSyntax, rest: ContinueSyntax*): ContinueSyntax = {
-    NonEmptySeq.nes(first, rest:_*)
-  }
+  def fail(reason: String): DescSyntax[Boolean] = !true >> Seq(s"explicit fail: $reason")
 
-  def fail(reason: String): DescSyntax[FailableAssertion] = failAssertion(s"explicit fail: $reason")
-
-  def frameworkFail(reason: String): DescSyntax[FailableAssertion] = failAssertion(s"boon framework error: $reason")
-
-  def pass: DescSyntax[FailableAssertion] =
-    upcast[PassedAssertion.type, FailableAssertion](PassedAssertion) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
+  def pass: DescSyntax[Boolean] = true
 
   def %@[A](provide: => A)(cs: A => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs(provide))(loc)
-
-  private def failAssertion(reason: String): DescSyntax[FailableAssertion] = {
-    upcast[FailedAssertion, FailableAssertion](FailedAssertion(reason)) =?= upcast[PassedAssertion.type, FailableAssertion](PassedAssertion)
-  }
-
-  private def upcast[Sub, Super](value: Sub)(implicit CAST:Sub <:< Super): Super = CAST(value)
 
 }

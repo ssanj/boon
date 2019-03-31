@@ -66,11 +66,4 @@ object StringRep {
 
     override def strRep(map: Map[A, B]): String = map.map { case (k, v) =>  s"${SA.strRep(k)} -> ${SB.strRep(v)}" }.mkString("Map(", ",", ")")
   }
-
-  implicit object failableAssertionStringRep extends StringRep[FailableAssertion] {
-    override def strRep(fa: FailableAssertion): String = fa match {
-      case FailedAssertion(reason) => s"Failed(reason=${reason})"
-      case PassedAssertion         => s"Passed"
-    }
-  }
 }

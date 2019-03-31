@@ -1,12 +1,10 @@
 package boon
 
 import boon.model.Equality
-import boon.model.FailableAssertion
 import org.scalacheck.Properties
 import org.scalacheck._
 import Prop.forAll
 import scala.reflect.runtime.universe._
-import boon.scalacheck.Arb._
 
 object EqualityProps extends Properties("Equality") {
 
@@ -58,7 +56,6 @@ object EqualityProps extends Properties("Equality") {
   equalityLaws[Map[Int, String]]
   equalityLaws[Map[String, String]]
   equalityLaws[Map[Long, Char]]
-  equalityLaws[FailableAssertion]
 
   private def equalityLaws[A: Equality: Arbitrary](implicit typeTag: TypeTag[A]): Unit = {
     val typeName = typeOf[A].toString

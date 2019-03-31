@@ -1,8 +1,5 @@
 package boon.scalacheck
 
-import boon.model.FailableAssertion
-import boon.model.FailedAssertion
-import boon.model.PassedAssertion
 import boon.model.stats.AssertionCount
 import boon.model.stats.SuiteStats
 import boon.model.stats.StatusCount
@@ -12,13 +9,6 @@ import org.scalacheck._
 import Arbitrary.arbitrary
 
 object Arb {
-
-  implicit val failableAssertionArb: Arbitrary[FailableAssertion] = Arbitrary {
-    for {
-      message           <- arbitrary[String]
-      failableAssertion <- Gen.oneOf[FailableAssertion](FailedAssertion(message), PassedAssertion)
-    } yield failableAssertion
-  }
 
   implicit val statusCountArb: Arbitrary[StatusCount] = Arbitrary {
     for {

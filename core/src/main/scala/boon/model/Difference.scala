@@ -100,13 +100,4 @@ object Difference {
     val rep = StringRep[Map[A, B]]
     override def diff(map1: Map[A, B], map2: Map[A, B]): NonEmptySeq[String] = one(s"${rep.strRep(map1)} != ${rep.strRep(map2)}")
   }
-
-  //TODO: breaks the laws (if any). Fix
-  implicit object FailableAssertionDifference extends Difference[FailableAssertion] {
-    override def diff(a1: FailableAssertion, a2: FailableAssertion): NonEmptySeq[String] = (a1, a2) match {
-      case (FailedAssertion(r1), _) => one(r1)
-      case (PassedAssertion, FailedAssertion(r1)) => one(r1)
-      case (PassedAssertion, PassedAssertion)  => one("explicit pass")
-    }
-  }
 }

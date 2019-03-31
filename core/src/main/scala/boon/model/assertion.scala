@@ -63,8 +63,3 @@ final case class SingleAssertionResult(value: AssertionResultState) extends Asse
 sealed trait AssertionCombinator
 case object Independent extends AssertionCombinator
 case object Sequential extends AssertionCombinator
-
-sealed trait FailableAssertion
-final case class FailedAssertion(reason: String) extends FailableAssertion
-object PassedAssertion extends FailableAssertion
-

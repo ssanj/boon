@@ -98,12 +98,4 @@ object Equality {
       })
     }
   }
-
-  implicit object FailableAssertionEquality extends Equality[FailableAssertion] {
-    override def eql(a1: FailableAssertion, a2: FailableAssertion): Boolean = (a1, a2) match {
-      case (FailedAssertion(r1), FailedAssertion(r2)) => StringEquality.eql(r1, r2)
-      case (PassedAssertion, PassedAssertion) => true
-      case _ => false
-    }
-  }
 }
