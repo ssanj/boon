@@ -7,7 +7,7 @@ object regex {
 
   final class StringSyntax(value: => String) {
 
-    def ^?(reg: Regex): DescSyntax[Boolean] =
+    def =^=(reg: Regex): DescSyntax[Boolean] =
       reg.findFirstIn(value).fold(false)(_ => true) >> Seq(s"'${value}' did not match regex: /${reg}/")
   }
 

@@ -17,7 +17,7 @@ object StringSuite extends SuiteLike("StringSuite") {
       "subject"   -> """"Bilbo"""",
       "predicate" -> "contains",
       "value"     -> """"ob"""") and
-    """HTTP/1.1 400: {"message":"body cannot be converted to Test: CNil: El(DownField(myValue)"}""" ^?
+    """HTTP/1.1 400: {"message":"body cannot be converted to Test: CNil: El(DownField(myValue)"}""" =^=
          """HTTP/1\.1 400.*DownField\(myValue\)""".r | "expect decode error"
   }
 
