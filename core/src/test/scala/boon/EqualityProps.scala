@@ -9,22 +9,6 @@ import scala.reflect.runtime.universe._
 
 object EqualityProps extends Properties("Equality") {
 
-/* Reflexivity
- * x == x = True
- *
- * Symmetry
- * x == y = y == x
- *
- * Transitivity
- * if x == y && y == z = True, then x == z = True
- *
- * Substitutivity
- * if x == y = True and f is a "public" function whose return type is an instance of Eq, then f x == f y = True
- *
- * Negation
- * x /= y = not (x == y)
- */
-
   equalityLaws[Int]
   equalityLaws[Long]
   equalityLaws[Boolean]
@@ -91,25 +75,23 @@ object EqualityProps extends Properties("Equality") {
   }
 
 
-  private def reflexiveLaw[A: Equality: Arbitrary](value: A): Boolean = {
-    Equality[A].eql(value, value)
+  private def reflexiveLaw[A: Equality](value: A): Boolean = {
+    Equality[A].laws.reflexive(value)
   }
 
   private def symmetryLaw[A: Equality](value1: A, value2: A): Boolean = {
-    val eql = Equality[A].eql _
-    eql(value1, value2) == eql(value2, value1)
+    Equality[A].laws.symmetry(value1, value2)
   }
 
   private def transitivityLaw[A: Equality](value1: A, value2: A, value3: A): Boolean = {
-    val eql = Equality[A].eql _
-    !(eql(value1, value2) && eql(value2, value3)) || eql(value1, value3)
+    Equality[A].laws.transitivity(value1, value2, value3)
   }
 
   private def negationLaw[A: Equality](value1: A, value2: A): Boolean = {
-    val eqA = Equality[A]
-    val eql = eqA.eql _
-    val neql = eqA.neql _
-
-    eql(value1, value2) || (neql(value1, value2) == !eql(value1, value2))
+    Equality[A].laws.negation(value1, value2)
   }
+
+  // private def substitutivityLaw[A: Equality, B: Equality](value1: A, value2: A, f: A => B): Boolean = {
+  //   Equality[A].laws.substitutivity(value1, value2, f)
+  // }
 }
