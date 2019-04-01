@@ -91,12 +91,12 @@ which then produces the following output:
 | \\|#   | Add a label to an assertion and a context. *The context is displayed when an assertion fails* | x * y =?= 3 \\|#("multiplication", "x" -> x.toString, "y" -> y.toString)  |
 | =!=  | Compare Exception thrown by class and message | flakey =!=[RuntimeException](_ =?= "Boom!") |
 | and  | Combine Assertions | 1 + 2 =?= 3 and 4 + 5 =?= 9 |
-| &  | Combine Assertions. Same as `and` but needs `()` around operands due to precedence. Looks better on mathematical assertions. | (1 + 2 =?= 3) & (4 + 5 =?= 9) |
+| %@  | Create a value for multiple assertions | %@(List(1,2,3)){ l => <br> l.length =?= 5 \\| "length" and l.contains(2) \\| "has 2" } |
 
 ### Methods ###
 
 | Method  | What it's for | Example |
 | ------------- | ------------- | ------------- |
 | fail | Fail an assertion | fail("reason") \| "assertion name" |
-| passAssertion | Pass an assertion | passAssertion \| "assertion name" |
+| pass | Pass an assertion | passAssertion \| "assertion name" |
 
