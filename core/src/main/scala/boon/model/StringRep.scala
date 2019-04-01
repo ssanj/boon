@@ -4,6 +4,25 @@ package model
 
 trait StringRep[A] {
   def strRep(a: A): String
+
+  trait StringRepLaws {
+
+    /* Stability
+     * strRep(a) == strRep(a), over many invocations
+     */
+    def stability(value: A, equality: Equality[String]): Boolean =
+      equality.eql(strRep(value), strRep(value)) &&
+      equality.eql(strRep(value), strRep(value)) &&
+      equality.eql(strRep(value), strRep(value))
+
+    /* Equal values should have the same String representation
+     * x == y, then strRep(x) == strRep(y)
+     */
+    def equalValuesHaveSameStringRep(value1: A, value2: A, equalityA: Equality[A], equalityStr: Equality[String]): Boolean =
+      !equalityA.eql(value1, value2) || equalityStr.eql(strRep(value1), strRep(value2))
+  }
+
+  val stringReplaws = new StringRepLaws {}
 }
 
 object StringRep {
@@ -22,20 +41,20 @@ object StringRep {
     override def strRep(a: Long): String = genericStringRep[Long].strRep(a)
   }
 
-  implicit object FloatStringRep extends StringRep[Float] {
-    override def strRep(a: Float): String = genericStringRep[Float].strRep(a)
-  }
-
-  implicit object DoubleStringRep extends StringRep[Double] {
-    override def strRep(a: Double): String = genericStringRep[Double].strRep(a)
-  }
-
   implicit object BooleanStringRep extends StringRep[Boolean] {
     override def strRep(a: Boolean): String = genericStringRep[Boolean].strRep(a)
   }
 
   implicit object StringStringRep extends StringRep[String] {
     override def strRep(a: String): String = s""""$a""""
+  }
+
+  implicit object FloatStringRep extends StringRep[Float] {
+    override def strRep(a: Float): String = genericStringRep[Float].strRep(a)
+  }
+
+  implicit object DoubleStringRep extends StringRep[Double] {
+    override def strRep(a: Double): String = genericStringRep[Double].strRep(a)
   }
 
   implicit object CharStringRep extends StringRep[Char] {
@@ -50,12 +69,12 @@ object StringRep {
     override def strRep(xs: NonEmptySeq[A]): String = xs.map(S.strRep).mkString("nes(", ",", ")")
   }
 
-  implicit def optionStringRep[A](implicit S: StringRep[A]): StringRep[Option[A]] = new StringRep[Option[A]] {
-    override def strRep(xs: Option[A]): String = xs.fold("None")(v => s"Some(${S.strRep(v)})")
-  }
-
   implicit def eitherStringRep[A, B](implicit LS: StringRep[A], RS: StringRep[B]): StringRep[Either[A, B]] = new StringRep[Either[A, B]] {
     override def strRep(xs: Either[A, B]): String = xs.fold(l => s"Left(${LS.strRep(l)})", r => s"Right(${RS.strRep(r)})")
+  }
+
+  implicit def optionStringRep[A](implicit S: StringRep[A]): StringRep[Option[A]] = new StringRep[Option[A]] {
+    override def strRep(xs: Option[A]): String = xs.fold("None")(v => s"Some(${S.strRep(v)})")
   }
 
   implicit def pairStringRep[A, B](implicit SA: StringRep[A], SB: StringRep[B]): StringRep[Tuple2[A, B]] = new StringRep[Tuple2[A, B]] {
