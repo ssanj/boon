@@ -10,7 +10,8 @@ object OptionSuite extends SuiteLike("OptionSuite") {
     10.some =?= 10.some   | "equal Some"    and
     10.some =/= 19.some   | "unequal Some"  and
     50.some =/= none[Int] | "Some != None"  and
-    some_?[Int](_ =/= 10  | "Some is not ten")(20.some)
+    some_?[Int](_ =/= 10  | "Some is not ten")(20.some) and
+    some_?[String](_ => pass | "is Some")("value".some)
   }
 
   private val t2 = test("none") {

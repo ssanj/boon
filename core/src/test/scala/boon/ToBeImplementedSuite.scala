@@ -18,5 +18,5 @@ abstract class ToBeImplementedSuite extends SuiteLike("ToBeImplementedSuite") {
     someClass.message  =?= "it's a trap" | "Unsafe test"
   }
 
-  override val tests = NonEmptySeq.nes(t1)
+  override val tests = one(t1)
 }

@@ -11,7 +11,7 @@ object FilterStudioSuite extends SuiteLike("FilterStudio") {
   import FilterStudio._
 
   private val t1 = test("with empty abode") {
-    (filterStudio(Nil) =?= Nil | "stays empty")
+    filterStudio(Nil) =?= Nil | "stays empty"
   }
 
   private val t2 = test("remove studio abode") {
@@ -29,7 +29,7 @@ object FilterStudioSuite extends SuiteLike("FilterStudio") {
     actualList =?= abode | "leave others unchanged"
   }
 
-  override def tests = NonEmptySeq.nes(t1, t2, t3)
+  override def tests = oneOrMore(t1, t2, t3)
 }
 
 //To run outside of SBT

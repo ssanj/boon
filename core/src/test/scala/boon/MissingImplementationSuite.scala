@@ -68,7 +68,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
     fail(s"Sequential failed: $name") | "assertionOutput type"
   }
 
-  override val tests = NonEmptySeq.nes(t1)
+  override val tests = one(t1)
 }
 
 object MissingImplFixtures {

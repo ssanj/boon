@@ -67,7 +67,7 @@ object ContextOnErrorFixture {
                                     "missing"    -> "Frodo")
     }
 
-    override val tests = NonEmptySeq.nes(frodoTest)
+    override val tests = one(frodoTest)
   }
 
   def run: SuiteOutput = SuiteOutput.toSuiteOutput(Boon.runSuiteLike(withContextSuite))
