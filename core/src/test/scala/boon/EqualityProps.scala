@@ -1,6 +1,7 @@
 package boon
 
 import boon.model.Equality
+import scalacheck.Arb._
 import org.scalacheck.Properties
 import org.scalacheck._
 import Prop.forAll
@@ -39,6 +40,24 @@ object EqualityProps extends Properties("Equality") {
   equalityLaws[List[Float]]
   equalityLaws[List[Double]]
   equalityLaws[List[Char]]
+
+  equalityLaws[NonEmptySeq[Int]]
+  equalityLaws[NonEmptySeq[Long]]
+  equalityLaws[NonEmptySeq[String]]
+  equalityLaws[NonEmptySeq[Boolean]]
+  equalityLaws[NonEmptySeq[Float]]
+  equalityLaws[NonEmptySeq[Double]]
+  equalityLaws[NonEmptySeq[Char]]
+
+  equalityLaws[Either[String, Int]]
+  equalityLaws[Either[String, Long]]
+  equalityLaws[Either[String, String]]
+  equalityLaws[Either[String, Boolean]]
+  equalityLaws[Either[String, Float]]
+  equalityLaws[Either[String, Double]]
+  equalityLaws[Either[String, Char]]
+  equalityLaws[Either[Boolean, Int]]
+  equalityLaws[Either[Int, String]]
 
   equalityLaws[Option[Int]]
   equalityLaws[Option[Long]]

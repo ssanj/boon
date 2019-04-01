@@ -1,5 +1,7 @@
-package boon.scalacheck
+package boon
+package scalacheck
 
+import boon.NonEmptySeq
 import boon.model.stats.AssertionCount
 import boon.model.stats.SuiteStats
 import boon.model.stats.StatusCount
@@ -9,6 +11,14 @@ import org.scalacheck._
 import Arbitrary.arbitrary
 
 object Arb {
+
+  implicit def nonEmptySeqArb[A: Arbitrary]: Arbitrary[NonEmptySeq[A]] = Arbitrary {
+    for {
+      value1 <- arbitrary[A]
+      length <- Gen.choose(0, 4)
+      values <- Gen.listOfN(length, arbitrary[A])
+    } yield oneOrMore(value1, values:_*)
+  }
 
   implicit val statusCountArb: Arbitrary[StatusCount] = Arbitrary {
     for {
