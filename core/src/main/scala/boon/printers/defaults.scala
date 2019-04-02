@@ -17,13 +17,18 @@ object ColourOutput {
 
 final case class Tokens(passed: String, failed: String)
 
+final case class AssertionToken(common: Tokens, notRun: String)
+
 final case class SuitePrinterSettings(tokens: Tokens)
 
-final case class TestPrinterSettings(tokens: Tokens, padding: String, colour: String => String)
+final case class TestTokens(common: Tokens, ignored: String)
+
+final case class TestPrinterSettings(tokens: TestTokens, padding: String, colour: String => String)
 
 final case class AssertionPrinterSettings(
-  tokens: Tokens,
+  tokens: AssertionToken,
   padding: String,
+  compositePrefix: String,
   failedPadding: String,
   failedContextPadding: String,
   failedContextElementPadding: String
@@ -46,17 +51,24 @@ object PrinterSetting {
 
     val test =
       TestPrinterSettings(
-        tokens = Tokens(colourise(green(showColours), "[passed]"),
-                        colourise(red(showColours), "[failed]")),
+        tokens = TestTokens(
+                    Tokens(colourise(green(showColours), "[passed]"),
+                           colourise(red(showColours), "[failed]")),
+                    colourise(green(showColours), "[ignored]")
+                  ),
         padding = "",
         colour = colourise(yellow(showColours), _: String)
       )
 
     val assertion =
       AssertionPrinterSettings(
-        tokens = Tokens(colourise(green(showColours), "[✓]"),
-                        colourise(red(showColours), "[✗]")),
+        tokens = AssertionToken(
+                    Tokens(colourise(green(showColours), "[✓]"),
+                           colourise(red(showColours), "[✗]")),
+                    colourise(red(showColours), "(not run)")
+                 ),
         padding = " " * 2,
+        compositePrefix = "↓",
         failedPadding = " " * 4,
         failedContextPadding = " " * 7,
         failedContextElementPadding = " " * 10

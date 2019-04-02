@@ -1,21 +1,54 @@
 package boon
+package model
+
 
 trait Equality[A] {
 
   def eql(a1: A, a2: A): Boolean
 
   def neql(a1: A, a2: A): Boolean = !eql(a1, a2)
-}
 
-trait LowPriorityEquality {
-  implicit def genericEquality[A]: Equality[A] = new Equality[A] {
-    override def eql(a1: A, a2: A): Boolean = a1 == a2
+  trait EqualityLaws {
+
+    /* Reflexivity
+     * x == x = True
+     */
+    def reflexive(value: A): Boolean = eql(value, value)
+
+    /* Symmetry
+     * x == y = y == x
+     */
+    def symmetry(value1: A, value2: A): Boolean = eql(value1, value2) == eql(value2, value1)
+
+    /* Transitivity
+     * if x == y && y == z = True, then x == z = True
+     */
+    def transitivity(value1: A, value2: A, value3: A): Boolean =
+      !(eql(value1, value2) && eql(value2, value3)) || eql(value1, value3)
+
+    /* Negation
+     * x /= y = not (x == y)
+     */
+    def negation(value1: A, value2: A): Boolean =
+      eql(value1, value2) || (neql(value1, value2) == !eql(value1, value2))
+
+    /* Substitutivity
+     * if x == y = True and f is a "public" function whose return type is an instance of Eq, then f x == f y = True
+     */
+    def substitutivity[B](value1: A, value2: A, f: A => B): Boolean =
+      eql(value1, value2) && f(value1) == f(value2)
   }
+
+  val laws = new EqualityLaws{}
 }
 
-object Equality extends LowPriorityEquality {
+object Equality {
 
   def apply[A: Equality]: Equality[A] = implicitly[Equality[A]]
+
+  def genericEquality[A]: Equality[A] = new Equality[A] {
+    override def eql(a1: A, a2: A): Boolean = a1 == a2
+  }
 
   implicit object IntEquality extends Equality[Int] {
     override def eql(a1: Int, a2: Int): Boolean = a1 == a2
@@ -53,10 +86,23 @@ object Equality extends LowPriorityEquality {
     }
   }
 
+  implicit def nonEmptySeqEquality[A](implicit EL: Equality[List[A]]): Equality[NonEmptySeq[A]] = new Equality[NonEmptySeq[A]] {
+    override def eql(xs: NonEmptySeq[A], ys: NonEmptySeq[A]): Boolean =
+      EL.eql(xs.toList, ys.toList)
+  }
+
   implicit def optionEquality[A](implicit E: Equality[A]): Equality[Option[A]] = new Equality[Option[A]] {
     override def eql(xs: Option[A], ys: Option[A]): Boolean = (xs, ys) match {
       case (Some(x), Some(y)) => E.eql(x, y)
       case (None, None) => true
+      case _ => false
+    }
+  }
+
+  implicit def eitherEquality[A, B](implicit LE: Equality[A], RE: Equality[B]): Equality[Either[A, B]] = new Equality[Either[A, B]] {
+    override def eql(xs: Either[A, B], ys: Either[A, B]): Boolean = (xs, ys) match {
+      case (Right(x), Right(y)) => RE.eql(x, y)
+      case (Left(x), Left(y)) => LE.eql(x, y)
       case _ => false
     }
   }
@@ -83,14 +129,6 @@ object Equality extends LowPriorityEquality {
           }
         }
       })
-    }
-  }
-
-  implicit object FailableAssertionEquality extends Equality[FailableAssertion] {
-    override def eql(a1: FailableAssertion, a2: FailableAssertion): Boolean = (a1, a2) match {
-      case (FailedAssertion(r1), FailedAssertion(r2)) => StringEquality.eql(r1, r2)
-      case (PassedAssertion, PassedAssertion) => true
-      case _ => false
     }
   }
 }

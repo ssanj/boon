@@ -7,7 +7,7 @@ import sbt.testing.SubclassFingerprint
 
 final class BoonFramework extends Framework {
 
-  def name(): String = "boon"
+  def name(): String = "Boon"
 
   def fingerprints(): Array[Fingerprint] = Array(BoonFramework.fingerprint)
 

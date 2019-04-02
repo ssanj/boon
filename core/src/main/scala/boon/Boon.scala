@@ -1,5 +1,7 @@
 package boon
 
+import boon.model._
+
 import scala.util.Try
 
 object Boon {
@@ -17,14 +19,16 @@ object Boon {
     Defer[Testable](t)
   }
 
-  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
-    defineAssertionWithContext[A](name, gen, equalityType, Map.empty[String, String])
+  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType, hints: Seq[String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
+    defineAssertionWithContext[A](name, gen, equalityType, Map.empty[String, String], hints)
 
-  def defineAssertionWithContext[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType, context: Map[String, String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
+  def defineAssertionWithContext[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType, context: Map[String, String], hints: Seq[String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
     Assertion(AssertionName(name), {
       val (a1, a2) = gen
       testable[A](a1, a2, equalityType)
-    }, context, loc)
+    }, context, hints, loc)
+
+  private case class ResultCollector(pass: Vector[AssertionResult], fail: Option[AssertionFailure], notRun: Vector[Assertion])
 
   def runAssertion(assertion: Assertion): AssertionResult = {
     Try {
@@ -34,14 +38,50 @@ object Boon {
 
       val eqFunc = testable.equalityType.fold(testable.equality.neql _, testable.equality.eql _)
 
-      if (eqFunc(value1, value2)) AssertionPassed(assertion)
-      else AssertionFailed(AssertionError(assertion, testable.difference.diff(value1, value2)))
-    }.fold(AssertionThrew(assertion.name, _, assertion.location), identity _)
+      if (eqFunc(value1, value2)) SingleAssertionResult(AssertionResultPassed(AssertionTriple(assertion.name, assertion.context, assertion.location)))
+      else SingleAssertionResult(AssertionResultFailed(AssertionError(assertion, testable.difference.diff(value1, value2))))
+
+    }.fold(t => SingleAssertionResult(AssertionResultThrew(AssertionThrow(assertion.name, t, assertion.location))), identity _)
   }
 
-  def runTest(dTest: DeferredTest): TestResult = {
-    val assertionResults = dTest.assertions.map(runAssertion)
-    TestResult(dTest, assertionResults)
+  def runTest(test: Test): TestResult = test match {
+    case UnsuccessfulTest(tTest: ThrownTest) => TestThrewResult(tTest)
+
+    case IgnoredTest(name: TestName) => TestIgnoredResult(name)
+
+    case SuccessfulTest(dTest: DeferredTest) =>
+        dTest.combinator match {
+          case Independent => SingleTestResult(dTest, dTest.assertions.map(runAssertion))
+          case Sequential =>
+            val zero = ResultCollector(pass = Vector.empty[AssertionResult], fail = None, notRun = Vector.empty[Assertion])
+
+            val results = dTest.assertions.foldLeft(zero){ (acc, a1) =>
+              acc.fail.fold({
+                val a1Result = runAssertion(a1)
+                a1Result match { //do we need to create separate types given that we have separate Single/Composite types?
+                  case SingleAssertionResult(_: AssertionResultPassed)  => acc.copy(pass = acc.pass :+ a1Result)
+                  case SingleAssertionResult(af: AssertionResultFailed) => acc.copy(fail = Some(AssertionFailed(af.value)))
+                  case SingleAssertionResult(at: AssertionResultThrew)  => acc.copy(fail = Some(AssertionThrew(at.value)))
+                }
+              })(_ => acc.copy(notRun = acc.notRun :+ a1))
+            }
+
+            results.fail.fold[TestResult]({
+              val passed = results.pass.map(ar => SequentialPass(AssertionResult.assertionNameFromResult(ar)))
+              CompositeTestResult(AllPassed(dTest.name, NonEmptySeq.nes(passed.head, passed.tail:_*)))
+            })({ failure =>
+                val failed = failure match {
+                  case saf : AssertionFailed => Left[SequentialFail, SequentialThrew](SequentialFail(saf.value))
+                  case sat : AssertionThrew  => Right[SequentialFail, SequentialThrew](SequentialThrew(sat.value))
+                }
+
+                val failedAssertionName = failed.fold(_.value.assertion.name, _.value.name)
+
+                val passed = results.pass.map(ar => SequentialPass(AssertionResult.assertionNameFromResult(ar)))
+                val notRun = results.notRun.map(assertion => SequentialNotRun(assertion.name))
+                CompositeTestResult(StoppedOnFirstFailed(dTest.name, FirstFailed(failedAssertionName, failed, passed, notRun)))
+            })
+        }
   }
 
   def runSuiteLike(suiteLike: SuiteLike): SuiteResult = runSuite(suiteLike.suite)
@@ -49,30 +89,6 @@ object Boon {
   def runSuite(dSuite: DeferredSuite): SuiteResult = {
     val testResults = dSuite.tests.map(runTest)
     SuiteResult(dSuite, testResults)
-  }
-
-  def assertionResultToPassable(ar: AssertionResult): Passable = ar match {
-    case _: AssertionPassed => Passed
-    case _: AssertionFailed => Failed
-    case _: AssertionThrew  => Failed
-  }
-
-  def testResultToPassable(tr: TestResult): Passable = {
-    val failedOp = tr.assertionResults.map(assertionResultToPassable).find {
-      case Failed => true
-      case Passed => false
-    }
-
-    failedOp.fold[Passable](Passed)(_ => Failed)
-  }
-
-  def suiteResultToPassable(sr: SuiteResult): Passable = {
-    val failedOp = sr.testResults.map(testResultToPassable).find {
-      case Failed => true
-      case Passed => false
-    }
-
-   failedOp.fold[Passable](Passed)(_ => Failed)
   }
 }
 

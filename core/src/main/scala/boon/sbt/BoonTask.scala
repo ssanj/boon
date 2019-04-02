@@ -7,11 +7,10 @@ import sbt.testing.Logger
 import sbt.testing.Status
 
 import boon.Boon
-import boon.Failed
-import boon.Passed
+import boon.model.SuiteState
 import boon.printers.ColourOutput
-import boon.printers.SuiteOutput
-import boon.SuiteResult
+import boon.result.SuiteOutput
+import boon.model.SuiteResult
 
 import boon.sbt.Event.createEvent
 import boon.sbt.Event.createErrorEvent
@@ -24,7 +23,8 @@ import scala.util.Try
 
 final class BoonTask(val taskDef: TaskDef,
                          cl: ClassLoader,
-                         printer: (SuiteOutput, ColourOutput, String => Unit) => Unit) extends Task {
+                         printer: (SuiteOutput, ColourOutput, String => Unit) => Unit,
+                         statusLister: TestStatusListener) extends Task {
 
   def tags(): Array[String] = Array.empty
 
@@ -38,10 +38,12 @@ final class BoonTask(val taskDef: TaskDef,
       suiteResultTry match {
         case Failure(error) =>
           handleEvent(createErrorEvent(taskDef, error, timeTaken), eventHandler)
+          statusLister.suiteFailed(error.getMessage)
           logError(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
         case Success(suiteResult) =>
           handleEvent(
             createEvent[SuiteResult](taskDef, suiteResultToStatus, suiteResult, timeTaken), eventHandler)
+          statusLister.suiteResult(suiteResult)
           logResult(SuiteOutput.toSuiteOutput(suiteResult), loggers)
       }
 
@@ -49,9 +51,9 @@ final class BoonTask(val taskDef: TaskDef,
   }
 
   private def suiteResultToStatus(sr: SuiteResult): Status =
-    Boon.suiteResultToPassable(sr) match {
-      case Passed => Status.Success
-      case Failed => Status.Failure
+    SuiteResult.suiteResultToSuiteState(sr) match {
+      case SuiteState.Passed => Status.Success
+      case SuiteState.Failed => Status.Failure
     }
 
 

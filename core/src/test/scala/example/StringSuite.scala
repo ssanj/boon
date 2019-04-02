@@ -2,9 +2,9 @@ package example
 
 import boon._
 import syntax._
+import regex._
 
 object StringSuite extends SuiteLike("StringSuite") {
-
   private val t1 = test("String methods") {
     ("Daniel" + " " + "Jackson") =?= "Daniel Jackson" | "concat"     and
     "yohoho"                     =?= "ohohoy".reverse | "reversing"  and
@@ -13,9 +13,11 @@ object StringSuite extends SuiteLike("StringSuite") {
     "Battlestar".endsWith("star")                     | "endsWith"   and
     "Bilbo".contains("lbo") |# (
       "contains",
-      "subject" -> "\"Bilbo\"",
+      "subject"   -> """"Bilbo"""",
       "predicate" -> "contains",
-      "value" -> "\"ob\"")
+      "value"     -> """"ob"""") and
+    """HTTP/1.1 400: {"message":"body cannot be converted to Test: CNil: El(DownField(myValue)"}""" =^=
+         """HTTP/1\.1 400.*DownField\(myValue\)""".r | "expect decode error"
   }
 
   private val strTable =
@@ -27,5 +29,5 @@ object StringSuite extends SuiteLike("StringSuite") {
 
   private val t2 = table[String, Int]("String length", strTable)(_.length)
 
-  override def tests = NonEmptySeq.nes(t1, t2)
+  override def tests = oneOrMore(t1, t2)
 }

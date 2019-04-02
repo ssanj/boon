@@ -2,7 +2,7 @@ package boon
 
 import syntax._
 
-object ExceptionSuite extends SuiteLike("ExceptionSuite") {
+object ExceptionSuite2 extends SuiteLike("ExceptionSuite2") {
 
   private class Flakey() {
     def blow: Int = throw new RuntimeException("boom!")
@@ -10,12 +10,25 @@ object ExceptionSuite extends SuiteLike("ExceptionSuite") {
     def safe: Boolean = true
   }
 
-  private val t1 = test("Exception Assertions") {
-    "abcd".toInt =!=[NumberFormatException](_ =?= "For input string: \"abcd\"" | "Number format error")  and
-    List.empty[String].head =!=[NoSuchElementException](_ =?= "head of empty list" | "Head on empty List")  and
-    new Flakey().blow  =!=[RuntimeException](_ =?=  "boom!" | "throw RuntimeException")  and
-    new Flakey().blowNested =!=[RuntimeException](_.contains("boom!") | "nested.exception.message")
+  private val t1 = test("NumberFormatException") {
+    "abcd".toInt =!=[NumberFormatException](_ =?= """For input string: "abcd"""" |
+      "number format error")
   }
 
-  override val tests = NonEmptySeq.nes(t1)
+  private val t2 = test("NoSuchElementException") {
+    List.empty[String].head =!=[NoSuchElementException](_ =?= "head of empty list" |
+      "head on empty List")
+  }
+
+  private val t3 = test("Flakey") {
+    val flakey = new Flakey()
+
+    flakey.blow  =!=[RuntimeException](_ =?=  "boom!" |
+      "throw RuntimeException") and
+    flakey.blowNested =!=[RuntimeException](_.contains("boom!") |
+      "nested.exception.message") and
+    flakey.safe | "safe does not throw"
+  }
+
+  override val tests = oneOrMore(t1, t2, t3)
 }
