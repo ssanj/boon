@@ -1,4 +1,4 @@
-# boon #
+# boon [![Build Status](https://travis-ci.org/ssanj/boon.svg?branch=master)](https://travis-ci.org/ssanj/boon)
 
 Boon is a simple testing framework for testing pure code. Boon has the following goals:
 
@@ -15,9 +15,11 @@ Boon was inspired by most (if not all the other Scala testing frameworks out the
 Add the following to your `build.sbt` file:
 
 ```scala
-libraryDependencies += "net.ssanj" %% "boon" % "0.0.1-b11" % Test
+libraryDependencies += "net.ssanj" %% "boon" % "0.0.1-b30" % Test
 
 testFrameworks += new TestFramework("boon.sbt.BoonFramework")
+
+resolvers += Resolver.bintrayRepo("ssanj", "maven")
 ```
 
 You can now run all the usual sbt test commands such as: `test` and `testOnly`.
@@ -100,3 +102,11 @@ which then produces the following output:
 | fail | Fail an assertion | fail("reason") \| "assertion name" |
 | pass | Pass an assertion | passAssertion \| "assertion name" |
 
+## Publishing
+
+To publish a new version perform the following tasks:
+
+```
+publish
+bintrayRelease
+```

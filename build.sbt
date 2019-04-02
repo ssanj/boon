@@ -1,7 +1,8 @@
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.8",
   organization := "net.ssanj",
-  version := "0.0.1-b29",
+  version := "0.0.1-b30",
+  licenses ++= Seq(("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))),
   scalacOptions ++= Seq(
                       "-encoding", "utf-8",
                       "-unchecked",
@@ -38,7 +39,6 @@ lazy val boon = (project in file("core"))
 lazy val boonMacro = (project in file("macro"))
   .settings(
     commonSettings,
-    licenses ++= Seq(("Apache2", url("https://opensource.org/licenses/Apache-2.0"))),
     name := "boon-macro",
     libraryDependencies ++= Seq(
     scalaReflect.value
