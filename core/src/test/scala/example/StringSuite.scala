@@ -5,7 +5,6 @@ import syntax._
 import regex._
 
 object StringSuite extends SuiteLike("StringSuite") {
-
   private val t1 = test("String methods") {
     ("Daniel" + " " + "Jackson") =?= "Daniel Jackson" | "concat"     and
     "yohoho"                     =?= "ohohoy".reverse | "reversing"  and
