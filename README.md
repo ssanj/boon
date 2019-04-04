@@ -147,9 +147,6 @@ Now when we run the Suite it produces the following output:
 | =?=  | Typesafe predicate for equality  | 1 + 2 =?= 3 |
 | =/=  | Typesafe predicate for inequality  | 1 + 2 =/= 4 |
 | \\|   | Converts a predicate to an assertion | 1 + 2 =?= 3 \\| "addition" |
-| \\|#   | Converts a predicate to an assertion with a context. *The context is displayed when an assertion fails* | x * y =?= 3 \\|#("multiplication", "x" -> x.toString, "y" -> y.toString)  |
-| >> | Appending additional errors on failure | 1 =?= 2 >> hints("error2","error3") |
-| =!=  | Compares an Exception thrown by class and message | flakey =!=[RuntimeException](_ =?= "Boom!") |
 | %@  | Multiple assertions on a single value | %@(List(1,2,3)){ l => <br> &nbsp;&nbsp;l.length =?= 5 \\| "length" and <br>&nbsp;&nbsp;l.contains(2) &nbsp;&nbsp;&nbsp;\\| "has 2" <br>} |
 
 ### Methods ###
@@ -161,6 +158,20 @@ Now when we run the Suite it produces the following output:
 | pass | Pass an assertion | pass \| "assertion name" |
 | test | create a test | <code>test(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
 | xtest | ignore a test | <code>xtest(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
+
+### Advanced Operators ###
+
+| Operator  | What it's for | Example |
+| ------------- | ------------- | ------------- |
+| \\|#   | Converts a predicate to an assertion with a context. *The context is displayed when an assertion fails* | x * y =?= 3 \\|#("multiplication", "x" -> x.toString, "y" -> y.toString)  |
+| >> | Appending additional errors on failure | 1 =?= 2 >> hints("error2","error3") |
+
+
+### Syntax Extensions ###
+
+| Operator  | What it's for | Example |
+| ------------- | ------------- | ------------- |
+| =!=  | Compares an Exception thrown by class and message | flakey =!=[RuntimeException](_ =?= "Boom!") |
 
 ## Publishing
 

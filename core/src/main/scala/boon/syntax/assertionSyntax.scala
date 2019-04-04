@@ -7,7 +7,6 @@ import boon.model.Equality
 import boon.model.EqualityType
 import boon.model.IsEqual
 import boon.model.IsNotEqual
-import boon.model.StringRep
 import boon.model.Difference
 import boon.model.TestData
 import boon.model.Sequential
@@ -15,9 +14,6 @@ import boon.model.Independent
 
 import Boon.defineAssertion
 import Boon.defineAssertionWithContext
-
-import scala.util.Try
-import scala.reflect.ClassTag
 
 /*
  * Operator Precedence: https://docs.scala-lang.org/tour/operators.html
@@ -38,19 +34,6 @@ final class EqSyntax[A](value1: => A) {
   def =?=(value2: => A): DescSyntax[A] = new DescSyntax[A]((defer(value1), defer(value2)), IsEqual, noHints)
 
   def =/=(value2: => A): DescSyntax[A] = new DescSyntax[A]((defer(value1), defer(value2)), IsNotEqual, noHints)
-
-  def =!=[T <: Throwable](assertMessage: String => ContinueSyntax)(
-    implicit classTag: ClassTag[T], SR: StringRep[A]): ContinueSyntax = {
-    val expectedClass = classTag.runtimeClass
-    val expectedClassName = expectedClass.getName
-    Try(value1).fold[ContinueSyntax](
-      e => expectedClass.isAssignableFrom(e.getClass) |# (s"exception class ${expectedClassName}",
-                                                           "expected class" -> expectedClassName,
-                                                           "got class"      -> e.getClass.getName) and
-           assertMessage(e.getMessage),
-      s => fail(s"expected ${expectedClassName} but got class:${s.getClass.getName} value:${SR.strRep(s)}") | s"exception class ${expectedClassName}"
-    )
-  }
 }
 
 final class DescSyntax[A](pair: (Defer[A], Defer[A]), equalityType: EqualityType, hints: Seq[String]) {

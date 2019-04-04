@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.8",
   organization := "net.ssanj",
-  version := "0.0.1-b30",
+  version := "0.0.1-b31",
   licenses ++= Seq(("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))),
   scalacOptions ++= Seq(
                       "-encoding", "utf-8",
@@ -18,7 +18,7 @@ lazy val commonSettings = Seq(
                       "-Ywarn-nullary-override",
                       "-Ywarn-nullary-unit",
                       "-language:implicitConversions"
-                     )
+                    )
 )
 
 
