@@ -91,16 +91,19 @@ which then produces the following output:
 | =/=  | Typesafe predicate for inequality  | 1 + 2 =/= 4 |
 | \\|   | Convert a predicate to an assertion | 1 + 2 =?= 3 \\| "addition" |
 | \\|#   | Convert a predicate to an assertion with a context. *The context is displayed when an assertion fails* | x * y =?= 3 \\|#("multiplication", "x" -> x.toString, "y" -> y.toString)  |
+| >> | Additional errors on failure | 1 =?= 2 >> hints("error2","error3") |
 | =!=  | Compare Exception thrown by class and message | flakey =!=[RuntimeException](_ =?= "Boom!") |
-| and  | Combine Assertions | 1 + 2 =?= 3 \\| "1+2" and <br>4 + 5 =?= 9 \\| "4+5" |
 | %@  | Multiple assertions on a single value | %@(List(1,2,3)){ l => <br> &nbsp;&nbsp;l.length =?= 5 \\| "length" and <br>&nbsp;&nbsp;l.contains(2) &nbsp;&nbsp;&nbsp;\\| "has 2" <br>} |
 
 ### Methods ###
 
 | Method  | What it's for | Example |
 | ------------- | ------------- | ------------- |
+| and  | Combine Assertions | 1 + 2 =?= 3 \\| "1+2" and <br>4 + 5 =?= 9 \\| "4+5" |
 | fail | Fail an assertion | fail("reason") \| "assertion name" |
 | pass | Pass an assertion | pass \| "assertion name" |
+| test | create a test | <code>test(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
+| xtest | ignore a test | <code>xtest(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
 
 ## Publishing
 
