@@ -1,4 +1,4 @@
-# boon [![Build Status](https://travis-ci.org/ssanj/boon.svg?branch=master)](https://travis-ci.org/ssanj/boon)
+# boon [![Build Status](https://travis-ci.org/ssanj/boon.svg?branch=master)](https://travis-ci.org/ssanj/boon) [ ![Download](https://api.bintray.com/packages/ssanj/maven/boon/images/download.svg?version=0.0.1-b31) ](https://bintray.com/ssanj/maven/boon/0.0.1-b31/link)
 
 boon is a small framework for testing pure code. boon is:
 
