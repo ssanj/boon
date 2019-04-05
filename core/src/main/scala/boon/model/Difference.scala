@@ -32,20 +32,31 @@ object Difference {
   implicit val stringDifference  = genericDifference[String]
   implicit val charDifference    = genericDifference[Char]
 
+  private def seqDiff[A](colL: Seq[A], colR: Seq[A])(summary: String): NonEmptySeq[String] = {
+
+    def contents(col: Seq[A]): String = if (col.isEmpty) "-" else col.mkString("[", ",", "]")
+
+    val both    = colL.filter(colR.contains(_))
+    val left    = colL.filter(!colR.contains(_))
+    val right   = colR.filter(!colL.contains(_))
+
+    val bothString  = contents(both)
+    val leftString  = contents(left)
+    val rightString = contents(right)
+
+    nes(
+      s"${summary}",
+      s"both: ${bothString}",
+      s"only on left: ${leftString}",
+      s"only on right: ${rightString}"
+    )
+  }
+
   implicit def listDifference[A: StringRep]: Difference[List[A]] = new Difference[List[A]] {
     val rep = StringRep[List[A]]
     override def diff(xs: List[A], ys: List[A]): NonEmptySeq[String] = {
       val summary = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
-      val both    = xs.filter(ys.contains(_)).mkString(",")
-      val left    = xs.filter(!ys.contains(_)).mkString(",")
-      val right   = ys.filter(!xs.contains(_)).mkString(",")
-
-      nes(
-        s"${summary}",
-        s"both: [${both}]",
-        s"only on left: [${left}]",
-        s"only on right: [${right}]"
-      )
+      seqDiff[A](xs, ys)(summary)
     }
   }
 
@@ -53,16 +64,7 @@ object Difference {
     val rep = StringRep[NonEmptySeq[A]]
     override def diff(xs: NonEmptySeq[A], ys: NonEmptySeq[A]): NonEmptySeq[String] = {
       val summary = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
-      val both    = xs.filter(ys.contains(_)).mkString(",")
-      val left    = xs.filter(!ys.contains(_)).mkString(",")
-      val right   = ys.filter(!xs.contains(_)).mkString(",")
-
-      nes(
-        s"${summary}",
-        s"both: [${both}]",
-        s"only on left: [${left}]",
-        s"only on right: [${right}]"
-      )
+      seqDiff[A](xs.toSeq, ys.toSeq)(summary)
     }
   }
 
