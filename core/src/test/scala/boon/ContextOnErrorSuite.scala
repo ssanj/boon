@@ -37,8 +37,8 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
   }
 
   private def assertFailure(name: String, errors: NonEmptySeq[String], context: Map[String, String], loc: SourceLocation): ContinueSyntax = {
-      name    =?= "Frodo is a hobbit"          | "assertion.name"  and
-      errors  =?= one("false is not true")     | "assertion.error" and
+      name    =?= "Frodo is a hobbit"      | "assertion.name"  and
+      errors  =?= one("false != true")     | "assertion.error" and
       context =?= Map(
                       "allHobbits" -> "Bilbo,Sam,Bingo,Merimas",
                       "missing"    -> "Frodo") | "assertion.context"

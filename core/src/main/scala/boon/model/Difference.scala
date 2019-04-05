@@ -3,7 +3,7 @@ package model
 
 import NonEmptySeq.nes
 
-//This may not need to be a typeclass.
+//This is not a Typeclass.
 trait Difference[A] {
   def diff(a1: A, a2: A): NonEmptySeq[String]
 }
@@ -24,36 +24,13 @@ object Difference {
     def diff(a1: A, a2: A): NonEmptySeq[String] = f
   }
 
-  implicit object IntDifference extends Difference[Int] {
-    override def diff(a1: Int, a2: Int): NonEmptySeq[String] = genericDifference[Int].diff(a1, a2)
-  }
-
-  implicit object LongDifference extends Difference[Long] {
-    override def diff(a1: Long, a2: Long): NonEmptySeq[String] = genericDifference[Long].diff(a1, a2)
-  }
-
-  implicit object FloatDifference extends Difference[Float] {
-    override def diff(a1: Float, a2: Float): NonEmptySeq[String] = genericDifference[Float].diff(a1, a2)
-  }
-
-  implicit object DoubleDifference extends Difference[Double] {
-    override def diff(a1: Double, a2: Double): NonEmptySeq[String] = genericDifference[Double].diff(a1, a2)
-  }
-
-  implicit object BooleanDifference extends Difference[Boolean] {
-    val rep = StringRep[Boolean]
-    override def diff(a1: Boolean, a2: Boolean): NonEmptySeq[String] = one(s"${rep.strRep(a1)} is not ${rep.strRep(a2)}")
-  }
-
-  implicit object StringDifference extends Difference[String] {
-    val rep = StringRep[String]
-    override def diff(a1: String, a2: String): NonEmptySeq[String] = one(s"${rep.strRep(a1)} != ${rep.strRep(a2)}")
-  }
-
-  implicit object CharDifference extends Difference[Char] {
-    val rep = StringRep[Char]
-    override def diff(a1: Char, a2: Char): NonEmptySeq[String] = one(s"${rep.strRep(a1)} != ${rep.strRep(a2)}")
-  }
+  implicit val intDifference     = genericDifference[Int]
+  implicit val longDifference    = genericDifference[Long]
+  implicit val floatDifference   = genericDifference[Float]
+  implicit val doubleDifference  = genericDifference[Double]
+  implicit val booleanDifference = genericDifference[Boolean]
+  implicit val stringDifference  = genericDifference[String]
+  implicit val charDifference    = genericDifference[Char]
 
   implicit def listDifference[A: StringRep]: Difference[List[A]] = new Difference[List[A]] {
     val rep = StringRep[List[A]]
