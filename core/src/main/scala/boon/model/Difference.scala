@@ -16,6 +16,14 @@ object Difference {
     override def diff(a1: A, a2: A): NonEmptySeq[String] = one(s"${rep.strRep(a1)} != ${rep.strRep(a2)}")
   }
 
+  def from[A](f: (A, A) => NonEmptySeq[String]): Difference[A] = new Difference[A] {
+    def diff(a1: A, a2: A): NonEmptySeq[String] = f(a1, a2)
+  }
+
+  def fromResult[A](f: => NonEmptySeq[String]): Difference[A] = new Difference[A] {
+    def diff(a1: A, a2: A): NonEmptySeq[String] = f
+  }
+
   implicit object IntDifference extends Difference[Int] {
     override def diff(a1: Int, a2: Int): NonEmptySeq[String] = genericDifference[Int].diff(a1, a2)
   }

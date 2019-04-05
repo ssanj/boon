@@ -13,8 +13,8 @@ abstract class ToBeImplementedSuite extends SuiteLike("ToBeImplementedSuite") {
   val t1 = test("test for missing implementations") {
     val someClass = new SomeClass()
 
-    someClass.predicate >> hints("SomeClass.predicate is false") | "Boolean test" and /* Tests for a bug with lazy evaluation */
-    someClass.priority =?= 10            | "Int test" and
+    someClass.predicate                  | "Boolean test" and /* Tests for a bug with lazy evaluation */
+    someClass.priority =?= 10            | "Int test"     and
     someClass.message  =?= "it's a trap" | "Unsafe test"
   }
 

@@ -42,7 +42,7 @@ package object syntax {
     }, identity _)
   }
 
-  def fail(reason: String): DescSyntax[Boolean] = !true >> Seq(s"explicit fail: $reason")
+  def fail(reason: String): DescSyntax[Boolean] = !true >> one(s"explicit fail: $reason")
 
   def pass: DescSyntax[Boolean] = true
 

@@ -36,7 +36,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
                            assertSequentialFailure)
   }
 
-  private def assertFailure(name: String, errors: NonEmptySeq[String], context: Map[String, String], hints: Seq[String], loc: SourceLocation): ContinueSyntax = {
+  private def assertFailure(name: String, errors: NonEmptySeq[String], context: Map[String, String], loc: SourceLocation): ContinueSyntax = {
       name    =?= "Frodo is a hobbit"          | "assertion.name"  and
       errors  =?= one("false is not true")     | "assertion.error" and
       context =?= Map(

@@ -47,7 +47,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
   private def testIgnored(name: String): ContinueSyntax = fail(s"ignored test: $name") | "testType"
 
   private def assertionFailed(expectedName: String, expectedLoc: Int)(name: String, errors: NonEmptySeq[String],
-    context: Map[String, String], hints: Seq[String], loc: SourceLocation): ContinueSyntax = {
+    context: Map[String, String], loc: SourceLocation): ContinueSyntax = {
     pass | s"${expectedName}.assertionOutput type" and
     name =?= expectedName | s"${expectedName}.assertion name" and
     errors =?= one("an implementation is missing") | s"${expectedName}.assertion error" and
