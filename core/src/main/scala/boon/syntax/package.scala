@@ -21,11 +21,11 @@ package object syntax {
   implicit def toTestData(continueSyntax: ContinueSyntax): TestData =
     TestData(continueSyntax.assertions, Independent)
 
-  implicit def booleanToDescSyntax(value1: => Boolean): DescSyntax[Boolean] =
-    new DescSyntax[Boolean]((defer(value1), defer(true)), IsEqual, noHints)
+  implicit def booleanToPredicate(value1: => Boolean): Predicate[Boolean] =
+    new Predicate[Boolean]((defer(value1), defer(true)), IsEqual, noHints)
 
-  implicit def deferBooleanToDescSyntax(value: Defer[Boolean]): DescSyntax[Boolean] =
-    new DescSyntax[Boolean]((value, defer(true)), IsEqual, noHints)
+  implicit def deferBooleanToPredicate(value: Defer[Boolean]): Predicate[Boolean] =
+    new Predicate[Boolean]((value, defer(true)), IsEqual, noHints)
 
   //TODO: Do we need this?
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
@@ -42,9 +42,9 @@ package object syntax {
     }, identity _)
   }
 
-  def fail(reason: String): DescSyntax[Boolean] = !true >> one(s"explicit fail: $reason")
+  def fail(reason: String): Predicate[Boolean] = !true >> one(s"explicit fail: $reason")
 
-  def pass: DescSyntax[Boolean] = true
+  def pass: Predicate[Boolean] = true
 
   def %@[A](provide: => A)(cs: A => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs(provide))(loc)
 

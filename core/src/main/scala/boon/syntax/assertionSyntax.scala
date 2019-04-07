@@ -31,12 +31,12 @@ import Boon.defineAssertionWithContext
  */
 
 final class EqSyntax[A](value1: => A) {
-  def =?=(value2: => A): DescSyntax[A] = new DescSyntax[A]((defer(value1), defer(value2)), IsEqual, noHints)
+  def =?=(value2: => A): Predicate[A] = new Predicate[A]((defer(value1), defer(value2)), IsEqual, noHints)
 
-  def =/=(value2: => A): DescSyntax[A] = new DescSyntax[A]((defer(value1), defer(value2)), IsNotEqual, noHints)
+  def =/=(value2: => A): Predicate[A] = new Predicate[A]((defer(value1), defer(value2)), IsNotEqual, noHints)
 }
 
-final class DescSyntax[A](pair: (Defer[A], Defer[A]), equalityType: EqualityType, hints: Option[NonEmptySeq[String]]) {
+final class Predicate[A](pair: (Defer[A], Defer[A]), equalityType: EqualityType, hints: Option[NonEmptySeq[String]]) {
   def |(name: => String)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax = {
     val diff = hints.fold(Difference[A])(Difference.fromResult[A](_))
     new ContinueSyntax(NonEmptySeq.nes(defineAssertion[A](name, (pair), equalityType)(implicitly, diff, implicitly)))
@@ -49,8 +49,8 @@ final class DescSyntax[A](pair: (Defer[A], Defer[A]), equalityType: EqualityType
         defineAssertionWithContext[A](name, (pair), equalityType, Map(ctx:_*))(implicitly, diff, implicitly)))
   }
 
-  def >>(moreHints: => NonEmptySeq[String]): DescSyntax[A] =
-    new DescSyntax[A](pair, equalityType, hints.map(_.concat(moreHints)).orElse(Option(moreHints)))
+  def >>(moreHints: => NonEmptySeq[String]): Predicate[A] =
+    new Predicate[A](pair, equalityType, hints.map(_.concat(moreHints)).orElse(Option(moreHints)))
 }
 
 final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
