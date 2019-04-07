@@ -12,17 +12,13 @@ object Difference {
 
   def apply[A: Difference]: Difference[A] = implicitly[Difference[A]]
 
-  def genericDifference[A](implicit rep: StringRep[A]): Difference[A] = new Difference[A] {
-    override def diff(a1: A, a2: A): NonEmptySeq[String] = one(s"${rep.strRep(a1)} != ${rep.strRep(a2)}")
-  }
-
   def from[A](f: (A, A) => NonEmptySeq[String]): Difference[A] = new Difference[A] {
     def diff(a1: A, a2: A): NonEmptySeq[String] = f(a1, a2)
   }
 
-  def fromResult[A](f: => NonEmptySeq[String]): Difference[A] = new Difference[A] {
-    def diff(a1: A, a2: A): NonEmptySeq[String] = f
-  }
+  def genericDifference[A](implicit S: StringRep[A]) = from[A]((a1, a2) => one(s"${S.strRep(a1)} != ${S.strRep(a2)}"))
+
+  def fromResult[A](f: => NonEmptySeq[String]) = from[A]((_, _) => f)
 
   //Primitives
   implicit val intDifference     = genericDifference[Int]
@@ -41,13 +37,12 @@ object Difference {
   implicit def nonEmptyDifference[A: StringRep]             = seqDifference[A, NonEmptySeq](_.toSeq)
   implicit def listDifference[A: StringRep]                 = seqDifference[A, List](identity _)
 
-  def seqDifference[A: StringRep, S[_]](f: S[A] => Seq[A])(implicit SR: StringRep[S[A]]): Difference[S[A]] = new Difference[S[A]] {
-    val rep = SR
-    override def diff(xs: S[A], ys: S[A]): NonEmptySeq[String] = {
+  def seqDifference[A: StringRep, S[_]](f: S[A] => Seq[A])(implicit SR: StringRep[S[A]]) =
+    from[S[A]]{ (xs: S[A], ys: S[A]) =>
+      val rep = SR
       val summary = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
       seqDiff[A](f(xs), f(ys))(summary)
     }
-  }
 
   private def seqDiff[A](colL: Seq[A], colR: Seq[A])(summary: String): NonEmptySeq[String] = {
 
