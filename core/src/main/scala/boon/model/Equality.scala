@@ -88,6 +88,21 @@ object Equality {
     case ((x1, y1), (x2, y2)) => Equality[A].eql(x1, x2) && Equality[B].eql(y1, y2)
   }
 
+  implicit def tripleEquality[A: Equality, B: Equality, C: Equality] = from[(A, B, C)] {
+    case ((x1, y1, z1), (x2, y2, z2)) =>
+      Equality[A].eql(x1, x2) &&
+      Equality[B].eql(y1, y2) &&
+      Equality[C].eql(z1, z2)
+  }
+
+  implicit def tuple4Equality[A: Equality, B: Equality, C: Equality, D: Equality] = from[(A, B, C, D)] {
+    case ((a1, b1, c1, d1), (a2, b2, c2, d2)) =>
+      Equality[A].eql(a1, a2) &&
+      Equality[B].eql(b1, b2) &&
+      Equality[C].eql(c1, c2)  &&
+      Equality[D].eql(d1, d2)
+  }
+
   implicit def mapEquality[A: Ordering: Equality, B: Ordering: Equality] = from[Map[A, B]] { (xs, ys) =>
    (xs.isEmpty && ys.isEmpty) ||
       (xs.size == ys.size && {

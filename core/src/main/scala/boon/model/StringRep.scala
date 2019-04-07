@@ -57,6 +57,19 @@ object StringRep {
   implicit def pairStringRep[A: StringRep, B: StringRep] =
     from[(A, B)](pair => s"(${StringRep[A].strRep(pair._1)}, ${StringRep[B].strRep(pair._2)})")
 
+  implicit def tripleStringRep[A: StringRep, B: StringRep, C: StringRep] =
+    from[(A, B, C)](triple => s"(${StringRep[A].strRep(triple._1)}, ${StringRep[B].strRep(triple._2)}, ${StringRep[C].strRep(triple._3)})")
+
+  implicit def tuple4StringRep[A: StringRep, B: StringRep, C: StringRep, D: StringRep] =
+    from[(A, B, C, D)]{ tuple =>
+      "(" +
+        s"${StringRep[A].strRep(tuple._1)}, "  +
+        s"${StringRep[B].strRep(tuple._2)}, "  +
+        s"${StringRep[C].strRep(tuple._3)}, "  +
+        s"${StringRep[D].strRep(tuple._4)}"    +
+      ")"
+    }
+
   implicit def mapStringRep[A: StringRep, B: StringRep] =
     from[Map[A, B]](_.map { case (k, v) =>  s"${StringRep[A].strRep(k)} -> ${StringRep[B].strRep(v)}" }.mkString("Map(", ",", ")"))
 }

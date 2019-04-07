@@ -32,10 +32,14 @@ object Difference {
   //Type constructors
   implicit def optionDifference[A: StringRep]               = genericDifference[Option[A]]
   implicit def eitherDifference[A: StringRep, B: StringRep] = genericDifference[Either[A, B]]
-  implicit def pairDifference[A: StringRep, B: StringRep]   = genericDifference[Tuple2[A, B]]
   implicit def mapDifference[A: StringRep, B: StringRep]    = genericDifference[Map[A, B]]
   implicit def nonEmptyDifference[A: StringRep]             = seqDifference[A, NonEmptySeq](_.toSeq)
   implicit def listDifference[A: StringRep]                 = seqDifference[A, List](identity _)
+
+  //Tuple
+  implicit def pairDifference[A: StringRep, B: StringRep]                               = genericDifference[(A, B)]
+  implicit def tripleDifference[A: StringRep, B: StringRep, C: StringRep]               = genericDifference[(A, B, C)]
+  implicit def tuple4Difference[A: StringRep, B: StringRep, C: StringRep, D: StringRep] = genericDifference[(A, B, C, D)]
 
   def seqDifference[A: StringRep, S[_]](f: S[A] => Seq[A])(implicit SR: StringRep[S[A]]) =
     from[S[A]]{ (xs: S[A], ys: S[A]) =>
