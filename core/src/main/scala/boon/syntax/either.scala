@@ -10,13 +10,12 @@ object either {
 
   implicit def toEitherSyntax[A](value: => A): EitherSyntax[A] = new EitherSyntax[A](value)
 
-  def left_?[A, B](f: A => ContinueSyntax)(either: Either[A, B]): ContinueSyntax = {
+  def left_?[A, B](either: Either[A, B])(f: A => ContinueSyntax): ContinueSyntax = {
     either.fold(f, _ => fail(s"expected Left but got ${either}") | "expected Left" )
   }
 
-  def right_?[A, B](f: B => ContinueSyntax)(either: Either[A, B]): ContinueSyntax = {
+  def right_?[A, B](either: Either[A, B])(f: B => ContinueSyntax): ContinueSyntax = {
     either.fold(t_ => fail(s"expected Right but got ${either}") | "expected Right", f)
   }
-
 }
 
