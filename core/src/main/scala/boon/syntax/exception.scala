@@ -1,5 +1,6 @@
 package boon.syntax
 
+import boon.model.AssertionData
 import boon.model.StringRep
 
 import scala.util.Try

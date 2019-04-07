@@ -1,6 +1,8 @@
 package boon
 package syntax
 
+import boon.model.AssertionData
+
 object nulls {
   def null_![A](value: => A)(f : A => AssertionData): AssertionData =
     fold[A, AssertionData](value)(fail(s"expected not null value") | "not null value")(f)

@@ -1,6 +1,8 @@
 package boon
 package syntax
 
+import boon.model.Predicate
+
 import scala.util.matching.Regex
 
 object regex {

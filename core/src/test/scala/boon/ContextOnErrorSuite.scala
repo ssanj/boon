@@ -8,6 +8,7 @@ import result.SequentialNotRunData
 import result.AssertionOutput
 import result.Trace
 import model.TestState
+import model.AssertionData
 
 object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
 

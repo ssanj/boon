@@ -1,5 +1,7 @@
 package boon.syntax
 
+import boon.model.AssertionData
+
 object option {
 
   final class OptionSyntax[A](value: => A) {

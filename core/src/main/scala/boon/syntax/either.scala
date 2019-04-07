@@ -1,5 +1,7 @@
 package boon.syntax
 
+import boon.model.AssertionData
+
 object either {
 
   final class EitherSyntax[A](value: => A) {
