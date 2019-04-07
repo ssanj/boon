@@ -1,7 +1,7 @@
 package boon
 package model
 
-import NonEmptySeq.nes
+import scala.language.higherKinds
 
 //This is not a Typeclass.
 trait Difference[A] {
@@ -24,6 +24,7 @@ object Difference {
     def diff(a1: A, a2: A): NonEmptySeq[String] = f
   }
 
+  //Primitives
   implicit val intDifference     = genericDifference[Int]
   implicit val longDifference    = genericDifference[Long]
   implicit val floatDifference   = genericDifference[Float]
@@ -31,6 +32,22 @@ object Difference {
   implicit val booleanDifference = genericDifference[Boolean]
   implicit val stringDifference  = genericDifference[String]
   implicit val charDifference    = genericDifference[Char]
+
+  //Type constructors
+  implicit def optionDifference[A: StringRep]               = genericDifference[Option[A]]
+  implicit def eitherDifference[A: StringRep, B: StringRep] = genericDifference[Either[A, B]]
+  implicit def pairDifference[A: StringRep, B: StringRep]   = genericDifference[Tuple2[A, B]]
+  implicit def mapDifference[A: StringRep, B: StringRep]    = genericDifference[Map[A, B]]
+  implicit def nonEmptyDifference[A: StringRep]             = seqDifference[A, NonEmptySeq](_.toSeq)
+  implicit def listDifference[A: StringRep]                 = seqDifference[A, List](identity _)
+
+  def seqDifference[A: StringRep, S[_]](f: S[A] => Seq[A])(implicit SR: StringRep[S[A]]): Difference[S[A]] = new Difference[S[A]] {
+    val rep = SR
+    override def diff(xs: S[A], ys: S[A]): NonEmptySeq[String] = {
+      val summary = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
+      seqDiff[A](f(xs), f(ys))(summary)
+    }
+  }
 
   private def seqDiff[A](colL: Seq[A], colR: Seq[A])(summary: String): NonEmptySeq[String] = {
 
@@ -44,47 +61,11 @@ object Difference {
     val leftString  = contents(left)
     val rightString = contents(right)
 
-    nes(
+    oneOrMore(
       s"${summary}",
       s"both: ${bothString}",
       s"only on left: ${leftString}",
       s"only on right: ${rightString}"
     )
-  }
-
-  implicit def listDifference[A: StringRep]: Difference[List[A]] = new Difference[List[A]] {
-    val rep = StringRep[List[A]]
-    override def diff(xs: List[A], ys: List[A]): NonEmptySeq[String] = {
-      val summary = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
-      seqDiff[A](xs, ys)(summary)
-    }
-  }
-
-  implicit def nonEmptySeqDifference[A: StringRep]: Difference[NonEmptySeq[A]] = new Difference[NonEmptySeq[A]] {
-    val rep = StringRep[NonEmptySeq[A]]
-    override def diff(xs: NonEmptySeq[A], ys: NonEmptySeq[A]): NonEmptySeq[String] = {
-      val summary = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
-      seqDiff[A](xs.toSeq, ys.toSeq)(summary)
-    }
-  }
-
-  implicit def optionDifference[A: StringRep]: Difference[Option[A]] = new Difference[Option[A]] {
-    val rep = StringRep[Option[A]]
-    override def diff(xs: Option[A], ys: Option[A]): NonEmptySeq[String] = one(s"${rep.strRep(xs)} != ${rep.strRep(ys)}")
-  }
-
-  implicit def eitherDifference[A: StringRep, B: StringRep]: Difference[Either[A, B]] = new Difference[Either[A, B]] {
-    val rep = StringRep[Either[A, B]]
-    override def diff(xs: Either[A, B], ys: Either[A, B]): NonEmptySeq[String] = one(s"${rep.strRep(xs)} != ${rep.strRep(ys)}")
-  }
-
-  implicit def pairDifference[A: StringRep, B: StringRep]: Difference[Tuple2[A, B]] = new Difference[Tuple2[A, B]] {
-    val rep = StringRep[Tuple2[A, B]]
-    override def diff(pair1: Tuple2[A, B], pair2: Tuple2[A, B]): NonEmptySeq[String] = one(s"${rep.strRep(pair1)} != ${rep.strRep(pair2)}")
-  }
-
-  implicit def mapDifference[A: StringRep, B: StringRep]: Difference[Map[A, B]] = new Difference[Map[A, B]] {
-    val rep = StringRep[Map[A, B]]
-    override def diff(map1: Map[A, B], map2: Map[A, B]): NonEmptySeq[String] = one(s"${rep.strRep(map1)} != ${rep.strRep(map2)}")
   }
 }
