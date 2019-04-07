@@ -19,15 +19,15 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
     } seq()
   }
 
-  private def testIgnored(name: String): ContinueSyntax = {
+  private def testIgnored(name: String): AssertionData = {
     fail(s"test ignored: $name") | "testoutput type"
   }
 
-  private def testThrew(name: String, error: String, trac: Seq[Trace], loc: SourceLocation): ContinueSyntax = {
+  private def testThrew(name: String, error: String, trac: Seq[Trace], loc: SourceLocation): AssertionData = {
     fail(s"test threw: $name") | "testoutput type"
   }
 
-  private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], state: TestState): ContinueSyntax = {
+  private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], state: TestState): AssertionData = {
     t1assertions.length =?= 1                 | "have 1 assertion" and
     state               =?= TestState.Failed  | s"test: $name should have failed" and
     t1assertions.head.fold(assertFailure,
@@ -36,7 +36,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
                            assertSequentialFailure)
   }
 
-  private def assertFailure(name: String, errors: NonEmptySeq[String], context: Map[String, String], loc: SourceLocation): ContinueSyntax = {
+  private def assertFailure(name: String, errors: NonEmptySeq[String], context: Map[String, String], loc: SourceLocation): AssertionData = {
       name    =?= "Frodo is a hobbit"      | "assertion.name"  and
       errors  =?= one("false != true")     | "assertion.error" and
       context =?= Map(
@@ -44,13 +44,13 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
                       "missing"    -> "Frodo") | "assertion.context"
   }
 
-  private def assertSuccess(name: String): ContinueSyntax = fail(s"assertion passed : $name") | "assertionOutput type"
+  private def assertSuccess(name: String): AssertionData = fail(s"assertion passed : $name") | "assertionOutput type"
 
-  private def assertSequentialSuccess(name: String, passed: NonEmptySeq[SequentialPassData]): ContinueSyntax = {
+  private def assertSequentialSuccess(name: String, passed: NonEmptySeq[SequentialPassData]): AssertionData = {
     fail(s"single assertion passed but expected an assertion: $name") | "assertionOutput type"
   }
 
-  private def assertSequentialFailure(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]): ContinueSyntax = {
+  private def assertSequentialFailure(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]): AssertionData = {
     fail(s"single assertion failed but expected an assertion: $name") | "assertionOutput type"
   }
 

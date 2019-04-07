@@ -10,10 +10,10 @@ object option {
 
   def none[A]: Option[A] = None
 
-  def some_?[A](option: Option[A])(f: A => ContinueSyntax): ContinueSyntax =
+  def some_?[A](option: Option[A])(f: A => AssertionData): AssertionData =
     option.fold(fail(s"expected Some but got None") | "expect Some")(f)
 
-  def none_?[A](option: Option[A])(f: => ContinueSyntax): ContinueSyntax =
+  def none_?[A](option: Option[A])(f: => AssertionData): AssertionData =
     option.fold(f)(_ => fail(s"expected None but got: $option") | "expect None")
 }
 

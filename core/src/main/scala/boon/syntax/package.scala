@@ -12,14 +12,14 @@ package object syntax {
   implicit def deferAToEqSyntax[A](dValue: Defer[A]): EqSyntax[A] =
     new EqSyntax[A](dValue.run) //this is safe because EqSyntax is lazy
 
-  implicit def toContinueSyntaxFromSeqOfContinueSyntax(continueSyntaxes: NonEmptySeq[ContinueSyntax]): ContinueSyntax =
-    continueSyntaxes.tail.foldLeft(continueSyntaxes.head)(_ and _)
+  implicit def toAssertionDataFromSeqOfAssertionData(AssertionDataes: NonEmptySeq[AssertionData]): AssertionData =
+    AssertionDataes.tail.foldLeft(AssertionDataes.head)(_ and _)
 
-  implicit def toTestDataFromSeqOfContinueSyntax(continueSyntaxes: NonEmptySeq[ContinueSyntax]): TestData =
-    toTestData(toContinueSyntaxFromSeqOfContinueSyntax(continueSyntaxes))
+  implicit def toTestDataFromSeqOfAssertionData(AssertionDataes: NonEmptySeq[AssertionData]): TestData =
+    toTestData(toAssertionDataFromSeqOfAssertionData(AssertionDataes))
 
-  implicit def toTestData(continueSyntax: ContinueSyntax): TestData =
-    TestData(continueSyntax.assertions, Independent)
+  implicit def toTestData(AssertionData: AssertionData): TestData =
+    TestData(AssertionData.assertions, Independent)
 
   implicit def booleanToPredicate(value1: => Boolean): Predicate[Boolean] =
     new Predicate[Boolean]((defer(value1), defer(true)), IsEqual, noHints)
@@ -31,7 +31,7 @@ package object syntax {
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 
   //descriptive
-  def assertionBlock(cs: => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = {
+  def assertionBlock(cs: => AssertionData)(implicit loc: SourceLocation): AssertionData = {
     val nameOp = for {
       fn  <- loc.fileName
     } yield s"assertion @ (${fn}:${loc.line})"
@@ -46,6 +46,6 @@ package object syntax {
 
   def pass: Predicate[Boolean] = true
 
-  def %@[A](provide: => A)(cs: A => ContinueSyntax)(implicit loc: SourceLocation): ContinueSyntax = assertionBlock(cs(provide))(loc)
+  def %@[A](provide: => A)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData = assertionBlock(cs(provide))(loc)
 
 }

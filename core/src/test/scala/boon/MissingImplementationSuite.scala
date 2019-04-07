@@ -20,7 +20,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
       } seq()
   }
 
-  private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], state: TestState): ContinueSyntax = {
+  private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], state: TestState): AssertionData = {
     val assertions = t1assertions.toSeq
 
     name =?= "test for missing implementations" | "test name" and
@@ -34,20 +34,20 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
     }
   }
 
-  private def asserNotImplementedTest(expectedName: String, expectedLoc: Int)(ao: AssertionOutput): ContinueSyntax = {
+  private def asserNotImplementedTest(expectedName: String, expectedLoc: Int)(ao: AssertionOutput): AssertionData = {
     ao.fold(assertionFailed(expectedName, expectedLoc),
             assertionPassed,
             sequentialAssertionPassed,
             sequentialAssertionFailed)
   }
 
-  private def testThrew(name: String, error: String, trac: Seq[Trace], loc: SourceLocation): ContinueSyntax =
+  private def testThrew(name: String, error: String, trac: Seq[Trace], loc: SourceLocation): AssertionData =
     fail(s"thrown test: $name") | "test type"
 
-  private def testIgnored(name: String): ContinueSyntax = fail(s"ignored test: $name") | "testType"
+  private def testIgnored(name: String): AssertionData = fail(s"ignored test: $name") | "testType"
 
   private def assertionFailed(expectedName: String, expectedLoc: Int)(name: String, errors: NonEmptySeq[String],
-    context: Map[String, String], loc: SourceLocation): ContinueSyntax = {
+    context: Map[String, String], loc: SourceLocation): AssertionData = {
     pass | s"${expectedName}.assertionOutput type" and
     name =?= expectedName | s"${expectedName}.assertion name" and
     errors =?= one("an implementation is missing") | s"${expectedName}.assertion error" and
@@ -56,15 +56,15 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
     )(loc => loc.endsWith(s"ToBeImplementedSuite.scala:${expectedLoc}") |# (s"${expectedName}.error location", s"${expectedName}.loc" -> loc))
   }
 
-  private def assertionPassed(name: String): ContinueSyntax = {
+  private def assertionPassed(name: String): AssertionData = {
     fail(s"passed: $name") | "assertionOutput type",
   }
 
-  private def sequentialAssertionPassed(name: String, passed: NonEmptySeq[SequentialPassData]): ContinueSyntax = {
+  private def sequentialAssertionPassed(name: String, passed: NonEmptySeq[SequentialPassData]): AssertionData = {
     fail(s"Sequential passed: $name") | "assertionOutput type"
   }
 
-  private def sequentialAssertionFailed(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]): ContinueSyntax = {
+  private def sequentialAssertionFailed(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]): AssertionData = {
     fail(s"Sequential failed: $name") | "assertionOutput type"
   }
 

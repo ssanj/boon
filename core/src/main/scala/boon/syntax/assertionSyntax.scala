@@ -37,14 +37,14 @@ final class EqSyntax[A](value1: => A) {
 }
 
 final class Predicate[A](pair: (Defer[A], Defer[A]), equalityType: EqualityType, hints: Option[NonEmptySeq[String]]) {
-  def |(name: => String)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax = {
+  def |(name: => String)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): AssertionData = {
     val diff = hints.fold(Difference[A])(Difference.fromResult[A](_))
-    new ContinueSyntax(NonEmptySeq.nes(defineAssertion[A](name, (pair), equalityType)(implicitly, diff, implicitly)))
+    new AssertionData(NonEmptySeq.nes(defineAssertion[A](name, (pair), equalityType)(implicitly, diff, implicitly)))
   }
 
-  def |#(name: => String, ctx: (String, String)*)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): ContinueSyntax = {
+  def |#(name: => String, ctx: (String, String)*)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): AssertionData = {
     val diff = hints.fold(Difference[A])(Difference.fromResult[A](_))
-    new ContinueSyntax(
+    new AssertionData(
       NonEmptySeq.nes(
         defineAssertionWithContext[A](name, (pair), equalityType, Map(ctx:_*))(implicitly, diff, implicitly)))
   }
@@ -53,8 +53,8 @@ final class Predicate[A](pair: (Defer[A], Defer[A]), equalityType: EqualityType,
     new Predicate[A](pair, equalityType, hints.map(_.concat(moreHints)).orElse(Option(moreHints)))
 }
 
-final case class ContinueSyntax(assertions: NonEmptySeq[Assertion]) {
-    def and(other: ContinueSyntax): ContinueSyntax = ContinueSyntax(assertions.concat(other.assertions))
+final case class AssertionData(assertions: NonEmptySeq[Assertion]) {
+    def and(other: AssertionData): AssertionData = AssertionData(assertions.concat(other.assertions))
 
     def seq(): TestData = TestData(assertions, Sequential)
 
