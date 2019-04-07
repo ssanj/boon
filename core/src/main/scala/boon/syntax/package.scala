@@ -30,8 +30,14 @@ package object syntax {
   //TODO: Do we need this?
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)
 
-  //descriptive
-  def assertionBlock(cs: => AssertionData)(implicit loc: SourceLocation): AssertionData = {
+  def fail(reason: String): Predicate[Boolean] = !true >> one(s"explicit fail: $reason")
+
+  def pass: Predicate[Boolean] = true
+
+  def %@[A](provide: => A)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
+    assertionBlock(cs(provide))(loc)
+
+  private def assertionBlock(cs: => AssertionData)(implicit loc: SourceLocation): AssertionData = {
     val nameOp = for {
       fn  <- loc.fileName
     } yield s"assertion @ (${fn}:${loc.line})"
@@ -41,11 +47,4 @@ package object syntax {
       defer[Boolean](throw ex) | s"${name} !!threw an Exception!!"
     }, identity _)
   }
-
-  def fail(reason: String): Predicate[Boolean] = !true >> one(s"explicit fail: $reason")
-
-  def pass: Predicate[Boolean] = true
-
-  def %@[A](provide: => A)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData = assertionBlock(cs(provide))(loc)
-
 }
