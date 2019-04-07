@@ -29,9 +29,11 @@ object StringRep {
 
   def apply[A: StringRep]: StringRep[A] = implicitly[StringRep[A]]
 
-  def genericStringRep[A]: StringRep[A] = new StringRep[A] {
-    override def strRep(a: A): String = a.toString
+  def from[A](str: A => String): StringRep[A] = new StringRep[A] {
+    override def strRep(value: A): String = str(value)
   }
+
+  def genericStringRep[A]: StringRep[A] = from[A](_.toString)
 
   implicit val intStringRep     = genericStringRep[Int]
   implicit val longStringRep    = genericStringRep[Long]
@@ -39,36 +41,22 @@ object StringRep {
   implicit val floatStringRep   = genericStringRep[Float]
   implicit val doubleStringRep  = genericStringRep[Double]
 
-  implicit object StringStringRep extends StringRep[String] {
-    override def strRep(a: String): String = s""""$a""""
-  }
+  implicit val stringStringRep = from[String](str => s""""$str"""")
 
-  implicit object CharStringRep extends StringRep[Char] {
-    override def strRep(a: Char): String = s"'$a'"
-  }
+  implicit val charStringRep = from[Char](c => s"'$c'")
 
-  implicit def listStringRep[A](implicit S: StringRep[A]): StringRep[List[A]] = new StringRep[List[A]] {
-    override def strRep(xs: List[A]): String = xs.map(S.strRep).mkString("List[", ",", "]")
-  }
+  implicit def listStringRep[A: StringRep] = from[List[A]](_.map(StringRep[A].strRep).mkString("List[", ",", "]"))
 
-  implicit def nonEmptySeqStringRep[A](implicit S: StringRep[A]): StringRep[NonEmptySeq[A]] = new StringRep[NonEmptySeq[A]] {
-    override def strRep(xs: NonEmptySeq[A]): String = xs.map(S.strRep).mkString("NES(", ",", ")")
-  }
+  implicit def nonEmptySeqStringRep[A: StringRep] = from[NonEmptySeq[A]](_.map(StringRep[A].strRep).mkString("NES(", ",", ")"))
 
-  implicit def eitherStringRep[A, B](implicit LS: StringRep[A], RS: StringRep[B]): StringRep[Either[A, B]] = new StringRep[Either[A, B]] {
-    override def strRep(xs: Either[A, B]): String = xs.fold(l => s"Left(${LS.strRep(l)})", r => s"Right(${RS.strRep(r)})")
-  }
+  implicit def eitherStringRep[A: StringRep, B: StringRep] =
+    from[Either[A, B]](_.fold(l => s"Left(${StringRep[A].strRep(l)})", r => s"Right(${StringRep[B].strRep(r)})"))
 
-  implicit def optionStringRep[A](implicit S: StringRep[A]): StringRep[Option[A]] = new StringRep[Option[A]] {
-    override def strRep(xs: Option[A]): String = xs.fold("None")(v => s"Some(${S.strRep(v)})")
-  }
+  implicit def optionStringRep[A: StringRep] = from[Option[A]](_.fold("None")(v => s"Some(${StringRep[A].strRep(v)})"))
 
-  implicit def pairStringRep[A, B](implicit SA: StringRep[A], SB: StringRep[B]): StringRep[Tuple2[A, B]] = new StringRep[Tuple2[A, B]] {
-    override def strRep(pair: Tuple2[A, B]): String = s"(${SA.strRep(pair._1)}, ${SB.strRep(pair._2)})"
-  }
+  implicit def pairStringRep[A: StringRep, B: StringRep] =
+    from[(A, B)](pair => s"(${StringRep[A].strRep(pair._1)}, ${StringRep[B].strRep(pair._2)})")
 
-  implicit def mapStringRep[A, B](implicit SA: StringRep[A], SB: StringRep[B]): StringRep[Map[A, B]] = new StringRep[Map[A, B]] {
-
-    override def strRep(map: Map[A, B]): String = map.map { case (k, v) =>  s"${SA.strRep(k)} -> ${SB.strRep(v)}" }.mkString("Map(", ",", ")")
-  }
+  implicit def mapStringRep[A: StringRep, B: StringRep] =
+    from[Map[A, B]](_.map { case (k, v) =>  s"${StringRep[A].strRep(k)} -> ${StringRep[B].strRep(v)}" }.mkString("Map(", ",", ")"))
 }
