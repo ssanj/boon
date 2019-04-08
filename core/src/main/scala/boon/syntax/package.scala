@@ -42,11 +42,12 @@ package object syntax {
       fn  <- loc.fileName
     } yield s"assertion @ (${fn}:${loc.line})"
 
-    val name = nameOp.fold(s"assertion @ (-:${loc.line})")(identity _)
+    val path = if (prefix.isEmpty) "" else prefix.mkString("",".", ".")
+    val name = nameOp.fold(s"assertion @ ${path}(-:${loc.line})")(identity _)
     Try(cs).fold(ex => {
       defer[Boolean](throw ex) | s"${name} !!threw an Exception!!" //safe because it is deferred
     }, { ad =>
-      val path = if (prefix.isEmpty) "" else prefix.mkString("",".", ".")
+
       AssertionData(ad.assertions.map(assertion => assertion.copy(name = AssertionName(s"${path}${assertion.name.value}"))))
     })
   }
