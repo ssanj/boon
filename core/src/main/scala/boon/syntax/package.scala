@@ -34,17 +34,20 @@ package object syntax {
 
   def pass: Predicate[Boolean] = true
 
-  def %@[A](provide: => A)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
-    assertionBlock(cs(provide))(loc)
+  def %@[A](provide: => A, prefix: String*)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
+    assertionBlock(cs(provide), prefix:_*)(loc)
 
-  private def assertionBlock(cs: => AssertionData)(implicit loc: SourceLocation): AssertionData = {
+  private def assertionBlock(cs: => AssertionData, prefix: String*)(implicit loc: SourceLocation): AssertionData = {
     val nameOp = for {
       fn  <- loc.fileName
     } yield s"assertion @ (${fn}:${loc.line})"
 
     val name = nameOp.fold(s"assertion @ (-:${loc.line})")(identity _)
     Try(cs).fold(ex => {
-      defer[Boolean](throw ex) | s"${name} !!threw an Exception!!"
-    }, identity _)
+      defer[Boolean](throw ex) | s"${name} !!threw an Exception!!" //safe because it is deferred
+    }, { ad =>
+      val path = if (prefix.isEmpty) "" else prefix.mkString("",".", ".")
+      AssertionData(ad.assertions.map(assertion => assertion.copy(name = AssertionName(s"${path}${assertion.name.value}"))))
+    })
   }
 }

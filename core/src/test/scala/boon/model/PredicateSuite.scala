@@ -15,21 +15,21 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
 
     %@(assertionData.assertions) { assertions =>
       assertions.length =?= 1 | "no of assertions" and
-      %@(assertions.head){ a1 =>
-        a1.name.value =?= "Int predicate" | "assertion name" and
-        a1.context =?= noContext | "assertion context" and %@(a1.testable.run) { testable =>
+      %@(assertions.head, "assertion"){ a1 =>
+        a1.name.value =?= "Int predicate" | "name" and
+        a1.context =?= noContext | "context" and %@(a1.testable.run, "testable") { testable =>
           val value1 = testable.value1.run
           val value2 = testable.value2.run
 
-          value1.asInstanceOf[Int] =?= 10                              | "assertion.testable.value1"     and
-          value2.asInstanceOf[Int] =?= 20                              | "assertion.testable.value2"     and
-          testable.equality.eql(value1, value2) =?= false              | "assertion.testable.equality"   and
-          testable.difference.diff(value1, value2) =?= one("10 != 20") | "assertion.testable.difference" and
-          testable.equalityType =?= IsEqual                            | "assertion.testable.equalityType"
-        } and %@(a1.location) { loc =>
-          loc.line =?= 14 | "assertion.loc line" and
-          some_?(loc.fileName)(_ =?= "PredicateSuite.scala" | "assertion.loc fileName") and
-          some_?(loc.filePath)(_.endsWith("PredicateSuite.scala") | "assertion.loc filePath")
+          value1.asInstanceOf[Int] =?= 10                              | "value1"     and
+          value2.asInstanceOf[Int] =?= 20                              | "value2"     and
+          testable.equality.eql(value1, value2) =?= false              | "equality"   and
+          testable.difference.diff(value1, value2) =?= one("10 != 20") | "difference" and
+          testable.equalityType =?= IsEqual                            | "equalityType"
+        } and %@(a1.location, "a1.loc") { loc =>
+          loc.line =?= 14 | "line" and
+          some_?(loc.fileName)(_ =?= "PredicateSuite.scala" | "fileName") and
+          some_?(loc.filePath)(_.endsWith("PredicateSuite.scala") | "filePath")
         }
       }
     } and none_?(intPredicate.hints)( pass | "no hints")
