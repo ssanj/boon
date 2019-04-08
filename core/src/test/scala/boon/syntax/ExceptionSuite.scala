@@ -1,6 +1,6 @@
 package boon
+package syntax
 
-import syntax._
 import exception._
 
 object ExceptionSuite2 extends SuiteLike("ExceptionSuite2") {

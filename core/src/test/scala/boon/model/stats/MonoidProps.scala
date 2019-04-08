@@ -1,13 +1,10 @@
 package boon
+package model
+package stats
 
 import org.scalacheck.Properties
 import org.scalacheck._
 import boon.scalacheck.Arb._
-
-import boon.model.stats.AssertionCount
-import boon.model.stats.SuiteStats
-import boon.model.stats.StatusCount
-import boon.model.stats.TestCount
 
 import scala.reflect.runtime.universe._
 

@@ -1,7 +1,5 @@
 package boon
-
-import boon.model.Equality
-import boon.model.StringRep
+package model
 
 import scalacheck.Arb._
 import org.scalacheck.Properties

@@ -1,6 +1,6 @@
 package boon
+package model
 
-import boon.model.Equality
 import scalacheck.Arb._
 import org.scalacheck.Properties
 import org.scalacheck._
