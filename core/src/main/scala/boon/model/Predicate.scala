@@ -3,7 +3,7 @@ package model
 
 import Boon.defineAssertionWithContext
 
-final class Predicate[A](pair: (Defer[A], Defer[A]), equalityType: EqualityType, hints: Option[NonEmptySeq[String]]) {
+final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: EqualityType, val hints: Option[NonEmptySeq[String]]) {
 
   def |(name: => String, ctx: (String, String)*)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): AssertionData = {
     val diff = hints.fold(Difference[A])(Difference.fromResult[A](_))
