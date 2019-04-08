@@ -56,6 +56,12 @@ object EqualityProps extends Properties("Equality") {
   equalityLaws[(Boolean, Double)]
   equalityLaws[(Char, Option[String])]
 
+  equalityLaws[(Int, Int, Int)]
+  equalityLaws[(Boolean, Double, String)]
+
+  equalityLaws[(Int, Int, Int, Int)]
+  equalityLaws[(Boolean, Double, String, Int)]
+
   equalityLaws[Map[Int, String]]
   equalityLaws[Map[String, String]]
   equalityLaws[Map[Long, Char]]

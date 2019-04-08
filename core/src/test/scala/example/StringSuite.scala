@@ -11,7 +11,7 @@ object StringSuite extends SuiteLike("StringSuite") {
     "hello".toUpperCase          =?= "HELLO"          | "UPPER"      and
     "DollHouse".startsWith("Doll")                    | "startsWith" and
     "Battlestar".endsWith("star")                     | "endsWith"   and
-    "Bilbo".contains("lbo") |# (
+    "Bilbo".contains("lbo") | (
       "contains",
       "subject"   -> """"Bilbo"""",
       "predicate" -> "contains",

@@ -54,7 +54,7 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
     errors =?= one("an implementation is missing") | s"${expectedName}.assertion error" and
     SuiteOutput.sourceLocation(loc).fold(
       fail("expected SourceLocation") | s"${expectedName}.error location"
-    )(loc => loc.endsWith(s"ToBeImplementedSuite.scala:${expectedLoc}") |# (s"${expectedName}.error location", s"${expectedName}.loc" -> loc))
+    )(loc => loc.endsWith(s"ToBeImplementedSuite.scala:${expectedLoc}") | (s"${expectedName}.error location", s"${expectedName}.loc" -> loc))
   }
 
   private def assertionPassed(name: String): AssertionData = {

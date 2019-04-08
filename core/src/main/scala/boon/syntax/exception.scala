@@ -14,9 +14,9 @@ object exception {
       val expectedClass = classTag.runtimeClass
       val expectedClassName = expectedClass.getName
       Try(value).fold[AssertionData](
-        e => expectedClass.isAssignableFrom(e.getClass) |# (s"exception class ${expectedClassName}",
-                                                             "expected class" -> expectedClassName,
-                                                             "got class"      -> e.getClass.getName) and
+        e => expectedClass.isAssignableFrom(e.getClass) | (s"exception class ${expectedClassName}",
+                                                            "expected class" -> expectedClassName,
+                                                            "got class"      -> e.getClass.getName) and
              assertMessage(e.getMessage),
         s => fail(s"expected ${expectedClassName} but got class:${s.getClass.getName} value:${SR.strRep(s)}") | s"exception class ${expectedClassName}"
       )

@@ -58,6 +58,12 @@ object StringRepProps extends Properties("Equality") {
   strRepLaws[(Boolean, Double)]
   strRepLaws[(Char, Option[String])]
 
+  strRepLaws[(Int, Int, Int)]
+  strRepLaws[(Boolean, Double, String)]
+
+  strRepLaws[(Int, Int, Int, Int)]
+  strRepLaws[(Boolean, Double, String, Int)]
+
   strRepLaws[Map[Int, String]]
   strRepLaws[Map[String, String]]
   strRepLaws[Map[Long, Char]]

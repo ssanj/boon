@@ -157,21 +157,62 @@ Now when we run the Suite it produces the following output:
 | fail | Fail an assertion | fail("reason") \| "assertion name" |
 | pass | Pass an assertion | pass \| "assertion name" |
 | test | create a test | <code>test(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
-| xtest | ignore a test | <code>xtest(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
 
-### Advanced Operators ###
+---
+
+### More Operators ###
 
 | Operator  | What it's for | Example |
 | ------------- | ------------- | ------------- |
-| \\|#   | Converts a predicate to an assertion with a context. *The context is displayed when an assertion fails* | x * y =?= 3 \\|#("multiplication", "x" -> x.toString, "y" -> y.toString)  |
-| >> | Appending additional errors on failure | 1 =?= 2 >> hints("error2","error3") |
+| \\|   | Also adds a context to an assertion. *The context is displayed when an assertion fails* | x * y =?= 3 \\|("multiplication", "x" -> x.toString, "y" -> y.toString)  |
+| >> | Provides custom errors on failure | 1 =?= 2 >> oneOrMore("error1","error2") |
 
+
+### More Methods ###
+
+| Method  | What it's for | Example |
+| ------------- | ------------- | ------------- |
+| xtest | ignore a test | <code>xtest(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
+
+---
 
 ### Syntax Extensions ###
 
+#### Exceptions ####
+
 | Operator  | What it's for | Example |
 | ------------- | ------------- | ------------- |
-| =!=  | Compares an Exception thrown by class and message | flakey =!=[RuntimeException](_ =?= "Boom!") |
+| =!=  | Compares an Exception thrown by class and message | <code>flakey =!=[RuntimeException](_ =?= "Boom!" \\| "expected Boom!")</code> |
+
+#### Regular Expressions ####
+
+| Operator  | What it's for | Example |
+| ------------- | ------------- | ------------- |
+| =^= | Compares a String to a regular expression | "Path error: /some/path" =^= "Path error:.*".r |
+
+#### Option ####
+
+| Operator  | What it's for | Example |
+| ------------- | ------------- | ------------- |
+| some_? | expects a Some(value) | <code>some_?\[Int\](20.some)(_ =/= 10  \\| "Some(20) is not ten")</code>  |
+| none_? | expects a None | <code>none_?\[Int\](noneValue)(pass \\| "expected None")</code> |
+
+#### Either ####
+
+| Operator  | What it's for | Example |
+| ------------- | ------------- | ------------- |
+| left_? | expects Left value | <code>left_?\[String, Int\](leftValue)(_.endsWith("or1") \\| "ends with or1")</code> |
+| right_? | expects a Right value | <code>right_?\[String, Int\](rightValue)(_ =/= 10 \\| "right is not ten")</code> |
+
+#### null ####
+
+| Operator  | What it's for | Example |
+| ------------- | ------------- | ------------- |
+| null_? | expects a null value | <code>null_?(nullValue)(pass \\| "null value")</code> |
+| null_! | expects a non-null value | <code>null_!(notNullString)(_  =?= "notNull" \\| "not null String" )</code> |
+
+---
+
 
 ## Publishing
 
