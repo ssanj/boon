@@ -6,9 +6,9 @@ import option._
 
 object PredicateSuite extends SuiteLike("Predicate Suite") {
 
-  private val t1 = test("create AssertionData") {
-    val deferInt1 = Defer(() => 10)
-    val deferInt2 = Defer(() => 20)
+  private val t1 = test("Create AssertionData") {
+    val deferInt1 = defer(10)
+    val deferInt2 = defer(20)
     val intPair = (deferInt1, deferInt2)
     val intPredicate = new Predicate[Int](intPair, IsEqual, None)
     val assertionData = intPredicate | "Int predicate"
@@ -32,27 +32,27 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
           some_?(loc.filePath)(_.endsWith("PredicateSuite.scala") | "filePath")
         }
       }
-    } and none_?(intPredicate.hints)( pass | "no hints")
+    } and none_?(intPredicate.overrideErrors)( pass | "no errors overridden")
   }
 
   private val t2 = test("Override error messages") {
-    val deferString = Defer(() => "some String")
+    val deferString = defer("some String")
     val stringPair = (deferString, deferString)
     val stringPredicate = new Predicate[String](stringPair, IsEqual, None)
 
-    none_?(stringPredicate.hints)(pass | "start without hints") and
+    none_?(stringPredicate.overrideErrors)(pass | "create without errors overridden") and
     %@(stringPredicate >> oneOrMore("error1", "error2")) { pred1 =>
-      some_?(pred1.hints)(_ =?= oneOrMore("error1", "error2") | "override with hints")
+      some_?(pred1.overrideErrors)(_ =?= oneOrMore("error1", "error2") | "having errors overridden")
     }
   }
 
-  private val t3 = test("create Predicate with hints") {
-    val deferChar1 = Defer(() => 'c')
-    val deferChar2 = Defer(() => 'd')
+  private val t3 = test("Create Predicate with error messages") {
+    val deferChar1 = defer('c')
+    val deferChar2 = defer('d')
     val charPair = (deferChar1, deferChar2)
     val charPredicate = new Predicate[Char](charPair, IsNotEqual, oneOrMore("err1", "err2", "err3").some)
 
-    some_?(charPredicate.hints)(_ =?= oneOrMore("err1", "err2", "err3") | "create with hints")
+    some_?(charPredicate.overrideErrors)(_ =?= oneOrMore("err1", "err2", "err3") | "create with errors overridden")
   }
 
   override val tests = oneOrMore(t1, t2, t3)

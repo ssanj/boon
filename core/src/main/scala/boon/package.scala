@@ -40,9 +40,7 @@ import scala.util.Try
 
   def noContext: Map[String, String] = Map.empty[String, String]
 
-  def noHints: Option[NonEmptySeq[String]] = None
-
-  def hints(hint: String, others: String*): NonEmptySeq[String] = NonEmptySeq[String](hint, others.toSeq)
+  def noErrorOverrides: Option[NonEmptySeq[String]] = None
 
   def oneOrMore[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
 

@@ -22,10 +22,10 @@ package object syntax {
     TestData(AssertionData.assertions, Independent)
 
   implicit def booleanToPredicate(value1: => Boolean): Predicate[Boolean] =
-    new Predicate[Boolean]((defer(value1), defer(true)), IsEqual, noHints)
+    new Predicate[Boolean]((defer(value1), defer(true)), IsEqual, noErrorOverrides)
 
   implicit def deferBooleanToPredicate(value: Defer[Boolean]): Predicate[Boolean] =
-    new Predicate[Boolean]((value, defer(true)), IsEqual, noHints)
+    new Predicate[Boolean]((value, defer(true)), IsEqual, noErrorOverrides)
 
   //TODO: Do we need this?
   implicit def toStrRep[T: StringRep](value: T): StringRepSyntax[T] = StringRepSyntax[T](value)

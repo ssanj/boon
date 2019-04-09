@@ -21,7 +21,7 @@ import boon.model.IsNotEqual
 //
 
 final class EqSyntax[A](value1: => A) {
-  def =?=(value2: => A): Predicate[A] = new Predicate[A]((defer(value1), defer(value2)), IsEqual, noHints)
+  def =?=(value2: => A): Predicate[A] = new Predicate[A]((defer(value1), defer(value2)), IsEqual, noErrorOverrides)
 
-  def =/=(value2: => A): Predicate[A] = new Predicate[A]((defer(value1), defer(value2)), IsNotEqual, noHints)
+  def =/=(value2: => A): Predicate[A] = new Predicate[A]((defer(value1), defer(value2)), IsNotEqual, noErrorOverrides)
 }
