@@ -9,5 +9,7 @@ object BoonTypes {
   implicit val assertionBoonType = BoonType.defaults[Assertion]
 
   implicit val assertionDataBoonType = BoonType.defaults[AssertionData]
+
+  implicit val assertionStateBoonType = BoonType.defaults[AssertionState]
 }
 

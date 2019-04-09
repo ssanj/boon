@@ -48,8 +48,6 @@ sealed trait AssertionState
 object AssertionState {
   case object Passed extends AssertionState
   case object Failed extends AssertionState
-
-  implicit val assertionStateBoonType = BoonType.defaults[AssertionState]
 }
 
 sealed trait AssertionResultState
