@@ -20,7 +20,7 @@ object BoonType {
       override def diff(a1: A, a2: A): NonEmptySeq[String] = diffy(a1, a2)
     }
 
-  def fromInstances[A](implicit equality: Equality[A], strRep: StringRep[A], diff: Difference[A]): BoonType[A] = {
+  implicit def fromInstances[A](implicit equality: Equality[A], strRep: StringRep[A], diff: Difference[A]): BoonType[A] = {
     BoonType.from[A](equality.eql, strRep.strRep, diff.diff)
   }
 
