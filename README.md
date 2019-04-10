@@ -15,7 +15,7 @@ boon is inspired by [ScalaCheck](https://www.scalacheck.org) - which is a simple
 Add the following to your `build.sbt` file:
 
 ```scala
-libraryDependencies += "net.ssanj" %% "boon" % "0.0.1-b31" % Test
+libraryDependencies += "net.ssanj" %% "boon" % "0.0.1-b32" % Test
 
 testFrameworks += new TestFramework("boon.sbt.BoonFramework")
 
