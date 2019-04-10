@@ -1,7 +1,7 @@
 package boon
 package model
 
-import Boon.defineAssertionWithContext
+import Boon.defineAssertion
 
 final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: EqualityType, val overrideErrors: Option[NonEmptySeq[String]]) {
 
@@ -9,7 +9,7 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
     val diff = overrideErrors.fold(Difference[A])(Difference.fromResult[A](_))
     new AssertionData(
       NonEmptySeq.nes(
-        defineAssertionWithContext[A](name, (pair), equalityType, Map(ctx:_*))(implicitly, diff, implicitly)))
+        defineAssertion[A](name, (pair), equalityType, Map(ctx:_*))(implicitly, diff, implicitly)))
   }
 
   def >>(moreOverrides: => NonEmptySeq[String]): Predicate[A] =

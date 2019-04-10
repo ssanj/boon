@@ -19,10 +19,7 @@ object Boon {
     Defer[Testable](t)
   }
 
-  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
-    defineAssertionWithContext[A](name, gen, equalityType, Map.empty[String, String])
-
-  def defineAssertionWithContext[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType, context: Map[String, String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
+  def defineAssertion[A](name: => String, gen: (Defer[A], Defer[A]), equalityType: EqualityType, context: Map[String, String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): Assertion =
     Assertion(AssertionName(name), {
       val (a1, a2) = gen
       testable[A](a1, a2, equalityType)
