@@ -3,7 +3,6 @@ package boon
 import model._
 import syntax._
 import exception._
-import BoonTypes._
 
 object BoonSuite extends SuiteLike("BoonSuite") {
 
@@ -20,7 +19,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       case TestThrewResult(ThrownTest(TestName(name), error, loc)) =>
         name =?= "A test that throws"         | "test name" and
         error =!=[RuntimeException](_ =?= "some exception" | "error message") and
-        loc.line =?= 14                       | "error location"
+        loc.line =?= 13                       | "error location"
 
       case other => fail(s"Expected TestThrewResult but got $other") | "test result type"
     }
@@ -87,10 +86,10 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       case CompositeTestResult(AllPassed(TestName(name), passed)) =>
         name =?= "NonEmptySeq test" | "test name" and
         passed.length =?= 4   | "no of assertions"  and %@(passed.toSeq) { p =>
-          p(0) =?= SequentialPass(AssertionName("length"))   | "assertion1.name" and
-          p(1) =?= SequentialPass(AssertionName("head"))     | "assertion2.name" and
-          p(2) =?= SequentialPass(AssertionName("last"))     | "assertion3.name" and
-          p(3) =?= SequentialPass(AssertionName("contains")) | "assertion4.name"
+          p(0).name.value =?= "length"   | "assertion1.name" and
+          p(1).name.value =?= "head"     | "assertion2.name" and
+          p(2).name.value =?= "last"     | "assertion3.name" and
+          p(3).name.value =?= "contains" | "assertion4.name"
         }
 
       case other => fail(s"Expected CompositeTestResult but got $other") | "test result type"
