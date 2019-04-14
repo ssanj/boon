@@ -70,6 +70,8 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
     if (f(head)) Some(head)
     else tail.find(f)
   }
+
+  def last: A = if (NonEmptySeq.headOnly[A](this)) head else tail.last
 }
 
 object NonEmptySeq {

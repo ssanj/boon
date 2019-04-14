@@ -11,5 +11,7 @@ object BoonTypes {
   implicit val assertionDataBoonType = BoonType.defaults[AssertionData]
 
   implicit val assertionStateBoonType = BoonType.defaults[AssertionState]
+
+  implicit val sequentialPassBoonType = BoonType.defaults[SequentialPass]
 }
 
