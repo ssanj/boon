@@ -1,27 +1,48 @@
-package boon.syntax
+package boon
+package syntax
 
 import boon.model.AssertionData
 import boon.model.StringRep
+import boon.model.Predicate
 
 import scala.util.Try
 import scala.reflect.ClassTag
 
 object exception {
 
-  final class ExceptionSyntax[A](value: => A) {
-    def =!=[T <: Throwable](assertMessage: String => AssertionData)(
-      implicit classTag: ClassTag[T], SR: StringRep[A]): AssertionData = {
+  private def assertException[T <: Throwable](e: => Throwable, assertMessage: String => AssertionData, loc: SourceLocation)(
+    implicit classTag: ClassTag[T]): AssertionData = {
       val expectedClass = classTag.runtimeClass
       val expectedClassName = expectedClass.getName
-      Try(value).fold[AssertionData](
-        e => expectedClass.isAssignableFrom(e.getClass) | (s"exception class ${expectedClassName}",
-                                                            "expected class" -> expectedClassName,
-                                                            "got class"      -> e.getClass.getName) and
-             assertMessage(e.getMessage),
+      val pred: Predicate[Boolean] =
+        expectedClass.isAssignableFrom(e.getClass) >> oneOrMore(s"expected: $expectedClassName got: ${e.getClass.getName}")
+
+      //supply the location of the invocation here,
+      //otherwise the error will point to the line below
+      pred.|("exception class")(implicitly, implicitly, loc) and
+      assertMessage(e.getMessage)
+  }
+
+  final class ExceptionSyntax[A](value: => A) {
+    def =!=[T <: Throwable](assertMessage: String => AssertionData)(
+      implicit classTag: ClassTag[T], SR: StringRep[A], loc: SourceLocation): AssertionData = {
+      val expectedClass = classTag.runtimeClass
+      val expectedClassName = expectedClass.getName
+      Try(value).fold[AssertionData](e =>
+        assertException[T](e, assertMessage, loc),
         s => fail(s"expected ${expectedClassName} but got class:${s.getClass.getName} value:${SR.strRep(s)}") | s"exception class ${expectedClassName}"
       )
     }
   }
 
+  final class ThrowableSyntax(e: => Throwable) {
+    def =!=[T <: Throwable](assertMessage: String => AssertionData)(
+      implicit classTag: ClassTag[T], loc: SourceLocation): AssertionData = {
+      assertException[T](e, assertMessage, loc)
+    }
+  }
+
   implicit def toExceptionSyntax[A](value: => A): ExceptionSyntax[A] = new ExceptionSyntax[A](value)
+
+  implicit def toThrowableSyntax(value: => Throwable): ThrowableSyntax = new ThrowableSyntax(value)
 }
