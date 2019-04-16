@@ -6,9 +6,6 @@ import exception._
 
 object BoonSuite extends SuiteLike("BoonSuite") {
 
-  private def failWith[A](expected: String, other: => A, assertionName: String): AssertionData =
-    fail(s"Expected $expected but got $other") | assertionName
-
   private val t1 = test("unsuccessfulTest") {
 
     def createTestData(): TestData = { throw new RuntimeException("some exception") }
@@ -20,9 +17,9 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     val result = Boon.runTest(tx)
     result match {
       case TestThrewResult(ThrownTest(TestName(name), error, loc)) =>
-        name =?= "A test that throws"         | "test name" and
+        name =?= "A test that throws"                      | "test name" and
         error =!=[RuntimeException](_ =?= "some exception" | "error message") and
-        loc.line =?= 16                       | "error location"
+        loc.line =?= 13                                    | "error location"
 
       case other => failWith("TestThrewResult", other, "test result type")
     }
@@ -48,22 +45,14 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       "World".reverse =?= "dlroW"               | "reverse"
     }
 
-    def assertAssertionResultPassed(assertionName: String)(ar: AssertionResult): AssertionData = {
-      ar match {
-        case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(aName), context, _))) =>
-          aName =?= assertionName | "assertion name"
-        case other => failWith("SingleAssertionResult/AssertionResultPassed", other, "assert result type")
-      }
-    }
-
     val result = Boon.runTest(tx)
     result match {
       case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults: NonEmptySeq[AssertionResult]) =>
         name =?= "String test" | "test name" and
         assertionResults.length =?= 3 | "no of assertions" and %@(assertionResults.toSeq) { ar =>
-          %@(ar(0), "assertion1")(assertAssertionResultPassed("concat")) and
-          %@(ar(1), "assertion2")(assertAssertionResultPassed("length")) and
-          %@(ar(2), "assertion3")(assertAssertionResultPassed("reverse"))
+          (assertAssertionResultPassed("concat")(ar(0))) and
+          (assertAssertionResultPassed("length")(ar(1))) and
+          (assertAssertionResultPassed("reverse")(ar(2)))
         } seq()
 
       case other => failWith(s"SingleTestResult", other, "test result type")
@@ -93,7 +82,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     }
 
     def assertSequentialPass(assertionName: String)(sp: SequentialPass): AssertionData = {
-      sp.name.value =?= assertionName | "assertion name"
+      sp.name.value =?= assertionName | s"assertion name of $assertionName"
     }
 
     val result = Boon.runTest(tx)
@@ -101,15 +90,69 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       case CompositeTestResult(AllPassed(TestName(name), passed)) =>
         name =?= "NonEmptySeq test" | "test name" and
         passed.length =?= 4   | "no of assertions"  and %@(passed.toSeq) { p =>
-          %@(p(0), "assertion1"){ assertSequentialPass("length")   } and
-          %@(p(1), "assertion2"){ assertSequentialPass("head")     } and
-          %@(p(2), "assertion3"){ assertSequentialPass("last")     } and
-          %@(p(3), "assertion4"){ assertSequentialPass("contains") }
+          assertSequentialPass("length")(p(0))   and
+          assertSequentialPass("head")(p(1))     and
+          assertSequentialPass("last")(p(2))     and
+          assertSequentialPass("contains")(p(3))
         }
 
       case other => failWith("CompositeTestResult", other, "test result type")
     }
   }
 
-  override val tests = oneOrMore(t1, t2, t3, t4)
+  val t5 = test("mixed independent") {
+
+    val tx = test("success + fails + errors") {
+      true =?= true  | "truism" and
+      false =?= true | "falsism" and
+      true =?= ???   | "error"
+    }
+
+    val result = Boon.runTest(tx)
+
+    result match {
+      case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults: NonEmptySeq[AssertionResult]) =>
+        name =?= "success + fails + errors" | "test name"   and
+        assertionResults.length =?= 3 | "no of assertions"  and %@(assertionResults.toSeq) { ar =>
+          assertAssertionResultPassed("truism")(ar(0))  and
+          assertAssertionResultFailed("falsism")(ar(1)) and
+          assertAssertionResultThrew(
+            "error",
+            _ =!=[NotImplementedError](_ =?= "an implementation is missing" | "assertion thrown")
+          )(ar(2))
+        }
+
+      case other => failWith("SingleTestResult", other, "test result type")
+    }
+  }
+
+  private def failWith[A](expected: String, other: => A, assertionName: String): AssertionData =
+    fail(s"Expected $expected but got $other") | assertionName
+
+  private def assertAssertionResultPassed(assertionName: String)(ar: AssertionResult): AssertionData = {
+      ar match {
+        case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(aName), context, _))) =>
+          aName =?= assertionName | s"assertion name of $assertionName"
+        case other => failWith("SingleAssertionResult/AssertionResultPassed", other, "assertion result type")
+      }
+    }
+
+  private def assertAssertionResultFailed(assertionName: String)(ar: AssertionResult): AssertionData = {
+      ar match {
+        case SingleAssertionResult(AssertionResultFailed(AssertionError(Assertion(AssertionName(aName), _, _, _), errors))) =>
+          aName =?= assertionName | s"assertion name of $assertionName"
+        case other => failWith("SingleAssertionResult/AssertionResultFailed", other, "assertion result type")
+      }
+    }
+
+  private def assertAssertionResultThrew(assertionName: String, f: Throwable => AssertionData)(ar: AssertionResult): AssertionData = {
+      ar match {
+        case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(aName), throwable, _))) =>
+          aName =?= assertionName | s"assertion name of $assertionName" and
+          f(throwable)
+        case other => failWith("SingleAssertionResult/AssertionResultThrew", other, "assertion result type")
+      }
+    }
+
+  override val tests = oneOrMore(t1, t2, t3, t4, t5)
 }
