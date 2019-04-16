@@ -17,7 +17,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     val result = Boon.runTest(tx)
     result match {
       case TestThrewResult(ThrownTest(TestName(name), error, loc)) =>
-        name =?= "A test that throws"                      | "test name" and
+        name =?= "A test that throws"                      | "test name"      and
         error =!=[RuntimeException](_ =?= "some exception" | "error message") and
         loc.line =?= 13                                    | "error location"
 
@@ -48,10 +48,10 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     val result = Boon.runTest(tx)
     result match {
       case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults: NonEmptySeq[AssertionResult]) =>
-        name =?= "String test" | "test name" and
+        name =?= "String test" | "test name"               and
         assertionResults.length =?= 3 | "no of assertions" and %@(assertionResults.toSeq) { ar =>
-          (assertAssertionResultPassed("concat")(ar(0))) and
-          (assertAssertionResultPassed("length")(ar(1))) and
+          (assertAssertionResultPassed("concat")(ar(0)))   and
+          (assertAssertionResultPassed("length")(ar(1)))   and
           (assertAssertionResultPassed("reverse")(ar(2)))
         } seq()
 
@@ -75,20 +75,20 @@ object BoonSuite extends SuiteLike("BoonSuite") {
           "Slice of watermelon"
         )
 
-      saturdayMenu.length =?= 10                                                            | "length" and
-      saturdayMenu.head   =?= "Chocolate cake"                                              | "head"   and
-      saturdayMenu.last   =?= "Slice of watermelon"                                         | "last"   and
+      saturdayMenu.length =?= 10                                                            | "length"   and
+      saturdayMenu.head   =?= "Chocolate cake"                                              | "head"     and
+      saturdayMenu.last   =?= "Slice of watermelon"                                         | "last"     and
       saturdayMenu.contains("Pickle") >> one(s"Could not find 'Pickle' in $saturdayMenu")   | "contains" seq()
     }
 
     val result = Boon.runTest(tx)
     result match {
       case CompositeTestResult(AllPassed(TestName(name), passed)) =>
-        name =?= "NonEmptySeq test" | "test name" and
+        name =?= "NonEmptySeq test" | "test name"   and
         passed.length =?= 4   | "no of assertions"  and %@(passed.toSeq) { p =>
-          assertSequentialPass("length")(p(0))   and
-          assertSequentialPass("head")(p(1))     and
-          assertSequentialPass("last")(p(2))     and
+          assertSequentialPass("length")(p(0))      and
+          assertSequentialPass("head")(p(1))        and
+          assertSequentialPass("last")(p(2))        and
           assertSequentialPass("contains")(p(3))
         }
 
@@ -99,7 +99,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
   val t5 = test("mixed independent") {
 
     val tx = test("success + fails + errors") {
-      true =?= true  | "truism" and
+      true =?= true  | "truism"  and
       false =?= true | "falsism" and
       true =?= ???   | "error"
     }
@@ -110,8 +110,8 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults: NonEmptySeq[AssertionResult]) =>
         name =?= "success + fails + errors" | "test name"   and
         assertionResults.length =?= 3 | "no of assertions"  and %@(assertionResults.toSeq) { ar =>
-          assertAssertionResultPassed("truism")(ar(0))  and
-          assertAssertionResultFailed("falsism")(ar(1)) and
+          assertAssertionResultPassed("truism")(ar(0))      and
+          assertAssertionResultFailed("falsism")(ar(1))     and
           assertAssertionResultThrew(
             "error",
             _ =!=[NotImplementedError](_ =?= "an implementation is missing" | "assertion thrown")
@@ -124,9 +124,9 @@ object BoonSuite extends SuiteLike("BoonSuite") {
 
   val t6 = test("mixed sequential - stops on failure") {
     val tx = test("success + fails + stops") {
-      true =?= true  | "truism" and
+      true =?= true  | "truism"  and
       false =?= true | "falsism" and
-      true =?= ???   | "error" seq()
+      true =?= ???   | "error"   seq()
     }
 
     val result = Boon.runTest(tx)
