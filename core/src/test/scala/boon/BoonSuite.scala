@@ -6,6 +6,9 @@ import exception._
 
 object BoonSuite extends SuiteLike("BoonSuite") {
 
+  private def failWith[A](expected: String, other: => A, assertionName: String): AssertionData =
+    fail(s"Expected $expected but got $other") | assertionName
+
   private val t1 = test("unsuccessfulTest") {
 
     def createTestData(): TestData = { throw new RuntimeException("some exception") }
@@ -19,9 +22,9 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       case TestThrewResult(ThrownTest(TestName(name), error, loc)) =>
         name =?= "A test that throws"         | "test name" and
         error =!=[RuntimeException](_ =?= "some exception" | "error message") and
-        loc.line =?= 13                       | "error location"
+        loc.line =?= 16                       | "error location"
 
-      case other => fail(s"Expected TestThrewResult but got $other") | "test result type"
+      case other => failWith("TestThrewResult", other, "test result type")
     }
   }
 
@@ -34,7 +37,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     val result = Boon.runTest(tx)
     result match {
       case TestIgnoredResult(TestName(name)) => name =?= "A test that is ignored" | "test name"
-      case other => fail(s"Expected TestIgnoredResult but got $other") | "test result type"
+      case other => failWith("TestIgnoredResult", other, "test result type")
     }
   }
 
@@ -49,7 +52,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       ar match {
         case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(aName), context, _))) =>
           aName =?= assertionName | "assertion name"
-        case other => fail(s"Expected SingleAssertionResult/AssertionResultPassed got $other") | "assert result type"
+        case other => failWith("SingleAssertionResult/AssertionResultPassed", other, "assert result type")
       }
     }
 
@@ -63,7 +66,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
           %@(ar(2), "assertion3")(assertAssertionResultPassed("reverse"))
         } seq()
 
-      case other => fail(s"Expected SingleTestResult but got $other") | "test result type"
+      case other => failWith(s"SingleTestResult", other, "test result type")
     }
   }
 
@@ -104,7 +107,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
           %@(p(3), "assertion4"){ assertSequentialPass("contains") }
         }
 
-      case other => fail(s"Expected CompositeTestResult but got $other") | "test result type"
+      case other => failWith("CompositeTestResult", other, "test result type")
     }
   }
 
