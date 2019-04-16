@@ -45,6 +45,14 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       "World".reverse =?= "dlroW"               | "reverse"
     }
 
+    def assertAssertionResultPassed(assertionName: String)(ar: AssertionResult): AssertionData = {
+      ar match {
+        case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(aName), context, _))) =>
+          aName =?= assertionName | "assertion name"
+        case other => fail(s"Expected SingleAssertionResult/AssertionResultPassed got $other") | "assert result type"
+      }
+    }
+
     val result = Boon.runTest(tx)
     result match {
       case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults: NonEmptySeq[AssertionResult]) =>
@@ -81,26 +89,22 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       saturdayMenu.contains("Pickle") >> one(s"Could not find 'Pickle' in $saturdayMenu")   | "contains" seq()
     }
 
+    def assertSequentialPass(assertionName: String)(sp: SequentialPass): AssertionData = {
+      sp.name.value =?= assertionName | "assertion name"
+    }
+
     val result = Boon.runTest(tx)
     result match {
       case CompositeTestResult(AllPassed(TestName(name), passed)) =>
         name =?= "NonEmptySeq test" | "test name" and
         passed.length =?= 4   | "no of assertions"  and %@(passed.toSeq) { p =>
-          p(0).name.value =?= "length"   | "assertion1.name" and
-          p(1).name.value =?= "head"     | "assertion2.name" and
-          p(2).name.value =?= "last"     | "assertion3.name" and
-          p(3).name.value =?= "contains" | "assertion4.name"
+          %@(p(0), "assertion1"){ assertSequentialPass("length")   } and
+          %@(p(1), "assertion2"){ assertSequentialPass("head")     } and
+          %@(p(2), "assertion3"){ assertSequentialPass("last")     } and
+          %@(p(3), "assertion4"){ assertSequentialPass("contains") }
         }
 
       case other => fail(s"Expected CompositeTestResult but got $other") | "test result type"
-    }
-  }
-
-  private def assertAssertionResultPassed(assertionName: String)(ar: AssertionResult): AssertionData = {
-    ar match {
-      case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(aName), context, _))) =>
-        aName =?= assertionName | "assertion name"
-      case other => fail(s"Expected SingleAssertionResult/AssertionResultPassed got $other") | "assert result type"
     }
   }
 

@@ -72,6 +72,11 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
   }
 
   def last: A = if (NonEmptySeq.headOnly[A](this)) head else tail.last
+
+  def get(index: Int): Option[A] =
+    if (index >= 0 && index < length) {
+      if (index == 0) Some(head) else tail.drop(index - 1).headOption
+    } else None
 }
 
 object NonEmptySeq {
