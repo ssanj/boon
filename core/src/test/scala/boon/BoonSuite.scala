@@ -81,10 +81,6 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       saturdayMenu.contains("Pickle") >> one(s"Could not find 'Pickle' in $saturdayMenu")   | "contains" seq()
     }
 
-    def assertSequentialPass(assertionName: String)(sp: SequentialPass): AssertionData = {
-      sp.name.value =?= assertionName | s"assertion name of $assertionName"
-    }
-
     val result = Boon.runTest(tx)
     result match {
       case CompositeTestResult(AllPassed(TestName(name), passed)) =>
@@ -126,6 +122,66 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     }
   }
 
+  val t6 = test("mixed sequential - stops on failure") {
+    val tx = test("success + fails + stops") {
+      true =?= true  | "truism" and
+      false =?= true | "falsism" and
+      true =?= ???   | "error" seq()
+    }
+
+    val result = Boon.runTest(tx)
+
+    result match {
+      case CompositeTestResult(
+        StoppedOnFirstFailed(TestName(testName),
+          FirstFailed(
+            AssertionName(failedAssertionName),
+              Left(SequentialFail(AssertionError(Assertion(AssertionName(aName), _, _, _), errors))),
+              passed, notRun))) =>
+
+        testName =?= "success + fails + stops" | "test name"         and
+        failedAssertionName =?= "falsism" | "failed assertion"       and
+        failedAssertionName =?= aName | "failure assertion"          and
+        errors =?= oneOrMore("false != true") | "failure reason"     and
+        passed.length =?= 1 | "no of passed assertions"              and
+        assertSequentialPass("truism")(passed(0))                    and
+        notRun.length =?= 1 | "no of notRun assertions"              and
+        notRun(0).name.value =?= "error" | "not run assertion name"
+
+      case other => failWith("CompositeTestResult/StoppedOnFirstFailed/SequentialFail", other, "test result type")
+    }
+  }
+
+  val t7 = test("mixed sequential - stops on error") {
+    val tx = test("success + error + stops") {
+      true =?= true  | "truism"  and
+      true =?= ???   | "error"   and
+      false =?= true | "falsism" seq()
+    }
+
+    val result = Boon.runTest(tx)
+
+    result match {
+      case CompositeTestResult(
+        StoppedOnFirstFailed(TestName(testName),
+          FirstFailed(
+            AssertionName(failedAssertionName),
+              Right(SequentialThrew(AssertionThrow(AssertionName(aName), error, _))),
+              passed, notRun))) =>
+
+        testName =?= "success + error + stops"    | "test name"                                and
+        failedAssertionName =?= "error"           | "error assertion"                          and
+        failedAssertionName =?= aName             | "failure assertion"                        and
+        error =!=[NotImplementedError](_ =?= "an implementation is missing" | "error message") and
+        passed.length =?= 1                       | "no of passed assertions"                  and
+        assertSequentialPass("truism")(passed(0))                                              and
+        notRun.length =?= 1                       | "no of notRun assertions"                  and
+        notRun(0).name.value =?= "falsism"        | "not run assertion name"
+
+      case other => failWith("CompositeTestResult/StoppedOnFirstFailed/SequentialThrew", other, "test result type")
+    }
+  }
+
   private def failWith[A](expected: String, other: => A, assertionName: String): AssertionData =
     fail(s"Expected $expected but got $other") | assertionName
 
@@ -154,5 +210,9 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       }
     }
 
-  override val tests = oneOrMore(t1, t2, t3, t4, t5)
+  private def assertSequentialPass(assertionName: String)(sp: SequentialPass): AssertionData = {
+    sp.name.value =?= assertionName | s"assertion name of $assertionName"
+  }
+
+  override val tests = oneOrMore(t1, t2, t3, t4, t5, t6, t7)
 }
