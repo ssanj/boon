@@ -248,5 +248,8 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     case other => failWith("SingleTestResult", other, "test type")
   }
 
+  private def createSuite(name: => String)(tests: NonEmptySeq[Test]): DeferredSuite =
+    DeferredSuite(SuiteName(name), tests)
+
   override val tests = oneOrMore(t1, t2, t3, t4, t5, t6, t7, t8)
 }
