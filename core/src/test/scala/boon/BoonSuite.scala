@@ -6,7 +6,7 @@ import exception._
 
 object BoonSuite extends SuiteLike("BoonSuite") {
 
-  private val t1 = test("unsuccessfulTest") {
+  private val t1 = test("unsuccessful test") {
 
     def createTestData(): TestData = { throw new RuntimeException("some exception") }
 
@@ -25,7 +25,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     }
   }
 
-  private val t2 = test("ignoredTest") {
+  private val t2 = test("ignored test") {
 
     val tx = xtest("A test that is ignored") {
       true =?= true | "truism"
@@ -38,7 +38,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     }
   }
 
-  private val t3 = test("successfulTest.independent") {
+  private val t3 = test("successful test - independent") {
     val tx = test("String test") {
       "Hello" + " " + "World" =?= "Hello World" | "concat" and
       "Hello".length =?= 5                      | "length" and
@@ -47,7 +47,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
 
     val result = Boon.runTest(tx)
     result match {
-      case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults: NonEmptySeq[AssertionResult]) =>
+      case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults) =>
         name =?= "String test" | "test name"               and
         assertionResults.length =?= 3 | "no of assertions" and %@(assertionResults.toSeq) { ar =>
           (assertAssertionResultPassed("concat")(ar(0)))   and
@@ -59,7 +59,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     }
   }
 
-  private val t4 = test("successfulTest.sequential") {
+  private val t4 = test("successful test - sequential") {
     val tx = test("NonEmptySeq test") {
       val saturdayMenu: NonEmptySeq[String] =
         oneOrMore(
@@ -96,7 +96,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     }
   }
 
-  val t5 = test("mixed independent") {
+  val t5 = test("mixed test - independent") {
 
     val tx = test("success + fails + errors") {
       true =?= true  | "truism"  and
@@ -107,7 +107,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     val result = Boon.runTest(tx)
 
     result match {
-      case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults: NonEmptySeq[AssertionResult]) =>
+      case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults) =>
         name =?= "success + fails + errors" | "test name"   and
         assertionResults.length =?= 3 | "no of assertions"  and %@(assertionResults.toSeq) { ar =>
           assertAssertionResultPassed("truism")(ar(0))      and
@@ -122,7 +122,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     }
   }
 
-  val t6 = test("mixed sequential - stops on failure") {
+  val t6 = test("mixed sequential test - stops on failure") {
     val tx = test("success + fails + stops") {
       true =?= true  | "truism"  and
       false =?= true | "falsism" and
@@ -152,7 +152,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     }
   }
 
-  val t7 = test("mixed sequential - stops on error") {
+  val t7 = test("mixed sequential test - stops on error") {
     val tx = test("success + error + stops") {
       true =?= true  | "truism"  and
       true =?= ???   | "error"   and
@@ -182,13 +182,39 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     }
   }
 
+  val t8 = test("successful suite") {
+
+    val tx1 = test("boolean test") {
+      true =?= true | "truism"
+    }
+
+    val tx2 = test("int test") {
+      2 + 2 =?= 4 | "addition"
+    }
+
+    val sx = createSuite("My very own suite")(oneOrMore(tx1, tx2))
+
+    val result = Boon.runSuite(sx)
+
+    result match {
+      case SuiteResult(DeferredSuite(SuiteName(name), NonEmptySeq(tx1, tx2)), testResults) =>
+        name =?= "My very own suite" | "suite name"         and
+        testResults.length =?= 2     | "no of test results" and %@(testResults.toSeq) { tr =>
+          %@(tr(0), "test1")(assertSingleTestResult("boolean test", "truism"))  and
+          %@(tr(1), "test2")(assertSingleTestResult("int test", "addition"))
+        }
+
+       case other => failWith("SuiteResult with 2 tests", other, "suite type")
+    }
+  }
+
   private def failWith[A](expected: String, other: => A, assertionName: String): AssertionData =
     fail(s"Expected $expected but got $other") | assertionName
 
   private def assertAssertionResultPassed(assertionName: String)(ar: AssertionResult): AssertionData = {
       ar match {
         case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(aName), context, _))) =>
-          aName =?= assertionName | s"assertion name of $assertionName"
+          aName =?= assertionName | s"assertion name of '$assertionName'"
         case other => failWith("SingleAssertionResult/AssertionResultPassed", other, "assertion result type")
       }
     }
@@ -214,5 +240,13 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     sp.name.value =?= assertionName | s"assertion name of $assertionName"
   }
 
-  override val tests = oneOrMore(t1, t2, t3, t4, t5, t6, t7)
+  private def assertSingleTestResult(testName: String, assertionName: String)(tr: TestResult): AssertionData = tr match {
+    case SingleTestResult(DeferredTest(TestName(tName), _, Independent), assertionResults) =>
+      tName =?= testName             | "test name"           and
+      assertionResults.length =?= 1  | "no of assertions"    and
+      assertAssertionResultPassed(assertionName)(assertionResults.toSeq(0))
+    case other => failWith("SingleTestResult", other, "test type")
+  }
+
+  override val tests = oneOrMore(t1, t2, t3, t4, t5, t6, t7, t8)
 }

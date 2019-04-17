@@ -5,6 +5,9 @@ import syntax.toStrRep
 
 import scala.util.Try
 
+  def createSuite(name: => String)(tests: NonEmptySeq[Test]): DeferredSuite =
+    DeferredSuite(SuiteName(name), tests)
+
   def test(name: => String)(data: => TestData)(implicit testLocation: SourceLocation): Test =
     Try(data).fold(ex => {
       UnsuccessfulTest(ThrownTest(TestName(name), ex, testLocation))
