@@ -3,6 +3,7 @@ package model
 
 import syntax._
 import option._
+import internal.instances._
 
 object PredicateSuite extends SuiteLike("Predicate Suite") {
 
@@ -27,7 +28,7 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
           testable.difference.diff(value1, value2) =?= one("10 != 20") | "difference" and
           testable.equalityType =?= IsEqual                            | "equalityType"
         } and %@(a1.location, "a1.loc") { loc =>
-          loc.line =?= 14 | "line" and
+          loc.line =?= 15 | "line" and
           some_?(loc.fileName)(_ =?= "PredicateSuite.scala" | "fileName") and
           some_?(loc.filePath)(_.endsWith("PredicateSuite.scala") | "filePath")
         }

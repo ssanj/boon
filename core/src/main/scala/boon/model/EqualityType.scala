@@ -14,6 +14,4 @@ object EqualityType {
   }
 
   implicit def foldEqualityType(et: EqualityType): FoldSyntax = FoldSyntax(et)
-
-  implicit val equalityTypeBoonType = BoonType.defaults[EqualityType]
 }
