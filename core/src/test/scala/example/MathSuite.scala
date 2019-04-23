@@ -5,7 +5,7 @@ import boon._
 object MathSuite extends SuiteLike("MathSuite") {
 
   private val multTable =
-    NonEmptyMap.values(
+    truthTable(
       (1, 4)   -> tval(4),
       (2, 6)   -> tval(12),
       (5, 10)  -> tval(50),

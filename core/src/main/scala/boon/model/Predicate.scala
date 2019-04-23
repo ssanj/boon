@@ -1,6 +1,7 @@
 package boon
 package model
 
+import boon.data.NonEmptySeq
 import Boon.defineAssertion
 
 final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: EqualityType, val overrideErrors: Option[NonEmptySeq[String]]) {

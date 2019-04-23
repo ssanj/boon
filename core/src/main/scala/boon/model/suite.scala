@@ -1,6 +1,8 @@
 package boon
 package model
 
+import boon.data._
+
 final case class TestName(value: String)
 
 final case class DeferredTest(name: TestName, assertions: NonEmptySeq[Assertion], combinator: AssertionCombinator)

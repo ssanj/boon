@@ -1,5 +1,6 @@
 package boon
 
+import boon.data.NonEmptySeq
 import org.scalacheck.Properties
 import org.scalacheck._
 import org.scalacheck.Arbitrary._

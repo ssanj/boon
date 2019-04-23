@@ -3,6 +3,7 @@ package boon
 import boon.model.Difference
 import boon.model.Equality
 import boon.model.StringRep
+import boon.data.NonEmptySeq
 
 trait BoonType[A] extends Equality[A] with StringRep[A] with Difference[A]
 

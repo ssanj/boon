@@ -1,4 +1,5 @@
 package boon
+package data
 
 //Minimal implementation of NonEmptySeq
 //Do we need to use Vector instead for performance?

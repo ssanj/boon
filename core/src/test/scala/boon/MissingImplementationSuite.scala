@@ -1,5 +1,6 @@
 package boon
 
+import data.NonEmptySeq
 import result.SuiteOutput
 import result.SequentialPassData
 import result.SequentialFailData

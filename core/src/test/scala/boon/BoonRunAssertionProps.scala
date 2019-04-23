@@ -1,5 +1,6 @@
 package boon
 
+import boon.data.NonEmptySeq
 import model.IsEqual
 import model.IsNotEqual
 import model.SingleAssertionResult
@@ -37,7 +38,7 @@ object BoonRunAssertionProps extends Properties("Boon#runAssertion") {
       case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(name), context, location))) =>
         (name == name)        :| "name"    &&
         (context == ctx)      :| "context" &&
-        (location.line == 33) :| "location line"
+        (location.line == 34) :| "location line"
       case other => falsified :| (s"Expected SingleAssertionResult(AssertionResultPassed) but got $other")
     }
   }
@@ -50,7 +51,7 @@ object BoonRunAssertionProps extends Properties("Boon#runAssertion") {
       case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(name), context, location))) =>
         (name == name)        :| "name"    &&
         (context == ctx)      :| "context" &&
-        (location.line == 46) :| "location line"
+        (location.line == 47) :| "location line"
       case other => falsified :| (s"Expected SingleAssertionResult(AssertionResultPassed) but got $other")
     }
   }
@@ -64,7 +65,7 @@ object BoonRunAssertionProps extends Properties("Boon#runAssertion") {
       case SingleAssertionResult(AssertionResultFailed(AssertionError(Assertion(AssertionName(name), _, context, location), NonEmptySeq(error, _)))) =>
         (name == name)           :| "name"          &&
         (context == ctx)         :| "context"       &&
-        (location.line == 60)   :| "location line" &&
+        (location.line == 61)    :| "location line" &&
         (error == s"$v1 != $v2") :| "error message"
       case other => falsified :| (s"Expected SingleAssertionResult(AssertionResultFailed) but got $other")
     }
@@ -77,7 +78,7 @@ object BoonRunAssertionProps extends Properties("Boon#runAssertion") {
     result match {
       case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(name), throwable, location))) =>
         (name == name)                          :| "name"          &&
-        (location.line == 74)                  :| "location line" &&
+        (location.line == 75)                   :| "location line" &&
         (throwable.getMessage == ex.getMessage) :| "error message"
       case other => falsified :| (s"Expected SingleAssertionResult(AssertionResultThrew) but got $other")
     }

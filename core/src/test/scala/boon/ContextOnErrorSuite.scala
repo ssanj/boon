@@ -6,6 +6,7 @@ import result.SequentialFailData
 import result.SequentialNotRunData
 import result.AssertionOutput
 import result.Trace
+import data.NonEmptySeq
 import model.TestState
 import model.AssertionData
 import model.internal.instances._

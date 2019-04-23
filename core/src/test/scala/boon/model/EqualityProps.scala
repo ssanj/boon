@@ -1,6 +1,7 @@
 package boon
 package model
 
+import boon.data.NonEmptySeq
 import scalacheck.Arb._
 import org.scalacheck.Properties
 import org.scalacheck._

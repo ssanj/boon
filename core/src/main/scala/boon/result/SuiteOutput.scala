@@ -15,6 +15,7 @@ import boon.model._
 import boon.model.TestResult.testResultToTestState
 import boon.model.SuiteResult.suiteResultToSuiteState
 import boon.result.Exception.getTraces
+import boon.data.NonEmptySeq
 
 final case class SuiteOutput(name: String, tests: NonEmptySeq[TestOutput], state: SuiteState)
 

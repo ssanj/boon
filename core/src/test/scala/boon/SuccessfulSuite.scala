@@ -1,5 +1,6 @@
 package boon
 
+import data.NonEmptySeq
 import model.TestData
 import model.TestState
 import result.SuiteOutput

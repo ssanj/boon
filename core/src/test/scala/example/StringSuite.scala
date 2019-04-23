@@ -20,7 +20,7 @@ object StringSuite extends SuiteLike("StringSuite") {
   }
 
   private val strTable =
-    NonEmptyMap.values(
+    truthTable(
       ("thequickbrownfoxjumpedoverthelazydog" -> tval(36)),
       (""                                     -> tval(0)),
       ("Hello World"                          -> tval(11))

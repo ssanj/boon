@@ -1,6 +1,7 @@
 package boon
 package model
 
+import boon.data.NonEmptySeq
 
 trait StringRep[A] {
   def strRep(a: A): String

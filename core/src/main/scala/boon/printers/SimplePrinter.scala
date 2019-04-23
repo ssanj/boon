@@ -3,7 +3,8 @@ package printers
 
 import scala.compat.Platform.EOL
 
-import boon.NonEmptySeq.nonEmptyTail
+import boon.data.NonEmptySeq
+import NonEmptySeq.nonEmptyTail
 import boon.model.SuiteState
 import boon.model.TestState
 import boon.result.SuiteOutput

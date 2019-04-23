@@ -1,6 +1,7 @@
 package boon
 
 import boon.model._
+import boon.data.NonEmptySeq
 
 import scala.util.Try
 

@@ -1,6 +1,8 @@
 package boon
 package model
 
+import boon.data._
+
 final case class AssertionTriple(name: AssertionName, context: Map[String, String], location: SourceLocation)
 
 object AssertionTriple {

@@ -179,7 +179,7 @@ Now when we run the Suite it produces the following output:
 | Method  | What it's for | Example |
 | ------------- | ------------- | ------------- |
 | xtest | ignore a test | <code>xtest(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
-| table | a tabulated test | <code>val multTable = NonEmptyMap.values(<br>&nbsp;&nbsp;(1, 4)&nbsp;&nbsp;&nbsp;-> tval(4),<br>&nbsp;&nbsp;(2, 6)&nbsp;&nbsp;&nbsp;-> tval(12),<br>&nbsp;&nbsp;(5, 10)&nbsp;&nbsp;-> tval(50),<br>&nbsp;&nbsp;(7, 7)&nbsp;&nbsp;&nbsp;-> tval(49),<br>&nbsp;&nbsp;(-2, -1) -> tval(2),<br>&nbsp;&nbsp;(10, 20) -> tval(200)<br>)<br><br>table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)</code> |
+| table<br>truthTable<br>tval | a tabulated test | <code>val multTable = truthTable(<br>&nbsp;&nbsp;(1, 4)&nbsp;&nbsp;&nbsp;-> tval(4),<br>&nbsp;&nbsp;(2, 6)&nbsp;&nbsp;&nbsp;-> tval(12),<br>&nbsp;&nbsp;(5, 10)&nbsp;&nbsp;-> tval(50),<br>&nbsp;&nbsp;(7, 7)&nbsp;&nbsp;&nbsp;-> tval(49),<br>&nbsp;&nbsp;(-2, -1) -> tval(2),<br>&nbsp;&nbsp;(10, 20) -> tval(200)<br>)<br><br>table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)</code> |
 | oneOrMore | create a NonEmptySeq | <code>override val tests = oneOrMore(test1, test2)</code> |
 ---
 

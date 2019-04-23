@@ -1,6 +1,7 @@
 package boon
 
 import model._
+import data.NonEmptySeq
 import syntax.exception._
 
 object BoonSuite extends SuiteLike("BoonSuite") {
@@ -18,7 +19,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       case TestThrewResult(ThrownTest(TestName(name), error, loc)) =>
         name =?= "A test that throws"                      | "test name"      and
         error =!=[RuntimeException](_ =?= "some exception" | "error message") and
-        loc.line =?= 12                                    | "error location"
+        loc.line =?= 13                                    | "error location"
 
       case other => failWith("TestThrewResult", other, "test result type")
     }

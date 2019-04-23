@@ -1,6 +1,7 @@
 package boon
 package model
 
+import boon.data.NonEmptySeq
 
 trait Equality[A] {
 

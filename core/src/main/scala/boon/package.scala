@@ -1,6 +1,7 @@
 package object boon {
 
 import boon.model._
+import boon.data.NonEmptySeq
 
 import scala.util.Try
 
@@ -36,6 +37,9 @@ import scala.util.Try
   def tval[U](value: U)(implicit SL: SourceLocation): (U, SourceLocation) = (value, SL)
 
   type NonEmptyMap[K, V] = NonEmptySeq[(K, V)]
+
+  def truthTable[K, V](head: (K, V), tail: (K, V)*): NonEmptyMap[K, V] =
+    NonEmptySeq.nes[(K, V)](head, tail:_*)
 
   def noContext: Map[String, String] = Map.empty[String, String]
 

@@ -1,6 +1,8 @@
 package boon
 package model
 
+import boon.data.NonEmptySeq
+
 import scala.language.higherKinds
 
 //This is not a Typeclass.

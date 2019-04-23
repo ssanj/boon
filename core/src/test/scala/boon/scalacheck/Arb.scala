@@ -1,7 +1,7 @@
 package boon
 package scalacheck
 
-import boon.NonEmptySeq
+import boon.data.NonEmptySeq
 import boon.model.stats.AssertionCount
 import boon.model.stats.SuiteStats
 import boon.model.stats.StatusCount

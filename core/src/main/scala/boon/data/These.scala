@@ -1,4 +1,5 @@
 package boon
+package data
 
 sealed trait These[+A, +B]
 
