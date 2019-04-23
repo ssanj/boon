@@ -7,8 +7,16 @@ boon is a small framework for testing pure code. boon is:
 1. Has no external library dependencies
 1. Fast
 1. Strongly typed
+1. Opinionated
 
 boon is inspired by [ScalaCheck](https://www.scalacheck.org) - which is a simple but very powerful Property-Based Testing framework.
+
+Some things that are unique to boon:
+
+1. Purity - test failures don't throw Exceptions
+1. First Class Assertions - Assertions can be named and combined
+1. Failure context - Failures can have write out a context of all useful information
+1. Two failure modes - Assertions can either fail on the first error (**Seq**uential) or continue running other Assertions (**Ind**ependent)
 
 ## Usage in SBT ##
 
@@ -71,7 +79,7 @@ test("equality of things") {
 ```
 
 **Tests** are grouped into a **Suite**. All Suites must follow these rules:
-- Must be an `object`
+- Must be an `object` - This prevents inheritance abuse
 - Extend `SuiteLike`
 - Override the `tests` method
 
@@ -105,7 +113,7 @@ object MyFirstSuite extends SuiteLike("Simple Stuff") {
     true =?= true       | "Boolean equality"
   }
 
-  override def tests = one(t1)
+  override def tests = oneOrMore(t1)
 }
 ```
 
@@ -121,7 +129,7 @@ The `tests` method on `SuiteLike` is defined as:
 def tests: NonEmptySeq[Test]
 ```
 
-`NonEmptySeq` is a collection that must have at least one element. It is similar to `NonEmptyList` in [Cats](https://typelevel.org/cats/datatypes/nel.html) and [Scalaz](https://scalaz.github.io/scalaz/scalaz-2.10-7.0.4/doc/index.html#scalaz.NonEmptyList). It can be constructed using the `oneOrMore` function for when you have one or more tests. _When you have a single test you can also use the `one` function for more readability if you prefer_. Requiring a `NonEmptySeq` when defining a Suite means that you can't create a Suite without any tests. This is something that is possible in other testing frameworks and leads to confusion when an empty Suite passes (since it has no tests). boon ensures that invalid states can't be constructed.
+`NonEmptySeq` is a collection that must have at least one element. It is similar to `NonEmptyList` in [Cats](https://typelevel.org/cats/datatypes/nel.html) and [Scalaz](https://scalaz.github.io/scalaz/scalaz-2.10-7.0.4/doc/index.html#scalaz.NonEmptyList). It can be constructed using the `oneOrMore` function for when you have one or more tests. Requiring a `NonEmptySeq` when defining a Suite means that you can't create a Suite without any tests. This is something that is possible in other testing frameworks and leads to confusion when an empty Suite passes (since it has no tests). boon strives to ensure that invalid states can't be represented.
 
 Running the above **Suite** produces the following output:
 
@@ -142,19 +150,19 @@ Now when we run the Suite it produces the following output:
 
 | Operator  | What it's for | Example |
 | ------------- | ------------- | ------------- |
-| =?=  | Typesafe predicate for equality  | 1 + 2 =?= 3 |
-| =/=  | Typesafe predicate for inequality  | 1 + 2 =/= 4 |
-| \\|   | Converts a predicate to an assertion | 1 + 2 =?= 3 \\| "addition" |
-| %@  | Multiple assertions on a single value | %@(List(1,2,3)){ l => <br> &nbsp;&nbsp;l.length =?= 5 \\| "length" and <br>&nbsp;&nbsp;l.contains(2) &nbsp;&nbsp;&nbsp;\\| "has 2" <br>} |
+| =?=  | Typesafe Predicate for equality  | 1 + 2 =?= 3 |
+| =/=  | Typesafe Predicate for inequality  | 1 + 2 =/= 4 |
+| \\|   | Converts a Predicate to an Assertion | 1 + 2 =?= 3 \\| "addition" |
+| %@  | Multiple Assertions on a single value | %@(List(1,2,3)){ l => <br> &nbsp;&nbsp;l.length =?= 5 \\| "length" and <br>&nbsp;&nbsp;l.contains(2) &nbsp;&nbsp;&nbsp;\\| "has 2" <br>} |
 
 ### Methods ###
 
 | Method  | What it's for | Example |
 | ------------- | ------------- | ------------- |
 | and  | Combine Assertions | 1 + 2 =?= 3 \\| "1+2" and <br>4 + 5 =?= 9 \\| "4+5" |
-| fail | Fail an assertion | fail("reason") \| "assertion name" |
-| pass | Pass an assertion | pass \| "assertion name" |
-| test | create a test | <code>test(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
+| fail | Fail an Assertion | fail("reason") \| "assertion name" |
+| pass | Pass an Assertion | pass \| "assertion name" |
+| test | create a Test | <code>test(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
 
 ---
 
@@ -162,7 +170,7 @@ Now when we run the Suite it produces the following output:
 
 | Operator  | What it's for | Example |
 | ------------- | ------------- | ------------- |
-| \\|   | Also adds a context to an assertion. *The context is displayed when an assertion fails* | x * y =?= 3 \\|("multiplication", "x" -> x.toString, "y" -> y.toString)  |
+| \\|   | Also adds a context to an Assertion. *The context is displayed when an assertion fails* | x * y =?= 3 \\|("multiplication", "x" -> x.toString, "y" -> y.toString)  |
 | >> | Provides custom errors on failure | 1 =?= 2 >> oneOrMore("error1","error2") |
 
 
@@ -171,16 +179,20 @@ Now when we run the Suite it produces the following output:
 | Method  | What it's for | Example |
 | ------------- | ------------- | ------------- |
 | xtest | ignore a test | <code>xtest(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
-
+| table | a tabulated test | <code>val multTable = NonEmptyMap.values(<br>&nbsp;&nbsp;(1, 4)&nbsp;&nbsp;&nbsp;-> tval(4),<br>&nbsp;&nbsp;(2, 6)&nbsp;&nbsp;&nbsp;-> tval(12),<br>&nbsp;&nbsp;(5, 10)&nbsp;&nbsp;-> tval(50),<br>&nbsp;&nbsp;(7, 7)&nbsp;&nbsp;&nbsp;-> tval(49),<br>&nbsp;&nbsp;(-2, -1) -> tval(2),<br>&nbsp;&nbsp;(10, 20) -> tval(200)<br>)<br><br>table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)</code> |
+| oneOrMore | create a NonEmptySeq | <code>override val tests = oneOrMore(test1, test2)</code> |
 ---
 
 ### Syntax Extensions ###
+
+Syntax extensions are more for ease-of-use than something that must be used. It's pretty easy to write these extensions yourself. The following extensions have been created to save you even more time.
 
 #### Exceptions ####
 
 | Operator  | What it's for | Example |
 | ------------- | ------------- | ------------- |
 | =!=  | Compares an Exception thrown by class and message | <code>flakey =!=[RuntimeException](_ =?= "Boom!" \\| "expected Boom!")</code> |
+|   | Also compares an Exception by class and message | <code>ex =!=[RuntimeException](_ =?= "Boom!" \\| "expected Boom!")</code> |
 
 #### Regular Expressions ####
 
