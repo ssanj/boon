@@ -1,7 +1,6 @@
 package example
 
 import boon._
-import syntax._
 
 object HundredAssertionsSuite extends SuiteLike("HundredAssertionsSuite") {
 

@@ -1,7 +1,5 @@
 package boon
 
-import syntax._
-
 abstract class ToBeImplementedSuite extends SuiteLike("ToBeImplementedSuite") {
 
   final class SomeClass {

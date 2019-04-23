@@ -1,7 +1,6 @@
 package example
 
 import boon._
-import syntax._
 
 object MyFirstSuite extends SuiteLike("Simple Stuff") {
 

@@ -96,7 +96,6 @@ A more complete example:
 package example
 
 import boon._
-import syntax._
 
 object MyFirstSuite extends SuiteLike("Simple Stuff") {
 
@@ -110,11 +109,10 @@ object MyFirstSuite extends SuiteLike("Simple Stuff") {
 }
 ```
 
-As shown above, to define a Suite, you need the following imports:
+As shown above, to define a Suite, you need the following import:
 
 ```scala
 import boon._
-import syntax._
 ```
 
 The `tests` method on `SuiteLike` is defined as:

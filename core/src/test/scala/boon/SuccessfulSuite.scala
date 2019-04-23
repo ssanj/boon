@@ -1,6 +1,5 @@
 package boon
 
-import syntax._
 import model.TestData
 import model.TestState
 import result.SuiteOutput

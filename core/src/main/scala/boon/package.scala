@@ -1,7 +1,6 @@
 package object boon {
 
 import boon.model._
-import syntax.toStrRep
 
 import scala.util.Try
 
@@ -20,7 +19,7 @@ import scala.util.Try
         values.map {
           case (t, (u, loc)) =>
             implicit val sl: SourceLocation = loc
-            Boon.defineAssertion[U](s"with ${t.strRep} is ${u.strRep}", (Defer(() => f(t)), Defer(() => u)), IsEqual, noContext)
+            Boon.defineAssertion[U](s"with ${StringRep[T].strRep(t)} is ${StringRep[U].strRep(u)}", (Defer(() => f(t)), Defer(() => u)), IsEqual, noContext)
         },
         Independent
       )
@@ -45,4 +44,47 @@ import scala.util.Try
   def oneOrMore[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
 
   def one[A](head: A): NonEmptySeq[A] = NonEmptySeq.nes[A](head)
+
+  //implicits
+  implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
+
+  implicit def deferAToEqSyntax[A](dValue: Defer[A]): EqSyntax[A] =
+    new EqSyntax[A](dValue.run) //this is safe because EqSyntax is lazy
+
+  implicit def toAssertionDataFromSeqOfAssertionData(AssertionDataes: NonEmptySeq[AssertionData]): AssertionData =
+    AssertionDataes.tail.foldLeft(AssertionDataes.head)(_ and _)
+
+  implicit def toTestDataFromSeqOfAssertionData(AssertionDataes: NonEmptySeq[AssertionData]): TestData =
+    toTestData(toAssertionDataFromSeqOfAssertionData(AssertionDataes))
+
+  implicit def toTestData(AssertionData: AssertionData): TestData =
+    TestData(AssertionData.assertions, Independent)
+
+  implicit def booleanToPredicate(value1: => Boolean): Predicate[Boolean] =
+    new Predicate[Boolean]((defer(value1), defer(true)), IsEqual, noErrorOverrides)
+
+  implicit def deferBooleanToPredicate(value: Defer[Boolean]): Predicate[Boolean] =
+    new Predicate[Boolean]((value, defer(true)), IsEqual, noErrorOverrides)
+
+  def fail(reason: String): Predicate[Boolean] = !true >> one(s"explicit fail: $reason")
+
+  def pass: Predicate[Boolean] = true
+
+  def %@[A](provide: => A, prefix: String*)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
+    assertionBlock(cs(provide), prefix:_*)(loc)
+
+  private def assertionBlock(cs: => AssertionData, prefix: String*)(implicit loc: SourceLocation): AssertionData = {
+    val nameOp = for {
+      fn  <- loc.fileName
+    } yield s"assertion @ (${fn}:${loc.line})"
+
+    val path = if (prefix.isEmpty) "" else prefix.mkString("",".", ".")
+    val name = nameOp.fold(s"assertion @ ${path}(-:${loc.line})")(identity _)
+    Try(cs).fold(ex => {
+      defer[Boolean](throw ex) | s"${name} !!threw an Exception!!" //safe because it is deferred
+    }, { ad =>
+
+      AssertionData(ad.assertions.map(assertion => assertion.copy(name = AssertionName(s"${path}${assertion.name.value}"))))
+    })
+  }
 }

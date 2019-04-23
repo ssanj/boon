@@ -1,6 +1,5 @@
 package boon
 
-import syntax._
 import result.SuiteOutput
 import result.SequentialPassData
 import result.SequentialFailData
@@ -27,11 +26,11 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
     name =?= "test for missing implementations" | "test name" and
     assertions.length =?= 3 | "no of assertions" and
     state =?= TestState.Failed | "test failed" and %@(assertions(0)) {
-      asserNotImplementedTest("Boolean test", 16)
+      asserNotImplementedTest("Boolean test", 14)
     } and %@(assertions(1)) {
-      asserNotImplementedTest("Int test", 17)
+      asserNotImplementedTest("Int test", 15)
     } and %@(assertions(2)) {
-      asserNotImplementedTest("Unsafe test", 18)
+      asserNotImplementedTest("Unsafe test", 16)
     }
   }
 

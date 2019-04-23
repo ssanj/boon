@@ -1,4 +1,5 @@
-package boon.syntax
+package boon
+package syntax
 
 import boon.model.AssertionData
 

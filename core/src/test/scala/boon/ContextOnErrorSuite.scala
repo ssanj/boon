@@ -1,6 +1,5 @@
 package boon
 
-import syntax._
 import result.SuiteOutput
 import result.SequentialPassData
 import result.SequentialFailData

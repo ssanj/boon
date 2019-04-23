@@ -1,9 +1,5 @@
 package boon
-package syntax
-
-import boon.model.Predicate
-import boon.model.IsEqual
-import boon.model.IsNotEqual
+package model
 
 //
 // Operator Precedence: https://docs.scala-lang.org/tour/operators.html

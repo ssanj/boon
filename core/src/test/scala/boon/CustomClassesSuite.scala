@@ -1,7 +1,5 @@
 package boon
 
-import syntax._
-
 object CustomClassesSuite extends SuiteLike("CustomClasses") {
 
   final case class Name(value: String)
