@@ -66,7 +66,7 @@ import scala.util.Try
   implicit def deferBooleanToPredicate(value: Defer[Boolean]): Predicate[Boolean] =
     new Predicate[Boolean]((value, defer(true)), IsEqual, noErrorOverrides)
 
-  def fail(reason: String): Predicate[Boolean] = !true >> one(s"explicit fail: $reason")
+  def fail(reason: String): Predicate[Boolean] = false >> one(s"explicit fail: $reason")
 
   def pass: Predicate[Boolean] = true
 
