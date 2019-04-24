@@ -86,7 +86,7 @@ object SimplePrinter {
       s"${compositePasses}"
 
     case SequentialFailedOutput(name, SequentialFailData(failedName, errors, ctx, loc), passed, notRun) =>
-      val location = loc.fold("")(l => s"[$l]")
+      val location = loc.fold("")(l => s"$l")
 
       val compositePasses = passed.map(pa => s"${ps.assertion.padding} ↓ ${pa.name} ${ps.assertion.tokens.common.passed}").mkString(EOL)
 
