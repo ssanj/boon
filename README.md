@@ -31,7 +31,9 @@ resolvers += Resolver.bintrayRepo("ssanj", "maven")
 
 You can now run all the usual `sbt` test commands such as: `test` and `testOnly`.
 
-## API ##
+## API
+
+### Predicate
 
 At the heart of boon, is a **Predicate**. A predicate is a boolean expression. The most basic way of creating a predicate in boon, is by testing two values for equality:
 
@@ -46,6 +48,8 @@ For example to test two Int operands for equality:
 ```scala
 1 =?= 1
 ```
+
+### Assertion
 
 A predicate with a description is an **Assertion**:
 
@@ -67,6 +71,8 @@ Assertions are first class constructs in boon and can be combined with the `and`
 true =?= true       | "Boolean equality"
 ```
 
+### Test
+
 **Assertions** are grouped into a **Test**:
 
 ```scala
@@ -76,6 +82,8 @@ test("equality of things") {
   true =?= true       | "Boolean equality"
 }
 ```
+
+### Suite
 
 **Tests** are grouped into a **Suite**. All Suites must follow these rules:
 - Must be an `object` - This prevents inheritance abuse
@@ -144,6 +152,8 @@ Now when we run the Suite it produces the following output:
 
 ![failure-output](images/boon-my-first-suite-failure.png)
 
+### Booleans are Predicates
+
 Any `Boolean` expression can be turned into a Predicate. That Predicate can then be made an Assertion:
 
 ```scala
@@ -171,6 +181,8 @@ Results in:
 [info]         I expected empty!
 ```
 
+### Block Assertions
+
 If you want to run multiple Assertions on an expression you can do so with the `%@` operator:
 
 ```scala
@@ -180,7 +192,7 @@ If you want to run multiple Assertions on an expression you can do so with the `
 }
 ```
 
-## Extensions ##
+## Extensions
 
 To use boon with your own custom types, you need three functions:
 
