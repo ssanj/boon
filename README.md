@@ -192,6 +192,88 @@ If you want to run multiple Assertions on an expression you can do so with the `
 }
 ```
 
+### Contextual Errors
+
+Sometimes when a test fails you want more information about the values of certain variables used to calculate the result. You can specify these values when creating an Assertion:
+
+```scala
+"Bilbo".contains("lbo") | (
+  "contains",
+  "subject"   -> """"Bilbo"""",
+  "predicate" -> "contains",
+  "value"     -> """"ob"""")
+```
+
+When the above Assertion fails, the contextual values supplied will be displayed:
+
+```
+[info]      => false != true
+[info]      at .../StringSuite.scala:13
+[info]        #: subject -> "Bilbo"
+[info]           predicate -> contains
+[info]           value -> "ob"
+```
+
+### Independent Assertions
+
+By default, all Assertions are executed independently of each other. What this means is that a prior failing Assertion, will not prevent a subsequent Assertion from running:
+
+```
+val t1 = test("equality of things") {
+  1 =?= 2             | "Int equality"    and
+  "Hello" =?= "Hello" | "String equality" and
+  true =?= true       | "Boolean equality"
+}
+```
+
+Results in:
+
+```bash
+[info]  - equality of things [failed]
+[info]    - Int equality [✗]
+[info]      => 1 != 2
+[info]      at .../MyFirstSuite.scala:8
+[info]    - String equality [✓]
+[info]    - Boolean equality [✓]
+```
+
+Notice that although, the **Int equality** Assertion failed, the other Assertions completed successfully.
+
+Although unnecessary, you could explicitly define a Test as Independent with the `ind()` method:
+
+```scala
+val t1 = test("equality of things") {
+  1 =?= 2             | "Int equality"    and
+  "Hello" =?= "Hello" | "String equality" and
+  true =?= true       | "Boolean equality" ind()
+}
+```
+
+### Sequential Assertions
+
+What if we didn't want to run any of the other Assertions after a failing Assertion? We could specify that by using the `seq()` method:
+
+```scala
+val t1 = test("equality of things") {
+  1 =?= 2             | "Int equality"    and
+  "Hello" =?= "Hello" | "String equality" and
+  true =?= true       | "Boolean equality" seq()
+}
+```
+
+If we ran the above, it would fail with:
+
+```bash
+[info]  - equality of things [failed]
+[info]    ↓ Int equality [✗]
+[info]      => 1 != 2
+[info]      at .../MyFirstSuite.scala:8
+[info]    ↓ String equality (not run)
+[info]    ↓ Boolean equality (not run)
+```
+
+Notice that the **String equality** and **Boolean equality** Assertions did not run after the **Int equality** Assertion failed.
+
 ### Tabulated Tests
 
 If you have a truth table of inputs against some expected output, you can create a tabulated test. Start off by creating a `truthTable`:
@@ -301,6 +383,8 @@ If you don't want to use default instances, you can use one of the many methods 
 | tval | truth table value | <code>(2, 6) -> tval(12)</code> |
 | table | tabulated test | <br>table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)</code> |
 | oneOrMore | create a NonEmptySeq | <code>override val tests = oneOrMore(test1, test2)</code> |
+| seq() | run Assertions sequentially | <code>1 =?= 1 \\| "onsies" and<br>&nbsp;2 =?= 2 \\| "twosies" seq() </code> |
+| ind() | run Assertions independently. This is the default | <code>1 =?= 1 \\| "onsies" and<br>&nbsp;2 =?= 2 \\| "twosies" ind() </code> |
 ---
 
 ### Syntax Extensions ###
