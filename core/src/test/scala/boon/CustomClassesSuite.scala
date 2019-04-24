@@ -22,7 +22,7 @@ object CustomClassesSuite extends SuiteLike("CustomClasses") {
     val n1 = Name("Royd Eris")
     val n2 = Name("Royd Eris")
 
-    p1 =?= p2 | "Person instances with same data are equal" and
+    p1 =?= p3 | "Person instances with same data are equal" and
     p2 =/= p3 | "Person instances with different data are not equal" and
     a1 =?= a2 | "The same ages are equal" and
     n1 =?= n2 | "The same names are equal"

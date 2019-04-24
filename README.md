@@ -7,7 +7,6 @@ boon is a small framework for testing pure code. boon is:
 1. Has no external library dependencies
 1. Fast
 1. Strongly typed
-1. Opinionated
 
 boon is inspired by [ScalaCheck](https://www.scalacheck.org) - which is a simple but very powerful Property-Based Testing framework.
 
@@ -145,6 +144,80 @@ Now when we run the Suite it produces the following output:
 
 ![failure-output](images/boon-my-first-suite-failure.png)
 
+Any `Boolean` expression can be turned into a Predicate. That Predicate can then be made an Assertion:
+
+```scala
+List.empty[String].isEmpty | "empty List is empty"
+```
+
+The main difference is that if the Assertion fails you get a Boolean failure not a type-specific failure:
+
+```.bash
+[info]    - empty List is empty [✗]
+[info]      => false != true
+```
+
+With a Predicate, you can override the failure message to something more descriptive:
+
+```scala
+List.empty[String].isEmpty >> oneOrMore("empty List is not empty", "I expected empty!") | "empty List is empty"
+```
+
+Results in:
+
+```.bash
+[info]    - empty List is empty [✗]
+[info]      => empty List is not empty
+[info]         I expected empty!
+```
+
+## Extensions ##
+
+To use boon with your own custom types, you need three functions:
+
+1. `(T, T) => Boolean` - defines how two values of a type `T` are equated This is similar to the Cats [Eq](https://typelevel.org/cats/typeclasses/eq.html) typeclass.
+1. `T => String` - defines how an instance of type `T` is displayed. This is similar to the Cats [Show](https://typelevel.org/cats/typeclasses/show.html) typeclass
+1. `(T, T) => NonEmptySeq[String]` -  defines how the differences between two instances of type `T` are displayed on failure
+
+These three functions are bundled into the `BoonType` typeclass.
+
+For instance, given a `Person` class:
+
+```.scala
+final case class Name(value: String)
+final case class Age(value: Int)
+final case class Person(name: Name, age: Age)
+```
+
+you could use one of the helper functions on `BoonType` to generate a `default` instance:
+
+```.scala
+implicit val personBoonType = BoonType.defaults[Person]
+```
+
+What `BoonType.defaults` does is to use scala's `==` for equality, `.toString` for display Strings and default difference of `t1 != t2`.
+
+After defining the above you can make Assertions on Person instances:
+
+```.scala
+val p1 = Person(Name("Royd Eris"), Age(30))
+val p2 = Person(Name("Royd Eris"), Age(30))
+val p3 = Person(Name("Melantha Jhirl"), Age(26))
+
+p1 =?= p2 | "Person instances with same data are equal" and
+p2 =/= p3 | "Person instances with different data are not equal" and
+```
+
+If we change `p1 =?= p3` we get:
+
+```.bash
+[info]    - Person instances with same data are equal [✗]
+[info]      => Person(Name(Royd Eris),Age(30)) != Person(Name(Melantha Jhirl),Age(26))
+```
+
+If you don't want to use default instances, you can use one of the many methods on [BoonType](https://github.com/ssanj/boon/blob/master/core/src/main/scala/boon/BoonType.scala) to create `BoonType` instances.
+
+## Glossary ##
 
 ### Operators ###
 
@@ -179,7 +252,9 @@ Now when we run the Suite it produces the following output:
 | Method  | What it's for | Example |
 | ------------- | ------------- | ------------- |
 | xtest | ignore a test | <code>xtest(name) {<br>&nbsp;&nbsp;one or more assertions<br>}</code> |
-| table<br>truthTable<br>tval | a tabulated test | <code>val multTable = truthTable(<br>&nbsp;&nbsp;(1, 4)&nbsp;&nbsp;&nbsp;-> tval(4),<br>&nbsp;&nbsp;(2, 6)&nbsp;&nbsp;&nbsp;-> tval(12),<br>&nbsp;&nbsp;(5, 10)&nbsp;&nbsp;-> tval(50),<br>&nbsp;&nbsp;(7, 7)&nbsp;&nbsp;&nbsp;-> tval(49),<br>&nbsp;&nbsp;(-2, -1) -> tval(2),<br>&nbsp;&nbsp;(10, 20) -> tval(200)<br>)<br><br>table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)</code> |
+| truthTable | truth table for a tabulated test | <code>val multTable = truthTable(<br>&nbsp;&nbsp;(1, 4)&nbsp;&nbsp;&nbsp;-> tval(4),<br>&nbsp;&nbsp;(2, 6)&nbsp;&nbsp;&nbsp;-> tval(12),<br>&nbsp;&nbsp;(5, 10)&nbsp;&nbsp;-> tval(50),<br>&nbsp;&nbsp;(7, 7)&nbsp;&nbsp;&nbsp;-> tval(49),<br>&nbsp;&nbsp;(-2, -1) -> tval(2),<br>&nbsp;&nbsp;(10, 20) -> tval(200)<br>)</code> |
+| tval | truth table value | <code>(2, 6) -> tval(12)</code> |
+| table | tabulated test | <br>table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)</code> |
 | oneOrMore | create a NonEmptySeq | <code>override val tests = oneOrMore(test1, test2)</code> |
 ---
 

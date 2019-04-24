@@ -30,6 +30,7 @@ final case class AssertionPrinterSettings(
   padding: String,
   compositePrefix: String,
   failedPadding: String,
+  failedPaddingPrefix: String,
   failedContextPadding: String,
   failedContextElementPadding: String
 )
@@ -70,6 +71,7 @@ object PrinterSetting {
         padding = " " * 2,
         compositePrefix = "↓",
         failedPadding = " " * 4,
+        failedPaddingPrefix = "=>",
         failedContextPadding = " " * 7,
         failedContextElementPadding = " " * 10
       )

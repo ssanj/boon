@@ -106,8 +106,8 @@ object SimplePrinter {
   }
 
   private def errorLines(errors: NonEmptySeq[String], location: String, ps: PrinterSetting): String = {
-    s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${errors.head}")}${EOL}" +
-    errors.tail.map(error => s"${ps.assertion.failedPadding} ${ps.colourError(s"${error}")}").mkString(s"${EOL}") +
+    s"${ps.assertion.failedPadding} ${ps.colourError(s"${ps.assertion.failedPaddingPrefix} ${errors.head}")}${EOL}" +
+    errors.tail.map(error => s"${ps.assertion.failedContextPadding} ${ps.colourError(s"${error}")}").mkString(s"${EOL}") +
     (if (nonEmptyTail(errors)) EOL else "") +
     s"${ps.assertion.failedPadding} at ${location}"
   }
