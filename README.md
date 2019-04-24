@@ -192,6 +192,30 @@ If you want to run multiple Assertions on an expression you can do so with the `
 }
 ```
 
+### Tabulated Tests
+
+If you have a truth table of inputs against some expected output, you can create a tabulated test. Start off by creating a `truthTable`:
+
+```scala
+  val multTable =
+    truthTable(
+      (1, 4)   -> tval(4),
+      (2, 6)   -> tval(12),
+      (5, 10)  -> tval(50),
+      (7, 7)   -> tval(49),
+      (-2, -1) -> tval(2),
+      (10, 20) -> tval(200)
+    )
+```
+
+`multTable` defines a truth table that takes two `Ints` and produces an expected result which is also an `Int` (`tval`).
+
+You can then use the truth table within a `table` test:
+
+```scala
+val multTest = table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)
+```
+
 ## Extensions
 
 To use boon with your own custom types, you need three functions:
