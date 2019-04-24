@@ -2,7 +2,7 @@ package example
 
 import boon._
 
-object MyFirstSuite extends SuiteLike("Simple Stuff") {
+object MyFirstSuite extends SuiteLike("Simple Stuff") with Main {
 
   private val t1 = test("equality of things") {
     1 =?= 1             | "Int equality"    and
