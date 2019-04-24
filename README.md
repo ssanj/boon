@@ -59,7 +59,7 @@ For example:
 1 =?= 1 | "one is one"
 ```
 
-Assertions are first class constructs in boon and can be combined to give even more Assertions:
+Assertions are first class constructs in boon and can be combined with the `and` method to give even more Assertions:
 
 ```scala
 1 =?= 1             | "Int equality"    and
@@ -152,12 +152,12 @@ List.empty[String].isEmpty | "empty List is empty"
 
 The main difference is that if the Assertion fails you get a Boolean failure not a type-specific failure:
 
-```.bash
+```bash
 [info]    - empty List is empty [✗]
 [info]      => false != true
 ```
 
-With a Predicate, you can override the failure message to something more descriptive:
+With a Predicate, you can use the `>>` operator to override the failure message to something more descriptive:
 
 ```scala
 List.empty[String].isEmpty >> oneOrMore("empty List is not empty", "I expected empty!") | "empty List is empty"
@@ -165,10 +165,19 @@ List.empty[String].isEmpty >> oneOrMore("empty List is not empty", "I expected e
 
 Results in:
 
-```.bash
+```bash
 [info]    - empty List is empty [✗]
 [info]      => empty List is not empty
 [info]         I expected empty!
+```
+
+If you want to run multiple Assertions on an expression you can do so with the `%@` operator:
+
+```scala
+%@(List(1, 2, 3, 4, 5)) { list =>
+  list.sum =?= 15            | "list sum" and
+  list.take(2) =?= List(1,2) | "list take"
+}
 ```
 
 ## Extensions ##
@@ -183,7 +192,7 @@ These three functions are bundled into the `BoonType` typeclass.
 
 For instance, given a `Person` class:
 
-```.scala
+```scala
 final case class Name(value: String)
 final case class Age(value: Int)
 final case class Person(name: Name, age: Age)
@@ -191,7 +200,7 @@ final case class Person(name: Name, age: Age)
 
 you could use one of the helper functions on `BoonType` to generate a `default` instance:
 
-```.scala
+```scala
 implicit val personBoonType = BoonType.defaults[Person]
 ```
 
@@ -199,7 +208,7 @@ What `BoonType.defaults` does is to use scala's `==` for equality, `.toString` f
 
 After defining the above you can make Assertions on Person instances:
 
-```.scala
+```scala
 val p1 = Person(Name("Royd Eris"), Age(30))
 val p2 = Person(Name("Royd Eris"), Age(30))
 val p3 = Person(Name("Melantha Jhirl"), Age(26))
@@ -210,7 +219,7 @@ p2 =/= p3 | "Person instances with different data are not equal" and
 
 If we change `p1 =?= p3` we get:
 
-```.bash
+```bash
 [info]    - Person instances with same data are equal [✗]
 [info]      => Person(Name(Royd Eris),Age(30)) != Person(Name(Melantha Jhirl),Age(26))
 ```
