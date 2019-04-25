@@ -54,10 +54,11 @@ object SimplePrinter {
     case TestThrewOutput(name, error, trace, loc) =>
       val token = ps.test.tokens.common.failed
       val colouredTestName = ps.test.colour(name)
+      val location = correlateLocation(trace, loc).getOrElse("")
 
       s"${ps.test.padding} - ${colouredTestName} ${token}${EOL}" +
       exceptionTrace(ps, trace) +
-      s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} ${loc}"
+      s"${ps.assertion.failedPadding} ${ps.colourError(s"=> ${error}")} at ${location}"
 
     case TestIgnoredOutput(name) =>
       val token = ps.test.tokens.ignored
