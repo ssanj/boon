@@ -18,9 +18,19 @@ lazy val commonSettings = Seq(
                       "-Ywarn-nullary-override",
                       "-Ywarn-nullary-unit",
                       "-language:implicitConversions"
-                    )
-)
+                    ),
 
+  scalacOptions in (Compile, console) := Seq(
+                      "-encoding", "utf-8",
+                      "-unchecked",
+                      "-deprecation",
+                      "-explaintypes",
+                      "-feature",
+                      "-language:implicitConversions"
+  ),
+
+  scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
+)
 
 lazy val scalaReflect = Def.setting { "org.scala-lang" % "scala-reflect" % scalaVersion.value }
 
@@ -51,8 +61,3 @@ lazy val boonProj = (project in file(".")).
     commonSettings,
     name := "boon-project",
   ).aggregate(boonMacro, boon)
-
-
-// scalacOptions in (Compile, console) --= Seq("-Xfatal-warnings", "-Ywarn-unused-import")
-
-// scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
