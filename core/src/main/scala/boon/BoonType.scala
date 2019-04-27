@@ -26,8 +26,32 @@ object BoonType {
   }
 
   def defaults[A]: BoonType[A] = {
-    implicit val sRep = StringRep.genericStringRep[A]
-    BoonType.from[A](Equality.genericEquality[A].eql, sRep.strRep, Difference.genericDifference[A].diff)
+    val sRep = StringRep.genericStringRep[A]
+    BoonType.from[A](Equality.genericEquality[A].eql, sRep.strRep, Difference.genericDifference[A](sRep).diff)
+  }
+
+  def caseClass[A <: Product : CaseClassToMap]: BoonType[A] = {
+    val sRep = StringRep.from[A]{ caseClass =>
+      val fields = CaseClassToMap[A].asMap(caseClass)
+      fields.map { case (k, v) => s"${k}=${v}" }.
+        mkString(s"${caseClass.productPrefix}(", ",", ")")
+    }
+
+    val equality = Equality.genericEquality[(String, String)]
+
+    val diff = Difference.from[A] { (a1, a2) =>
+      import scala.collection.immutable.TreeMap
+
+      val fields1 = TreeMap[String, String]() ++: (implicitly[CaseClassToMap[A]].asMap(a1))
+      val fields2 = TreeMap[String, String]() ++: (implicitly[CaseClassToMap[A]].asMap(a2))
+
+      val diffFields = fields1.zip(fields2).filter { case (f1, f2) => equality.neql(f1, f2) }
+
+      val genericDifferences = Difference.genericDifference[A](sRep).diff(a1, a2)
+      genericDifferences ++ diffFields.toSeq.map{ case ((k1, v1), (_, v2)) => s"${k1}: ${v1} != ${v2}" }
+    }
+
+    BoonType.from[A](Equality.genericEquality[A].eql, sRep.strRep, diff.diff)
   }
 
   def defaultsWithEquality[A](equality: (A, A) => Boolean): BoonType[A] = {

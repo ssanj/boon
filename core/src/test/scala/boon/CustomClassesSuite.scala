@@ -6,9 +6,9 @@ object CustomClassesSuite extends SuiteLike("CustomClasses") {
   final case class Age(value: Int)
   final case class Person(name: Name, age: Age)
 
-  private implicit val personBoonType = BoonType.defaults[Person]
   private implicit val ageBoonType    = BoonType.defaults[Age]
   private implicit val nameBoonType   = BoonType.defaults[Name]
+  private implicit val personBoonType = BoonType.caseClass[Person]
 
   private val t1 = test("use default TC instances") {
 
