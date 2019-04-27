@@ -56,7 +56,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
     fail(s"single assertion failed but expected an assertion: $name") | "assertionOutput type"
   }
 
-  override val tests = NonEmptySeq.nes(t1)
+  override val tests = one(t1)
 }
 
 object ContextOnErrorFixture {
