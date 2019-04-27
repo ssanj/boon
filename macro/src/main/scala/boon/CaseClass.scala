@@ -21,15 +21,20 @@ object CaseClassToMap {
     import c.universe._
     val tpe = weakTypeOf[T]
     if (STry(tpe.typeSymbol.asClass.isCaseClass).getOrElse(false)) {
-      val names = tpe.decls.collect {
-        case m: MethodSymbol if m.isCaseAccessor =>
-          val field = q"${m.name.decodedName.toString}"
-          val t = TermName("t")// name of the parameter in the CaseClassToMap#asMap method
-          val value = q"${t} ${m.name}"
-          val returnType = m.returnType
-          val strValue = q"_root_.boon.model.StringRep[$returnType].strRep($value)"
+      val caseClassAccessors = tpe.decls.collectFirst{
+        case m: MethodSymbol if m.isPrimaryConstructor => m
+      }.get.paramLists.head
 
-          (field, strValue)
+     val names = caseClassAccessors.map { accessor =>
+        val accessorName = accessor.name
+        val field = accessorName.decodedName.toString
+        val t = TermName("t")// name of the parameter in the CaseClassToMap#asMap method
+        val value = q"${t} ${accessorName.toTermName}"
+        val returnType = tpe.decl(accessorName).typeSignature
+
+        val strValue = q"_root_.boon.model.StringRep[$returnType].strRep($value)"
+
+        (field, strValue)
       }
 
       val mapTree = q"_root_.scala.collection.immutable.Map[String, String](..$names)"

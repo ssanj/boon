@@ -42,8 +42,8 @@ object BoonType {
     val diff = Difference.from[A] { (a1, a2) =>
       import scala.collection.immutable.TreeMap
 
-      val fields1 = TreeMap[String, String]() ++: (implicitly[CaseClassToMap[A]].asMap(a1))
-      val fields2 = TreeMap[String, String]() ++: (implicitly[CaseClassToMap[A]].asMap(a2))
+      val fields1 = TreeMap[String, String]() ++ (implicitly[CaseClassToMap[A]].asMap(a1)).toVector
+      val fields2 = TreeMap[String, String]() ++ (implicitly[CaseClassToMap[A]].asMap(a2)).toVector
 
       val diffFields = fields1.zip(fields2).filter { case (f1, f2) => equality.neql(f1, f2) }
 
