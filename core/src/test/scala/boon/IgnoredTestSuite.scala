@@ -3,6 +3,9 @@ package boon
 import boon.model.TestName
 import boon.model.TestIgnoredResult
 import BoonAssertions.failWith
+import BoonAssertions.Expected
+import BoonAssertions.Got
+import BoonAssertions.Desc
 
 object IgnoredTestSuite extends SuiteLike("BoonSuite") {
 
@@ -14,7 +17,7 @@ object IgnoredTestSuite extends SuiteLike("BoonSuite") {
 
     Boon.runTest(tx) match {
       case TestIgnoredResult(TestName(name)) => name =?= "A test that is ignored" | "test name"
-      case other => failWith("TestIgnoredResult", other, "test result type")
+      case other => failWith(Expected("TestIgnoredResult"), Got(other), Desc("test result type"))
     }
   }
 

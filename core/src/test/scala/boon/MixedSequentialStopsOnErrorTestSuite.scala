@@ -11,6 +11,9 @@ import boon.model.StoppedOnFirstFailed
 import boon.model.CompositeTestResult
 import BoonAssertions.assertSequentialPass
 import BoonAssertions.failWith
+import BoonAssertions.Expected
+import BoonAssertions.Got
+import BoonAssertions.Desc
 import syntax.exception._
 
 object MixedSequentialStopsOnErrorTestSuite extends SuiteLike("BoonSuite") {
@@ -39,7 +42,7 @@ object MixedSequentialStopsOnErrorTestSuite extends SuiteLike("BoonSuite") {
         notRun.length =?= 1                       | "no of notRun assertions"                  and
         notRun(0).name.value =?= "falsism"        | "not run assertion name"
 
-      case other => failWith("CompositeTestResult/StoppedOnFirstFailed/SequentialThrew", other, "test result type")
+      case other => failWith(Expected("CompositeTestResult/StoppedOnFirstFailed/SequentialThrew"), Got(other), Desc("test result type"))
     }
   }
 

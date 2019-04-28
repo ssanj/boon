@@ -6,6 +6,9 @@ import boon.model.AllPassed
 import boon.model.CompositeTestResult
 import BoonAssertions.assertSequentialPass
 import BoonAssertions.failWith
+import BoonAssertions.Expected
+import BoonAssertions.Got
+import BoonAssertions.Desc
 
 object SuccessfulSequentialTestSuite extends SuiteLike("BoonSuite") {
 
@@ -42,7 +45,7 @@ object SuccessfulSequentialTestSuite extends SuiteLike("BoonSuite") {
           assertSequentialPass("contains")(p(3))
         }
 
-      case other => failWith("CompositeTestResult", other, "test result type")
+      case other => failWith(Expected("CompositeTestResult"), Got(other), Desc("test result type"))
     }
   }
 

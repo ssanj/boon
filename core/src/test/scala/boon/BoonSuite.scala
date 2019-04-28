@@ -13,6 +13,9 @@ import boon.model.SuiteName
 import boon.model.SuiteResult
 import BoonAssertions.assertAssertionResultPassed
 import BoonAssertions.failWith
+import BoonAssertions.Expected
+import BoonAssertions.Got
+import BoonAssertions.Desc
 
 object BoonSuite extends SuiteLike("BoonSuite") {
 
@@ -36,7 +39,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
           %@(tr(1), "test2")(assertSingleTestResult("int test", "addition"))
         }
 
-       case other => failWith("SuiteResult with 2 tests", other, "suite type")
+       case other => failWith(Expected("SuiteResult with 2 tests"), Got(other), Desc("suite type"))
     }
   }
 
@@ -45,7 +48,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
       tName =?= testName             | "test name"           and
       assertionResults.length =?= 1  | "no of assertions"    and
       assertAssertionResultPassed(assertionName)(assertionResults.toSeq(0))
-    case other => failWith("SingleTestResult", other, "test type")
+    case other => failWith(Expected("SingleTestResult"), Got(other), Desc("test type"))
   }
 
   private def createSuite(name: => String)(tests: NonEmptySeq[Test]): DeferredSuite =

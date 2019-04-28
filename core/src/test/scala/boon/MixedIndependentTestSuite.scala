@@ -10,6 +10,9 @@ import BoonAssertions.failWith
 import BoonAssertions.assertAssertionResultPassed
 import BoonAssertions.assertAssertionResultFailed
 import BoonAssertions.assertAssertionResultThrew
+import BoonAssertions.Expected
+import BoonAssertions.Got
+import BoonAssertions.Desc
 
 object MixedIndependentTestSuite extends SuiteLike("BoonSuite") {
 
@@ -33,7 +36,7 @@ object MixedIndependentTestSuite extends SuiteLike("BoonSuite") {
           )(ar(2))
         }
 
-      case other => failWith("SingleTestResult", other, "test result type")
+      case other => failWith(Expected("SingleTestResult"), Got(other), Desc("test result type"))
     }
   }
   override val tests = oneOrMore(t1)

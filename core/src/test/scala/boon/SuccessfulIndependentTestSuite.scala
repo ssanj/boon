@@ -6,6 +6,9 @@ import boon.model.DeferredTest
 import boon.model.SingleTestResult
 import BoonAssertions.failWith
 import BoonAssertions.assertAssertionResultPassed
+import BoonAssertions.Expected
+import BoonAssertions.Got
+import BoonAssertions.Desc
 
 object SuccessfulIndependentTestSuite extends SuiteLike("BoonSuite") {
 
@@ -25,7 +28,7 @@ object SuccessfulIndependentTestSuite extends SuiteLike("BoonSuite") {
           (assertAssertionResultPassed("reverse")(ar(2)))
         } seq()
 
-      case other => failWith(s"SingleTestResult", other, "test result type")
+      case other => failWith(Expected(s"SingleTestResult"), Got(other), Desc("test result type"))
     }
   }
 

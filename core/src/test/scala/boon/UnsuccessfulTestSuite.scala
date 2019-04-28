@@ -9,6 +9,9 @@ import boon.result.Exception.getTraces
 import syntax.exception._
 import syntax.regex._
 import BoonAssertions.failWith
+import BoonAssertions.Expected
+import BoonAssertions.Got
+import BoonAssertions.Desc
 
 object UnsuccessfulTestSuite extends SuiteLike("BoonSuite") {
 
@@ -28,11 +31,11 @@ object UnsuccessfulTestSuite extends SuiteLike("BoonSuite") {
           trace.className =^= "^boon.UnsuccessfulTestSuite".r    | "class name"      and
           trace.fileName =?= Some("UnsuccessfulTestSuite.scala") | "fileName"        and
           trace.methodName =^= "^createTestData".r               | "method name"     and
-          trace.lineNumber =?= Some(17)                          | "line no"
+          trace.lineNumber =?= Some(20)                          | "line no"
         }                                                                            and
-        loc.line =?= 19                                          | "error location"
+        loc.line =?= 22                                          | "error location"
 
-      case other => failWith("TestThrewResult", other, "test result type")
+      case other => failWith(Expected("TestThrewResult"), Got(other), Desc("test result type"))
     }
   }
 
