@@ -14,6 +14,7 @@ import BoonAssertions.assertSequentialPass
 import BoonAssertions.Expected
 import BoonAssertions.Got
 import BoonAssertions.Desc
+import BoonAssertions.seqElements1
 
 object MixedSequentialStopsOnFailureTestSuite extends SuiteLike("BoonSuite") {
 
@@ -39,10 +40,8 @@ object MixedSequentialStopsOnFailureTestSuite extends SuiteLike("BoonSuite") {
         failedAssertionName =?= "falsism" | "failed assertion"      and
         failedAssertionName =?= aName | "assertion name"            and
         errors =?= oneOrMore("false != true") | "failure reason"    and
-        passed.length =?= 1 | "no of passed assertions"             and
-        assertSequentialPass("truism")(passed(0))                   and
-        notRun.length =?= 1 | "no of notRun assertions"             and
-        notRun(0).name.value =?= "error" | "not run assertion name"
+        seqElements1(passed, "passed")(assertSequentialPass("truism")) and
+        seqElements1(notRun, "notRun")(_.name.value =?= "error" | "not run assertion name")
 
       case other => failWith(Expected("CompositeTestResult/StoppedOnFirstFailed/SequentialFail"), Got(other), Desc("test result type"))
     }

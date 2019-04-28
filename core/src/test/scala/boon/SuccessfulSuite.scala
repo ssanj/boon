@@ -8,6 +8,8 @@ import result.AssertionOutput
 import result.TestPassedOutput
 import result.TestThrewOutput
 import result.TestIgnoredOutput
+import BoonAssertions.nesElements1
+import BoonAssertions.nesElements2
 
 object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
 
@@ -27,26 +29,27 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
     }
 
     runResult.fold[TestData]( po =>
-      assertTestOutput(po.toSeq),
+      assertTestOutput(po),
       unexpectedFailedOutput(f => s"expected only successful tests but got: ${f}", "test type"),
       unexpectedMixedOutput((f, p) => s"expected only successful tests but got both: ${f} and ${p}", "test type")
     )
   }
 
-  private def assertTestOutput(passed: Seq[XPassedOutput]): TestData = {
+  private def assertTestOutput(passed: NonEmptySeq[XPassedOutput]): TestData = {
     pass | "test type" and
-    passed.length =?= 2 | "no of tests" and %@(passed(0)) { test1 =>
-      test1.name =?= "String.length" | "test1.name" and %@(test1.assertions.toSeq) { assertions1 =>
-        assertions1.length =?= 2 | "no of test1.assertions" and
-        SuiteOutput.assertionName(assertions1(0)) =?= "empty" | "test1.assertion1.name" and
-        SuiteOutput.assertionName(assertions1(1)) =?= "hello" | "test1.assertion2.name"
-      }
-    } and %@(passed(1)) { test2 =>
-      test2.name =?= "String.reverse" | "test2.name" and %@(test2.assertions.toSeq) { assertions2 =>
-        assertions2.length =?= 1 | "no of test2.assertions" and
-        SuiteOutput.assertionName(assertions2(0)) =?= "Hola" | "test2.assertion2.name"
-      }
-    } seq()
+    nesElements2(passed, "passed")(
+      test1 =>
+        test1.name =?= "String.length" | "test.name" and
+        nesElements2(test1.assertions, "tests")(
+          assertions1 => SuiteOutput.assertionName(assertions1) =?= "empty" | "assertion.name",
+          assertions2 => SuiteOutput.assertionName(assertions2) =?= "hello" | "assertion.name"
+        )
+      , test2 =>
+        test2.name =?= "String.reverse" | "test.name" and
+        nesElements1(test2.assertions, "tests")(
+          assertions2 => SuiteOutput.assertionName(assertions2) =?= "Hola" | "assertion.name"
+        )
+    )
   }
 
   private def unexpectedFailedOutput(message: NonEmptySeq[XFailedOutput] => String,

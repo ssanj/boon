@@ -9,6 +9,7 @@ import BoonAssertions.assertAssertionResultPassed
 import BoonAssertions.Expected
 import BoonAssertions.Got
 import BoonAssertions.Desc
+import BoonAssertions.nesElements3
 
 object SuccessfulIndependentTestSuite extends SuiteLike("BoonSuite") {
 
@@ -21,12 +22,12 @@ object SuccessfulIndependentTestSuite extends SuiteLike("BoonSuite") {
 
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults) =>
-        name =?= "String test" | "test name"               and
-        assertionResults.length =?= 3 | "no of assertions" and %@(assertionResults.toSeq) { ar =>
-          (assertAssertionResultPassed("concat")(ar(0)))   and
-          (assertAssertionResultPassed("length")(ar(1)))   and
-          (assertAssertionResultPassed("reverse")(ar(2)))
-        } seq()
+        name =?= "String test" | "test name" and
+        nesElements3(assertionResults, "results")(
+          assertAssertionResultPassed("concat"),
+          assertAssertionResultPassed("length"),
+          assertAssertionResultPassed("reverse")
+        ) seq()
 
       case other => failWith(Expected(s"SingleTestResult"), Got(other), Desc("test result type"))
     }

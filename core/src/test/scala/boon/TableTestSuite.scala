@@ -5,6 +5,7 @@ import boon.model.AssertionTriple
 import boon.model.AssertionResult
 import boon.model.AssertionResultPassed
 import boon.model.SingleAssertionResult
+import boon.BoonAssertions.nesElements4
 import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
@@ -31,12 +32,12 @@ object TableTestSuite extends SuiteLike("Table Test Suite") {
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
         name =?= "addition table" | "test name" and
-        assertions.length =?= 4   | "no of assertions" and %@(assertions.toSeq) { as =>
-          as(0).name.value =?= "with (1, 1) is 2" | "index1" and
-          as(1).name.value =?= "with (1, 2) is 3" | "index2" and
-          as(2).name.value =?= "with (1, 3) is 4" | "index3" and
-          as(3).name.value =?= "with (2, 3) is 5" | "index4"
-        } and
+        nesElements4(assertions, "truthTable")(
+          _.name.value =?= "with (1, 1) is 2" | "val",
+          _.name.value =?= "with (1, 2) is 3" | "val",
+          _.name.value =?= "with (1, 3) is 4" | "val",
+          _.name.value =?= "with (2, 3) is 5" | "val"
+        ) and
         assertionResults.toSeq.forall {
           case SingleAssertionResult(AssertionResultPassed(_)) =>  true
           case _ => false
@@ -61,12 +62,12 @@ object TableTestSuite extends SuiteLike("Table Test Suite") {
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
         name =?= "addition table" | "test name" and
-        assertions.length =?= 4   | "no of assertions" and %@(assertions.toSeq) { as =>
-          as(0).name.value =?= "with (1, 1) is 2" | "index1" and
-          as(1).name.value =?= "with (1, 2) is 3" | "index2" and
-          as(2).name.value =?= "with (1, 3) is 2" | "index3" and
-          as(3).name.value =?= "with (2, 3) is 5" | "index4"
-        } and
+        nesElements4(assertions, "truthTable")(
+          _.name.value =?= "with (1, 1) is 2" | "val",
+          _.name.value =?= "with (1, 2) is 3" | "val",
+          _.name.value =?= "with (1, 3) is 2" | "val",
+          _.name.value =?= "with (2, 3) is 5" | "val"
+        ) and
         %@(assertionResults.partition[String, String] {
           case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(name), _, _))) =>  Left[String, String](name)
           case other => Right[String, String](AssertionResult.assertionNameFromResult(other).value)

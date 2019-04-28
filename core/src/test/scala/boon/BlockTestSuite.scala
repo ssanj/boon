@@ -1,10 +1,10 @@
 package boon
 
-import boon.model.Assertion
 import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
 import boon.BoonAssertions.failWith
+import boon.BoonAssertions.nesElements2
 import boon.model.AssertionResult
 import boon.model.SingleAssertionResult
 import boon.model.AssertionResultPassed
@@ -26,9 +26,9 @@ object BlockSuite extends SuiteLike("Block Test Suite") {
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
         name =?= "my block test" | "test name" and
-        nesElements[Assertion](assertions, 2, as =>
-          as(0).name.value =?= "length"  | "assertion" and
-          as(1).name.value =?= "reverse" | "assertion"
+        nesElements2(assertions, "assertions")(
+          _.name.value =?= "length"  | "assertion",
+          _.name.value =?= "reverse" | "assertion"
         ) and assertionResults.toSeq.forall {
           case SingleAssertionResult(AssertionResultPassed(_)) =>  true
           case _ => false

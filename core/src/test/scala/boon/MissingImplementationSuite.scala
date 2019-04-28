@@ -10,8 +10,9 @@ import result.Trace
 import model.TestState
 import model.AssertionData
 import model.internal.instances._
+import BoonAssertions.nesElements3
 
-object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite") {
+object MissingImplementationSuite extends SuiteLike("Missing Implementation Suite") {
 
   private val t1 = test("can handle missing implementations") {
       val so    = MissingImplFixtures.run
@@ -23,17 +24,13 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
   }
 
   private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], state: TestState): AssertionData = {
-    val assertions = t1assertions.toSeq
-
-    name =?= "test for missing implementations" | "test name" and
-    assertions.length =?= 3 | "no of assertions" and
-    state =?= TestState.Failed | "test failed" and %@(assertions(0)) {
-      asserNotImplementedTest("Boolean test", 14)
-    } and %@(assertions(1)) {
-      asserNotImplementedTest("Int test", 15)
-    } and %@(assertions(2)) {
+    name =?= "test for missing implementations" | "test name"    and
+    state =?= TestState.Failed                  | "test failed"  and
+    nesElements3(t1assertions, "assertions")(
+      asserNotImplementedTest("Boolean test", 14),
+      asserNotImplementedTest("Int test", 15),
       asserNotImplementedTest("Unsafe test", 16)
-    }
+    )
   }
 
   private def asserNotImplementedTest(expectedName: String, expectedLoc: Int)(ao: AssertionOutput): AssertionData = {
@@ -50,12 +47,14 @@ object MissingImplementationSuite extends SuiteLike("MissingImplementationSuite"
 
   private def assertionFailed(expectedName: String, expectedLoc: Int)(name: String, errors: NonEmptySeq[String],
     context: Map[String, String], loc: SourceLocation): AssertionData = {
-    pass | s"${expectedName}.assertionOutput type" and
-    name =?= expectedName | s"${expectedName}.assertion name" and
-    errors =?= one("an implementation is missing") | s"${expectedName}.assertion error" and
-    SuiteOutput.sourceLocation(loc).fold(
-      fail("expected SourceLocation") | s"${expectedName}.error location"
-    )(loc => loc.endsWith(s"ToBeImplementedSuite.scala:${expectedLoc}") | (s"${expectedName}.error location", s"${expectedName}.loc" -> loc))
+    %@((), expectedName) { _ =>
+     pass | "assertionOutput type" and
+      name =?= expectedName | "assertion name" and
+      errors =?= one("an implementation is missing") | "assertion error" and
+      SuiteOutput.sourceLocation(loc).fold(
+        fail("expected SourceLocation") | "error location"
+      )(loc => loc.endsWith(s"ToBeImplementedSuite.scala:${expectedLoc}") | (s"${expectedName}.error location", s"${expectedName}.loc" -> loc))
+    }
   }
 
   private def assertionPassed(name: String): AssertionData = {
