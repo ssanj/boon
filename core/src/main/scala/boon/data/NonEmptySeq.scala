@@ -31,6 +31,20 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
     NonEmptySeq(reversed.head, reversed.tail)
   }
 
+  //Adapted from Cats NonEmptyList
+  //https://github.com/typelevel/cats/blob/master/core/src/main/scala/cats/data/NonEmptyList.scala
+  def zipWithIndex: NonEmptySeq[(A, Int)] = {
+    val bldr = Vector.newBuilder[(A, Int)]
+    var idx = 1
+    val it = tail.iterator
+    while (it.hasNext) {
+      bldr += ((it.next, idx))
+      idx += 1
+    }
+
+    NonEmptySeq((head, 0), bldr.result)
+  }
+
   def foreach(f: A => Unit): Unit = {
    val _ = map(f)
    ()
@@ -39,6 +53,8 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
   def toSeq: Seq[A] = head +: tail
 
   def toList: List[A] = head +: tail.toList
+
+  def toVector: Vector[A] = head +: tail.toVector
 
   def length: Int = tail.length + 1
 

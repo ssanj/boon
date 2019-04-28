@@ -2,6 +2,7 @@ package object boon {
 
 import boon.model._
 import boon.data.NonEmptySeq
+import boon.data.Numbered
 
 import scala.util.Try
 
@@ -49,6 +50,8 @@ import scala.util.Try
 
   def one[A](head: A): NonEmptySeq[A] = NonEmptySeq.nes[A](head)
 
+  val numbered = Numbered
+
   //implicits
   implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
 
@@ -78,21 +81,45 @@ import scala.util.Try
 
   def pass: Predicate[Boolean] = true
 
-  def %@[A](provide: => A, prefix: String*)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
-    assertionBlock(cs(provide), prefix:_*)(loc)
+  def nesElements[A](elements: NonEmptySeq[A], no: Int, f: Seq[A] => AssertionData): AssertionData = {
+    elements.length =?= no | "no of elements" and
+    %@(elements.toSeq, "element")(f)
+  }
 
-  private def assertionBlock(cs: => AssertionData, prefix: String*)(implicit loc: SourceLocation): AssertionData = {
+  def nesElementsIndexed[A](elements: NonEmptySeq[A], no: Int, f: Seq[A] => AssertionData): AssertionData = {
+    elements.length =?= no | "no of elements" and
+    %@(elements.toSeq, "element", numbered)(f)
+  }
+
+  def %@[A](provide: => A)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
+    assertionBlock(cs(provide), None, false)(loc)
+
+  def %@[A](provide: => A, prefix: String)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
+    assertionBlock(cs(provide), Option(prefix), false)(loc)
+
+  def %@[A](provide: => A, prefix: String, numbered: Numbered.type)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
+    assertionBlock(cs(provide), Option(prefix), true)(loc)
+
+  private def assertionBlock(cs: => AssertionData, prefixOp: Option[String], numbered: Boolean)(implicit loc: SourceLocation): AssertionData = {
     val nameOp = for {
       fn  <- loc.fileName
     } yield s"assertion @ (${fn}:${loc.line})"
 
-    val path = if (prefix.isEmpty) "" else prefix.mkString("",".", ".")
-    val name = nameOp.fold(s"assertion @ ${path}(-:${loc.line})")(identity _)
+    val namePath = prefixOp.getOrElse("")
+    val name = nameOp.fold(s"assertion @ ${namePath}(-:${loc.line})")(identity _)
     Try(cs).fold(ex => {
       defer[Boolean](throw ex) | s"${name} !!threw an Exception!!" //safe because it is deferred
     }, { ad =>
+      val newAd =
+        if (numbered) {
+          val path = prefixOp.getOrElse("")
+          ad.assertions.zipWithIndex.map { case (assertion, index) => assertion.copy(name = AssertionName(s"${path}[${index}].${assertion.name.value}")) }
+        } else {
+          val path = prefixOp.fold("")(p => s"${p}.")
+          ad.assertions.map(assertion => assertion.copy(name = AssertionName(s"${path}${assertion.name.value}")))
+        }
 
-      AssertionData(ad.assertions.map(assertion => assertion.copy(name = AssertionName(s"${path}${assertion.name.value}"))))
+      AssertionData(newAd)
     })
   }
 }
