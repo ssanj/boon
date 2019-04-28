@@ -70,6 +70,10 @@ import scala.util.Try
   implicit def deferBooleanToPredicate(value: Defer[Boolean]): Predicate[Boolean] =
     new Predicate[Boolean]((value, defer(true)), IsEqual, noErrorOverrides)
 
+  implicit class StringRepSyntax[A](value: => A) {
+    def strRep(implicit strRepA: StringRep[A]): String = strRepA.strRep(value)
+  }
+
   def fail(reason: String): Predicate[Boolean] = false >> one(s"explicit fail: $reason")
 
   def pass: Predicate[Boolean] = true
