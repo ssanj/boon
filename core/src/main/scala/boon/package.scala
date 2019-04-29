@@ -55,11 +55,11 @@ import scala.util.Try
   implicit def deferAToEqSyntax[A](dValue: Defer[A]): EqSyntax[A] =
     new EqSyntax[A](dValue.run) //this is safe because EqSyntax is lazy
 
-  implicit def toAssertionDataFromSeqOfAssertionData(AssertionDataes: NonEmptySeq[AssertionData]): AssertionData =
-    AssertionDataes.tail.foldLeft(AssertionDataes.head)(_ and _)
+  implicit def toAssertionDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): AssertionData =
+    assertionDatas.tail.foldLeft(assertionDatas.head)(_ and _)
 
-  implicit def toTestDataFromSeqOfAssertionData(AssertionDataes: NonEmptySeq[AssertionData]): TestData =
-    toTestData(toAssertionDataFromSeqOfAssertionData(AssertionDataes))
+  implicit def toTestDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): TestData =
+    toTestData(toAssertionDataFromSeqOfAssertionData(assertionDatas))
 
   implicit def toTestData(AssertionData: AssertionData): TestData =
     TestData(AssertionData.assertions, Independent)
@@ -89,9 +89,9 @@ import scala.util.Try
       fn  <- loc.fileName
     } yield s"assertion @ (${fn}:${loc.line})"
 
-    val namePath = prefixOp.getOrElse("")
+    val namePath = prefixOp.fold("")(_ + " ")
     val name = nameOp.fold(s"assertion @ ${namePath}(-:${loc.line})")(identity _)
-    Try(cs).fold(ex => {
+    Try(cs).fold[AssertionData](ex => {
       defer[Boolean](throw ex) | s"${name} !!threw an Exception!!" //safe because it is deferred
     }, { ad =>
         val path  = prefixOp.fold("")(p => s"${p}.")

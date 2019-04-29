@@ -1,9 +1,12 @@
 package boon
 
+import boon.model.AssertionData
+import boon.model.Test
 import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
 import boon.BoonAssertions.failWith
+import boon.BoonAssertions.nesElements1
 import boon.BoonAssertions.nesElements2
 import boon.model.AssertionResult
 import boon.model.SingleAssertionResult
@@ -39,5 +42,40 @@ object BlockSuite extends SuiteLike("Block Test Suite") {
     }
   }
 
-  override val tests = oneOrMore(t1)
+  private def createSingleTest(testName: String, prefixOp: Option[String]): Test = {
+    test(testName) {
+      prefixOp.fold({
+        %@("testing") { testing =>
+          testing.length =?= 7 | "length"
+        }
+      })({ prefix =>
+        %@("testing", prefix) { testing =>
+          testing.length =?= 7 | "length"
+        }
+      })
+    }
+  }
+
+  private val t2 = test("prepends prefix") {
+    val tx = createSingleTest("my other block test", Some("test"))
+    assertSuccess(tx, "my other block test", "test.length")
+  }
+
+  private val t3 = test("without prefix") {
+    val tx = createSingleTest("my other other block test", None)
+    assertSuccess(tx, "my other other block test", "length")
+  }
+
+  private def assertSuccess(test: Test, testName: String, assertionName: String): AssertionData = {
+    Boon.runTest(test) match {
+      case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
+        name =?= testName | "test name" and
+        nesElements1(assertions, "block")(
+          _.name.value =?= assertionName  | "assertion",
+        )
+      case other => failWith(Expected("SingleTestResult"),  Got(other), Desc("test type"))
+    }
+  }
+
+  override val tests = oneOrMore(t1, t2, t3)
 }
