@@ -35,7 +35,7 @@ You can now run all the usual `sbt` test commands such as: `test` and `testOnly`
 
 ### Predicate
 
-At the heart of boon, is a **Predicate**. A predicate is a boolean expression. The most basic way of creating a predicate in boon, is by testing two values for equality:
+At the heart of boon, is a **Predicate**. A Predicate is a boolean expression. The most basic way of creating a Predicate in boon, is by testing two values for equality:
 
 ```scala
 actualValue =?= expectedValue
@@ -51,7 +51,7 @@ For example to test two Int operands for equality:
 
 ### Assertion
 
-A predicate with a description is an **Assertion**:
+A Predicate with a description is an **Assertion**:
 
 ```scala
 actualValue =?= expectedValue | "description"
@@ -142,7 +142,7 @@ Running the above **Suite** produces the following output:
 
 ![boon-output](images/boon-my-first-suite.png)
 
-Let's update our String equality predicate so it fails:
+Let's update our String equality Predicate so it fails:
 
 ```scala
 "Hello" =?= "Yello" | "String equality"
@@ -192,6 +192,24 @@ If you want to run multiple Assertions on an expression you can do so with the `
 }
 ```
 
+In addition each block can be given a prefix:
+
+```scala
+%@(List(1, 2, 3, 4, 5), "list") { list =>
+  list.sum =?= 15            | "sum" and
+  list.take(2) =?= List(1,2) | "take"
+}
+```
+
+results in the prefix prepended to each Assertion description:
+
+```
+[info]    - list.sum [✓]
+[info]    - list.take [✓]
+```
+
+_When nesting blocks with prefixes, lower blocks will have the prefix of each upper block prepended to their Assertions_.
+
 ### Contextual Errors
 
 Sometimes when a test fails you want more information about the values of certain variables used to calculate the result. You can specify these values when creating an Assertion:
@@ -239,6 +257,8 @@ Results in:
 
 Notice that although, the **Int equality** Assertion failed, the other Assertions completed successfully.
 
+Independent Assertions are shown with a '-' in the output.
+
 Although unnecessary, you could explicitly define a Test as Independent with the `ind()` method:
 
 ```scala
@@ -273,6 +293,8 @@ If we ran the above, it would fail with:
 ```
 
 Notice that the **String equality** and **Boolean equality** Assertions did not run after the **Int equality** Assertion failed.
+
+Sequential Assertions are shown with a '↓' symbol in the output.
 
 ### Tabulated Tests
 
