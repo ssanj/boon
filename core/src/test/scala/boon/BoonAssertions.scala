@@ -26,7 +26,7 @@ private[boon] object BoonAssertions {
 
   def assertAssertionResultPassed(assertionName: String)(ar: AssertionResult): AssertionData = {
       ar match {
-        case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(aName), context, _))) =>
+        case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(aName), _, _))) =>
           aName =?= assertionName | s"assertion name of '$assertionName'"
         case other => failWith(Expected("SingleAssertionResult/AssertionResultPassed"), Got(other), Desc("assertion result type"))
       }
@@ -38,7 +38,7 @@ private[boon] object BoonAssertions {
 
   def assertAssertionResultFailed(assertionName: String)(ar: AssertionResult): AssertionData = {
       ar match {
-        case SingleAssertionResult(AssertionResultFailed(AssertionError(Assertion(AssertionName(aName), _, _, _), errors))) =>
+        case SingleAssertionResult(AssertionResultFailed(AssertionError(Assertion(AssertionName(aName), _, _, _), _))) =>
           aName =?= assertionName | s"assertion name of $assertionName"
         case other => failWith(Expected("SingleAssertionResult/AssertionResultFailed"), Got(other), Desc("assertion result type"))
       }

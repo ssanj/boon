@@ -29,7 +29,7 @@ import scala.util.Try
 
 
   def xtest(name: => String)(data: => TestData): Test = {
-    IgnoredTest(TestName(name))
+    IgnoredTest(TestName(name), defer(data))
   }
 
   def defer[A](value: => A): Defer[A] = Defer[A](() => value)

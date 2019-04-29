@@ -11,7 +11,7 @@ final case class ThrownTest(name: TestName, error: Throwable, loc: SourceLocatio
 sealed trait Test
 final case class SuccessfulTest(test: DeferredTest) extends Test
 final case class UnsuccessfulTest(test: ThrownTest) extends Test
-final case class IgnoredTest(test: TestName) extends Test
+final case class IgnoredTest(test: TestName, data: Defer[TestData]) extends Test
 
 sealed trait CompositeTestResultState
 final case class AllPassed(name: TestName, pass: NonEmptySeq[SequentialPass]) extends CompositeTestResultState

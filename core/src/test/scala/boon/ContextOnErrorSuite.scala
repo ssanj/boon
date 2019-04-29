@@ -25,7 +25,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
     fail(s"test ignored: $name") | "testoutput type"
   }
 
-  private def testThrew(name: String, error: String, trac: Seq[Trace], loc: SourceLocation): AssertionData = {
+  private def testThrew(name: String, @unused error: String, @unused trac: Seq[Trace], @unused loc: SourceLocation): AssertionData = {
     fail(s"test threw: $name") | "testoutput type"
   }
 
@@ -38,7 +38,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
                            assertSequentialFailure)
   }
 
-  private def assertFailure(name: String, errors: NonEmptySeq[String], context: Map[String, String], loc: SourceLocation): AssertionData = {
+  private def assertFailure(name: String, errors: NonEmptySeq[String], context: Map[String, String], @unused loc: SourceLocation): AssertionData = {
       name    =?= "Frodo is a hobbit"      | "assertion.name"  and
       errors  =?= one("false != true")     | "assertion.error" and
       context =?= Map(
@@ -48,11 +48,11 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
 
   private def assertSuccess(name: String): AssertionData = fail(s"assertion passed : $name") | "assertionOutput type"
 
-  private def assertSequentialSuccess(name: String, passed: NonEmptySeq[SequentialPassData]): AssertionData = {
+  private def assertSequentialSuccess(name: String, @unused passed: NonEmptySeq[SequentialPassData]): AssertionData = {
     fail(s"single assertion passed but expected an assertion: $name") | "assertionOutput type"
   }
 
-  private def assertSequentialFailure(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]): AssertionData = {
+  private def assertSequentialFailure(name: String, @unused failed: SequentialFailData, @unused passed: Seq[SequentialPassData], @unused notRun: Seq[SequentialNotRunData]): AssertionData = {
     fail(s"single assertion failed but expected an assertion: $name") | "assertionOutput type"
   }
 

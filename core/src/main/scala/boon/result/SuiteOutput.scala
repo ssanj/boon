@@ -44,7 +44,7 @@ object AssertionOutput {
                 sequentialPassed: (String, NonEmptySeq[SequentialPassData]) => A,
                 sequentialFailed: (String, SequentialFailData, Seq[SequentialPassData], Seq[SequentialNotRunData]) => A): A = ao match {
       case PassedOutput(name) => passed(name)
-      case FailedOutput(name, errors, trace, context, loc) => failed(name, errors, context, loc)
+      case FailedOutput(name, errors, _, context, loc) => failed(name, errors, context, loc)
       case SequentialPassedOutput(name, passed) => sequentialPassed(name, passed)
       case SequentialFailedOutput(name, failed, passed, notRun) => sequentialFailed(name, failed, passed, notRun)
     }
@@ -75,7 +75,7 @@ object SuiteOutput {
   def toSuiteOutput(suiteResult: SuiteResult): SuiteOutput = {
     val testOutputs = suiteResult.testResults.map { tr =>
       tr match {
-        case SingleTestResult(test, assertionResults) =>
+        case SingleTestResult(_, assertionResults) =>
 
           val assertionOutputs: NonEmptySeq[AssertionOutput] =
             assertionResults.map {

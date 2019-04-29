@@ -18,7 +18,7 @@ object either {
   }
 
   def right_?[A, B](either: Either[A, B])(f: B => AssertionData): AssertionData = {
-    either.fold(t_ => fail(s"expected Right but got ${either}") | "expected Right", f)
+    either.fold(_ => fail(s"expected Right but got ${either}") | "expected Right", f)
   }
 }
 

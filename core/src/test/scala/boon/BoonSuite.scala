@@ -32,7 +32,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
     val sx = createSuite("My very own suite")(oneOrMore(tx1, tx2))
 
     Boon.runSuite(sx) match {
-      case SuiteResult(DeferredSuite(SuiteName(name), NonEmptySeq(tx1, tx2)), testResults) =>
+      case SuiteResult(DeferredSuite(SuiteName(name), NonEmptySeq(_, _)), testResults) =>
         name =?= "My very own suite" | "suite name"         and
         testResults.length =?= 2     | "no of test results" and %@(testResults.toSeq) { tr =>
           %@(tr(0), "test1")(assertSingleTestResult("boolean test", "truism"))  and

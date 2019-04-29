@@ -68,7 +68,7 @@ object BlockSuite extends SuiteLike("Block Test Suite") {
 
   private def assertSuccess(test: Test, testName: String, assertionName: String): AssertionData = {
     Boon.runTest(test) match {
-      case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
+      case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), _) =>
         name =?= testName | "test name" and
         nesElements1(assertions, "block")(
           _.name.value =?= assertionName  | "assertion",

@@ -40,13 +40,13 @@ object MissingImplementationSuite extends SuiteLike("Missing Implementation Suit
             sequentialAssertionFailed)
   }
 
-  private def testThrew(name: String, error: String, trac: Seq[Trace], loc: SourceLocation): AssertionData =
+  private def testThrew(name: String, @unused error: String, @unused trac: Seq[Trace], @unused loc: SourceLocation): AssertionData =
     fail(s"thrown test: $name") | "test type"
 
   private def testIgnored(name: String): AssertionData = fail(s"ignored test: $name") | "testType"
 
   private def assertionFailed(expectedName: String, expectedLoc: Int)(name: String, errors: NonEmptySeq[String],
-    context: Map[String, String], loc: SourceLocation): AssertionData = {
+    @unused context: Map[String, String], loc: SourceLocation): AssertionData = {
     %@((), expectedName) { _ =>
      pass | "assertionOutput type" and
       name =?= expectedName | "assertion name" and
@@ -61,11 +61,12 @@ object MissingImplementationSuite extends SuiteLike("Missing Implementation Suit
     fail(s"passed: $name") | "assertionOutput type",
   }
 
-  private def sequentialAssertionPassed(name: String, passed: NonEmptySeq[SequentialPassData]): AssertionData = {
+  private def sequentialAssertionPassed(name: String, @unused passed: NonEmptySeq[SequentialPassData]): AssertionData = {
     fail(s"Sequential passed: $name") | "assertionOutput type"
   }
 
-  private def sequentialAssertionFailed(name: String, failed: SequentialFailData, passed: Seq[SequentialPassData], notRun: Seq[SequentialNotRunData]): AssertionData = {
+  private def sequentialAssertionFailed(name: String, @unused failed: SequentialFailData,
+    @unused passed: Seq[SequentialPassData], @unused notRun: Seq[SequentialNotRunData]): AssertionData = {
     fail(s"Sequential failed: $name") | "assertionOutput type"
   }
 
