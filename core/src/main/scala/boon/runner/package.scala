@@ -1,11 +1,11 @@
 package boon
 
 import boon.model.AssertionData
+import boon.model.Test
 import result.SuiteOutput
 import printers.PrinterSetting
 import printers.SimplePrinter
 import printers.ColourOutput
-import model.DeferredSuite
 import scala.util.Random
 
 package object runner {
@@ -22,22 +22,34 @@ package object runner {
       "Dave Chappelle" -> "I plead the fif!",
     )
 
-  def runAssertion(assertion: AssertionData, moreAssertion: AssertionData*): Unit = {
-    val (suiteName, testName) = randomSuiteName
+  def runAssertions(assertion: AssertionData, moreAssertion: AssertionData*): Unit = {
+    val (suiteName, testName) = randomSuiteAndTestName
     val suite = new SuiteLike(suiteName) {
       override val tests = oneOrMore(test(testName)(oneOrMore(assertion, moreAssertion:_*)))
     }
 
-    runSuite(suite.suite)
+    runSuites(suite)
   }
 
-  private def randomSuiteName: (String, String) = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)
+  def runTests(test: Test, moreTests: Test*): Unit = {
+    val suiteName = randomSuiteName
 
-  private def runSuite(suite: DeferredSuite): Unit = {
-    val suiteResult   = Boon.runSuite(suite)
+    val suite = new SuiteLike(suiteName) {
+      override val tests = oneOrMore(test, moreTests:_*)
+    }
+
+    runSuites(suite)
+  }
+
+  def runSuites(suite: SuiteLike): Unit = {
+    val suiteResult   = Boon.runSuiteLike(suite)
     val outputFormat  = SuiteOutput.toSuiteOutput(suiteResult)
     val printSettings = PrinterSetting.defaults(ColourOutput.fromBoolean(true))
     SimplePrinter(outputFormat, printSettings, println)
   }
+
+  private def randomSuiteAndTestName: (String, String) = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)
+
+  private def randomSuiteName: String = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)._1
 }
 

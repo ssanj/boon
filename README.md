@@ -7,6 +7,7 @@ boon is a small framework for testing pure code. boon is:
 1. Has no external library dependencies
 1. Fast
 1. Strongly typed
+1. Easy to run in the REPL
 
 boon is inspired by [ScalaCheck](https://www.scalacheck.org) - which is a simple but very powerful Property-Based Testing framework.
 
@@ -322,16 +323,26 @@ val multTest = table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n
 
 ## Running in the REPL
 
-You can simply run any assertions in a Scala repl by using the `runner.runAssertion` method:
 
-```
+Add the following imports to run any Assertion, Test or Suite in a Scala Repl:
+
+```scala
 import boon._
 import runner._
+```
 
-val a1 = "hello" =?= "hello"                 | "string equality"
-val a2 = List(1,2,3).reverse =?= List(3,2,1) | "list reverse"
+### Assertions
 
-runAssertion(a1, a2)
+To run any Assertions use the `runAssertions` method:
+
+```scala
+scala> val a1 = "hello" =?= "hello" | "string equality"
+a1: boon.model.AssertionData = AssertionData(NonEmptySeq(Assertion(AssertionName(string equality),Defer(boon.Boon$$$Lambda$15567/1635819764@4ba58cfc),Map(),SourceLocation(None,None,17)),WrappedArray()))
+
+scala> val a2 = List(1,2,3).reverse =?= List(3,2,1) | "list reverse"
+a2: boon.model.AssertionData = AssertionData(NonEmptySeq(Assertion(AssertionName(list reverse),Defer(boon.Boon$$$Lambda$15567/1635819764@23e80574),Map(),SourceLocation(None,None,17)),WrappedArray()))
+
+scala> runAssertions(a1, a2)
 ```
 
 Which results in:
@@ -341,6 +352,70 @@ Pete Holmes [passed]
  - I refer to myself as ‘Old Petey Pants` [passed]
    - string equality [✓]
    - list reverse [✓]
+```
+
+_The suite and test names are randomly generated_.
+
+### Tests
+
+To run any Tests use the `runTests` method:
+
+
+```scala
+scala> val t1 = test("equality of things") {
+     |     1 =?= 1             | "Int equality"    and
+     |     "Hello" =?= "Hello" | "String equality" and
+     |     true =?= true       | "Boolean equality"
+     |   }
+t1: boon.model.Test = SuccessfulTest(DeferredTest(TestName(equality of things),NonEmptySeq(Assertion(AssertionName(Int equality),Defer(boon.Boon$$$Lambda$15567/1635819764@30ed81d9),Map(),SourceLocation(None,None,18)),ArrayBuffer(Assertion(AssertionName(String equality),Defer(boon.Boon$$$Lambda$15567/1635819764@4bd3b162),Map(),SourceLocation(None,None,19)), Assertion(AssertionName(Boolean equality),Defer(boon.Boon$$$Lambda$15567/1635819764@415b2d75),Map(),SourceLocation(None,None,20)))),Independent))
+
+scala> runTests(t1)
+```
+
+Which results in:
+
+```bash
+Tig Notaro [passed]
+ - equality of things [passed]
+   - Int equality [✓]
+   - String equality [✓]
+   - Boolean equality [✓]
+```
+
+_The suite names are randomly generated_.
+
+### Suites
+
+To run any Suites use the `runSuites` method:
+
+```scala
+scala> object ListSuite extends SuiteLike("ListSuite") {
+     |
+     |   private val t1 = test("match contents") {
+     |     List(1, 2, 3, 4, 5) =/= List(2, 4, 6, 8, 10) | "list contents" and
+     |     List(1, 2, 3, 4, 5).length =?= 5             | "list length" and
+     |     //combining assertions for a single object
+     |     %@(List(1, 2, 3, 4, 5)) { list =>
+     |       list.sum =?= 15 | "list sum" and list.take(2) =?= List(1,2) | "list take"
+     |     }
+     |   }
+     |
+     |   override val tests = one(t1)
+     | }
+defined object ListSuite
+
+scala> runSuites(ListSuite)
+```
+
+Which results in:
+
+```bash
+ListSuite [passed]
+ - match contents [passed]
+   - list contents [✓]
+   - list length [✓]
+   - list sum [✓]
+   - list take [✓]
 ```
 
 ## Extensions
