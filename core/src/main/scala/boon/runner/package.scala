@@ -22,10 +22,10 @@ package object runner {
       "Dave Chappelle" -> "I plead the fif!",
     )
 
-  def runAssertion(assertion: AssertionData): Unit = {
+  def runAssertion(assertion: AssertionData, moreAssertion: AssertionData*): Unit = {
     val (suiteName, testName) = randomSuiteName
     val suite = new SuiteLike(suiteName) {
-      override val tests = oneOrMore(test(testName)(assertion))
+      override val tests = oneOrMore(test(testName)(oneOrMore(assertion, moreAssertion:_*)))
     }
 
     runSuite(suite.suite)

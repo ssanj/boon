@@ -22,7 +22,7 @@ Some things that are unique to boon:
 Add the following to your `build.sbt` file:
 
 ```scala
-libraryDependencies += "net.ssanj" %% "boon" % "0.0.1-b34" % Test
+libraryDependencies += "net.ssanj" %% "boon" % "0.0.1-b35" % Test
 
 testFrameworks += new TestFramework("boon.sbt.BoonFramework")
 
@@ -318,6 +318,29 @@ You can then use the truth table within a `table` test:
 
 ```scala
 val multTest = table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)
+```
+
+## Running in the REPL
+
+You can simply run any assertions in a Scala repl by using the `runner.runAssertion` method:
+
+```
+import boon._
+import runner._
+
+val a1 = "hello" =?= "hello"                 | "string equality"
+val a2 = List(1,2,3).reverse =?= List(3,2,1) | "list reverse"
+
+runAssertion(a1, a2)
+```
+
+Which results in:
+
+```bash
+Pete Holmes [passed]
+ - I refer to myself as ‘Old Petey Pants` [passed]
+   - string equality [✓]
+   - list reverse [✓]
 ```
 
 ## Extensions
