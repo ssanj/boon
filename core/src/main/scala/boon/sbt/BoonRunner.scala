@@ -26,8 +26,8 @@ final class BoonRunner(
     list.map(new BoonTask(
                   _,
                   classLoader,
-                  (so, c, print) =>
-                    SimplePrinter(so, PrinterSetting.defaults(c), print),
+                  (so, c, output) =>
+                   new  SimplePrinter(PrinterSetting.defaults(c), output).print(so),
                   new BoonTestStatusListener(statsVecAtomic)
              )
     )

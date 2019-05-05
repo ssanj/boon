@@ -49,7 +49,7 @@ package object REPL {
     val suiteResult   = Boon.runSuiteLike(suite)
     val outputFormat  = SuiteOutput.toSuiteOutput(suiteResult)
     val printSettings = PrinterSetting.defaults(ColourOutput.fromBoolean(true))
-    SimplePrinter(outputFormat, printSettings, println)
+    new SimplePrinter(printSettings, println).print(outputFormat)
   }
 
   private def randomSuiteAndTestName: (String, String) = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)

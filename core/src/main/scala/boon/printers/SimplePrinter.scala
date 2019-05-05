@@ -21,13 +21,12 @@ import boon.result.TestIgnoredOutput
 import boon.result.Trace
 
 
-object SimplePrinter {
+final class SimplePrinter(ps: PrinterSetting, output: String => Unit) extends BoonPrinter {
 
-  def apply(suiteOutput: SuiteOutput, ps: PrinterSetting, output: String => Unit): Unit = {
+  override def print(suiteOutput: SuiteOutput): Unit =
     output(suiteOutputString(suiteOutput, ps))
-  }
 
-  private def suiteOutputString(so: SuiteOutput, ps: PrinterSetting): String = so match {
+  private def suiteOutputString(suiteOutput: SuiteOutput, ps: PrinterSetting): String = suiteOutput match {
     case SuiteOutput(name, tests, state) =>
       val token = state match {
         case SuiteState.Passed => ps.suite.tokens.passed
