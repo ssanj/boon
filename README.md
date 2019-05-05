@@ -324,16 +324,15 @@ val multTest = table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n
 ## Running in the REPL
 
 
-Add the following imports to run any Assertion, Test or Suite in a Scala Repl:
+Add the following import to run any Assertion, Test or Suite in a Scala Repl:
 
 ```scala
 import boon._
-import runner._
 ```
 
 ### Assertions
 
-To run any Assertions use the `runAssertions` method:
+To run any Assertions use the `REPL.runAssertions` method:
 
 ```scala
 scala> val a1 = "hello" =?= "hello" | "string equality"
@@ -342,7 +341,7 @@ a1: boon.model.AssertionData = AssertionData(NonEmptySeq(Assertion(AssertionName
 scala> val a2 = List(1,2,3).reverse =?= List(3,2,1) | "list reverse"
 a2: boon.model.AssertionData = AssertionData(NonEmptySeq(Assertion(AssertionName(list reverse),Defer(boon.Boon$$$Lambda$15567/1635819764@23e80574),Map(),SourceLocation(None,None,17)),WrappedArray()))
 
-scala> runAssertions(a1, a2)
+scala> REPL.runAssertions(a1, a2)
 ```
 
 Which results in:
@@ -358,7 +357,7 @@ _The suite and test names are randomly generated_.
 
 ### Tests
 
-To run any Tests use the `runTests` method:
+To run any Tests use the `REPL.runTests` method:
 
 
 ```scala
@@ -369,7 +368,7 @@ scala> val t1 = test("equality of things") {
      |   }
 t1: boon.model.Test = SuccessfulTest(DeferredTest(TestName(equality of things),NonEmptySeq(Assertion(AssertionName(Int equality),Defer(boon.Boon$$$Lambda$15567/1635819764@30ed81d9),Map(),SourceLocation(None,None,18)),ArrayBuffer(Assertion(AssertionName(String equality),Defer(boon.Boon$$$Lambda$15567/1635819764@4bd3b162),Map(),SourceLocation(None,None,19)), Assertion(AssertionName(Boolean equality),Defer(boon.Boon$$$Lambda$15567/1635819764@415b2d75),Map(),SourceLocation(None,None,20)))),Independent))
 
-scala> runTests(t1)
+scala> REPL.runTests(t1)
 ```
 
 Which results in:
@@ -386,7 +385,7 @@ _The suite names are randomly generated_.
 
 ### Suites
 
-To run any Suites use the `runSuites` method:
+To run any Suites use the `REPL.runSuites` method:
 
 ```scala
 scala> object ListSuite extends SuiteLike("ListSuite") {
@@ -404,7 +403,7 @@ scala> object ListSuite extends SuiteLike("ListSuite") {
      | }
 defined object ListSuite
 
-scala> runSuites(ListSuite)
+scala> REPL.runSuites(ListSuite)
 ```
 
 Which results in:
@@ -418,7 +417,7 @@ ListSuite [passed]
    - list take [✓]
 ```
 
-## Extensions
+## Use Custom Types in Assertions
 
 To use boon with your own custom types, you need three functions:
 

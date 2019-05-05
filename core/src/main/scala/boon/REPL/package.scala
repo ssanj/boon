@@ -8,7 +8,7 @@ import printers.SimplePrinter
 import printers.ColourOutput
 import scala.util.Random
 
-package object runner {
+package object REPL {
 
   //load this in from a file
   val suiteNames =
@@ -41,7 +41,11 @@ package object runner {
     runSuites(suite)
   }
 
-  def runSuites(suite: SuiteLike): Unit = {
+  def runSuites(suite: SuiteLike, moreSuites: SuiteLike*): Unit = {
+    oneOrMore(suite, moreSuites:_*).foreach(runSingleSuite)
+  }
+
+  def runSingleSuite(suite: SuiteLike): Unit = {
     val suiteResult   = Boon.runSuiteLike(suite)
     val outputFormat  = SuiteOutput.toSuiteOutput(suiteResult)
     val printSettings = PrinterSetting.defaults(ColourOutput.fromBoolean(true))
