@@ -4,11 +4,17 @@ import boon.model.AssertionData
 import boon.model.Test
 import result.SuiteOutput
 import printers.SimplePrinter
+import printers.BoonPrinter
 import printers.ColourOutput
 import scala.util.Random
 
-package object REPL {
+final case class ReplConfig(printer: BoonPrinter)
 
+object ReplConfig {
+  implicit val defaultConfig: ReplConfig = ReplConfig(SimplePrinter)
+}
+
+package object REPL {
   //load this in from a file
   val suiteNames =
     oneOrMore(
@@ -21,33 +27,33 @@ package object REPL {
       "Dave Chappelle" -> "I plead the fif!",
     )
 
-  def runAssertions(assertion: AssertionData, moreAssertion: AssertionData*): Unit = {
+  def runAssertions(assertion: AssertionData, moreAssertion: AssertionData*)(implicit config: ReplConfig): Unit = {
     val (suiteName, testName) = randomSuiteAndTestName
     val suite = new SuiteLike(suiteName) {
       override val tests = oneOrMore(test(testName)(oneOrMore(assertion, moreAssertion:_*)))
     }
 
-    runSuites(suite)
+    runSuites(suite)(config)
   }
 
-  def runTests(test: Test, moreTests: Test*): Unit = {
+  def runTests(test: Test, moreTests: Test*)(implicit config: ReplConfig): Unit = {
     val suiteName = randomSuiteName
 
     val suite = new SuiteLike(suiteName) {
       override val tests = oneOrMore(test, moreTests:_*)
     }
 
-    runSuites(suite)
+    runSuites(suite)(config)
   }
 
-  def runSuites(suite: SuiteLike, moreSuites: SuiteLike*): Unit = {
-    oneOrMore(suite, moreSuites:_*).foreach(runSingleSuite)
+  def runSuites(suite: SuiteLike, moreSuites: SuiteLike*)(implicit config: ReplConfig): Unit = {
+    oneOrMore(suite, moreSuites:_*).foreach(runSingleSuite(_)(config))
   }
 
-  def runSingleSuite(suite: SuiteLike): Unit = {
+  def runSingleSuite(suite: SuiteLike)(implicit config: ReplConfig): Unit = {
     val suiteResult   = Boon.runSuiteLike(suite)
     val outputFormat  = SuiteOutput.toSuiteOutput(suiteResult)
-    SimplePrinter.print(ColourOutput.fromBoolean(true), println, outputFormat)
+    config.printer.print(ColourOutput.fromBoolean(true), println, outputFormat)
   }
 
   private def randomSuiteAndTestName: (String, String) = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)
