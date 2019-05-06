@@ -321,6 +321,24 @@ You can then use the truth table within a `table` test:
 val multTest = table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)
 ```
 
+## Customise Output
+
+To customise the output of Boon, you can implement the `BoonPrinter` trait:
+
+```scala
+trait BoonPrinter {
+  def print(co: ColourOutput, out: String => Unit, so: SuiteOutput): Unit
+}
+```
+
+Then supply your implementation to boon via the SBT with the `-P` flag and the full package path to the printer class:
+
+```bash
+testOnly *MyFirstSuite -- -P some.AwesomePrinter
+```
+
+See [SimplePrinter](https://github.com/ssanj/boon/blob/master/core/src/main/scala/boon/printers/SimplePrinter.scala) and [FlatPrinter](https://github.com/ssanj/boon/blob/master/core/src/main/scala/boon/printers/FlatPrinter.scala) for more details.
+
 ## Running in the REPL
 
 
@@ -415,6 +433,12 @@ ListSuite [passed]
    - list length [✓]
    - list sum [✓]
    - list take [✓]
+```
+
+To use a custom printer in any repl method, just supply an instance of `ReplConfig` with your printer class:
+
+```scala
+scala> REPL.runAssertions(1 =?= 1 | "one")(ReplConfig(boon.printers.FlatPrinter))
 ```
 
 ## Use Custom Types in Assertions
