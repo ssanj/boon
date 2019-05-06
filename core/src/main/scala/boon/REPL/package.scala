@@ -18,11 +18,12 @@ package object REPL {
   //load this in from a file
   val suiteNames =
     oneOrMore(
-      "Conan O'Brien" -> "When all else fails there's always delusion",
-      "Pete Holmes" -> "I refer to myself as ‘Old Petey Pants`",
-      "Pete Holmes" -> "Everybody sleeps",
-      "Tig Notaro" -> "My little Suitecase",
-      "Tig Notaro" -> "Oh? She's a fan? Let's give her a ring-a-ding!",
+      "Conan O'Brien"  -> "When all else fails there's always delusion",
+      "Conan O'Brien"  -> "What is wrong with your right now?",
+      "Pete Holmes"    -> "I refer to myself as ‘Old Petey Pants`",
+      "Pete Holmes"    -> "Everybody sleeps",
+      "Tig Notaro"     -> "My little Suitecase",
+      "Tig Notaro"     -> "Oh? She's a fan? Let's give her a ring-a-ding!",
       "Dave Chappelle" -> "Grape Drink!",
       "Dave Chappelle" -> "I plead the fif!",
     )
