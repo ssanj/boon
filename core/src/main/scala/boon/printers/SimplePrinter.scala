@@ -21,10 +21,11 @@ import boon.result.TestIgnoredOutput
 import boon.result.Trace
 
 
-final class SimplePrinter(ps: PrinterSetting, output: String => Unit) extends BoonPrinter {
+object SimplePrinter extends BoonPrinter {
 
-  override def print(suiteOutput: SuiteOutput): Unit =
-    output(suiteOutputString(suiteOutput, ps))
+  override def print(co: ColourOutput, output: String => Unit, suiteOutput: SuiteOutput): Unit ={
+    output(suiteOutputString(suiteOutput, PrinterSetting.defaults(co)))
+  }
 
   private def suiteOutputString(suiteOutput: SuiteOutput, ps: PrinterSetting): String = suiteOutput match {
     case SuiteOutput(name, tests, state) =>

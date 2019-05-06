@@ -3,7 +3,6 @@ package boon
 import boon.model.AssertionData
 import boon.model.Test
 import result.SuiteOutput
-import printers.PrinterSetting
 import printers.SimplePrinter
 import printers.ColourOutput
 import scala.util.Random
@@ -48,8 +47,7 @@ package object REPL {
   def runSingleSuite(suite: SuiteLike): Unit = {
     val suiteResult   = Boon.runSuiteLike(suite)
     val outputFormat  = SuiteOutput.toSuiteOutput(suiteResult)
-    val printSettings = PrinterSetting.defaults(ColourOutput.fromBoolean(true))
-    new SimplePrinter(printSettings, println).print(outputFormat)
+    SimplePrinter.print(ColourOutput.fromBoolean(true), println, outputFormat)
   }
 
   private def randomSuiteAndTestName: (String, String) = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)

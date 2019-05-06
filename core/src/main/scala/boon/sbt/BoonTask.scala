@@ -15,7 +15,7 @@ import boon.model.SuiteResult
 import boon.sbt.Event.createEvent
 import boon.sbt.Event.createErrorEvent
 import boon.sbt.Event.handleEvent
-import boon.sbt.SuiteLoader.loadSuite
+import boon.sbt.Loaders.loadSuite
 
 import scala.util.Failure
 import scala.util.Success
@@ -23,7 +23,7 @@ import scala.util.Try
 
 final class BoonTask(val taskDef: TaskDef,
                          cl: ClassLoader,
-                         printer: (SuiteOutput, ColourOutput, String => Unit) => Unit,
+                         printer: (ColourOutput, String => Unit, SuiteOutput) => Unit,
                          statusLister: TestStatusListener) extends Task {
 
   def tags(): Array[String] = Array.empty
@@ -59,7 +59,7 @@ final class BoonTask(val taskDef: TaskDef,
 
   private def logResult(suiteOutput: SuiteOutput, loggers: Array[Logger]): Unit = {
     loggers.foreach { log =>
-      printer(suiteOutput, ColourOutput.fromBoolean(log.ansiCodesSupported), log.info(_))
+      printer(ColourOutput.fromBoolean(log.ansiCodesSupported), log.info(_), suiteOutput)
     }
   }
 

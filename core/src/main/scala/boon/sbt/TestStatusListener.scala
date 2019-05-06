@@ -17,7 +17,6 @@ trait TestStatusListener {
   def suiteFailed(reason: String): Unit
 }
 
-
 final class BoonTestStatusListener(atomicStats: AtomicReference[List[SuiteStats]]) extends TestStatusListener {
 
   override def suiteResult(result: SuiteResult): Unit = {

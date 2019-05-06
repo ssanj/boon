@@ -4,14 +4,12 @@ import sbt.testing.Runner
 import sbt.testing.Task
 import sbt.testing.TaskDef
 
-import boon.printers.PrinterSetting
 import boon.printers.SimplePrinter
+import boon.printers.BoonPrinter
 import boon.model.stats.SuiteStats
 import boon.Monoid
 
 import java.util.concurrent.atomic.AtomicReference
-
-
 
 final class BoonRunner(
   val args: Array[String],
@@ -21,15 +19,30 @@ final class BoonRunner(
 
   private val statsVecAtomic = new AtomicReference[List[SuiteStats]](List.empty[SuiteStats])
 
+  private def createDefaultPrinter: BoonPrinter = SimplePrinter
+
+  private def createCustomPrinter(className: String): BoonPrinter = {
+    Loaders.loadPrinter(className, classLoader).fold(error => {
+      Console.err.println(s"could not load custom BoonPrinter: ${className} due to ${error}")
+      Console.err.println(s"using default printer instance")
+      createDefaultPrinter
+    }, identity _)
+  }
+
   //use default printer for now, change to use from args
   override def tasks(list: Array[TaskDef]): Array[Task] = {
-    list.map(new BoonTask(
-                  _,
-                  classLoader,
-                  (so, c, output) =>
-                   new  SimplePrinter(PrinterSetting.defaults(c), output).print(so),
-                  new BoonTestStatusListener(statsVecAtomic)
-             )
+    val printer: BoonPrinter = args match {
+      case Array("-P", printerClass) => createCustomPrinter(printerClass)
+      case _ => createDefaultPrinter
+    }
+
+    list.map(
+      new BoonTask(
+        _,
+        classLoader,
+        printer.print,
+        new BoonTestStatusListener(statsVecAtomic)
+      )
     )
   }
 
