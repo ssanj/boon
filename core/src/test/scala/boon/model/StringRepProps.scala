@@ -2,7 +2,7 @@ package boon
 package model
 
 import boon.data.NonEmptySeq
-import scalacheck.Arb._
+import scalacheck.DataArb._
 import org.scalacheck.Properties
 import org.scalacheck._
 import Prop.forAll

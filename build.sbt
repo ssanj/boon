@@ -45,7 +45,7 @@ lazy val boon = (project in file("core"))
     testFrameworks := Seq(new TestFramework("boon.sbt.BoonFramework"), sbt.TestFrameworks.ScalaCheck),
     libraryDependencies ++= Seq(
         "org.scala-sbt"  % "test-interface" % "1.0",
-        "org.scalacheck" %% "scalacheck"    % "1.13.4" % "test"
+        "org.scalacheck" %% "scalacheck"    % "1.13.4" % Test
     )
   )
 

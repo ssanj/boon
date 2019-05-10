@@ -18,6 +18,8 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def contains(value: A): Boolean = filter(_ == value).nonEmpty
 
+  def exists(p: A => Boolean): Boolean = filter(p).nonEmpty
+
   def mkString(sep: String): String = toSeq.mkString(sep)
 
   def mkString(start: String, sep: String, end: String): String = toSeq.mkString(start, sep, end)

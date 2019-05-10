@@ -4,7 +4,7 @@ import boon.data.NonEmptySeq
 import org.scalacheck.Properties
 import org.scalacheck._
 import org.scalacheck.Arbitrary._
-import scalacheck.Arb._
+import scalacheck.DataArb._
 
 import scala.reflect.runtime.universe._
 

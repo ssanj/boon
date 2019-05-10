@@ -4,7 +4,7 @@ package stats
 
 import org.scalacheck.Properties
 import org.scalacheck._
-import boon.scalacheck.Arb._
+import boon.scalacheck.StatsArb._
 
 import scala.reflect.runtime.universe._
 
