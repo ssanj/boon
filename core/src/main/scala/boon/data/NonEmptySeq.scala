@@ -62,6 +62,8 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
 
   def prepend(newHead: A): NonEmptySeq[A] = NonEmptySeq[A](newHead, self.head +: tail)
 
+  def +:(newHead: A): NonEmptySeq[A] = prepend(newHead)
+
   def append(last: A): NonEmptySeq[A] = NonEmptySeq[A](head, tail :+ last)
 
   def foldLeft[B](z: B)(f:(B, A) => B): B =

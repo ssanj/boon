@@ -338,14 +338,17 @@ object ModelArb {
     } yield SuiteResult(suite, results)
   }
 
+  //TODO: Move to common functions class
   def fromArb[A: Arbitrary, T](f: A => T): Arbitrary[T] = Arbitrary {
     Arbitrary.arbitrary[A].map(f)
   }
 
+  //TODO: Move to common functions class
   def eitherArb[A: Arbitrary, B: Arbitrary]: Arbitrary[Either[A, B]] = Arbitrary {
     Gen.oneOf(arbitrary[A].map(Left[A, B]), arbitrary[B].map(Right[A, B]))
   }
 
+  //TODO: Move to common functions class
   def manyOf[A](maxSize: Int, genA: Gen[A]): Gen[NonEmptySeq[A]] = for {
     size  <- Gen.choose(1, Math.max(1, maxSize))
     first <- genA
