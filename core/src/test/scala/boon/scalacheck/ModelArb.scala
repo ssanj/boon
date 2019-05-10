@@ -1,6 +1,26 @@
 package boon
 package scalacheck
 
+import boon.model.FirstFailed
+import boon.model.TestData
+import boon.model.AssertionState
+import boon.model.Sequential
+import boon.model.Independent
+import boon.model.AssertionCombinator
+import boon.model.SingleAssertionResult
+import boon.model.AssertionResultThrew
+import boon.model.AssertionResultFailed
+import boon.model.AssertionResultState
+import boon.model.AssertionResultFailed
+import boon.model.AssertionResultPassed
+import boon.model.AssertionFailure
+import boon.model.SequentialThrew
+import boon.model.SequentialFail
+import boon.model.SequentialPass
+import boon.model.SequentialNotRun
+import boon.model.AssertionThrew
+import boon.model.AssertionFailed
+import boon.model.AssertionThrow
 import boon.data.NonEmptySeq
 import boon.model.AssertionError
 import boon.model.AssertionTriple
@@ -12,6 +32,7 @@ import boon.model.EqualityType
 import boon.model.Testable
 import boon.model.AssertionName
 import DataArb._
+import GeneralArb._
 
 import org.scalacheck._
 import Arbitrary.arbitrary
@@ -93,10 +114,83 @@ object ModelArb {
     } yield AssertionError(assertion, errors)
   }
 
-// final case class AssertionError(assertion: Assertion, errors: NonEmptySeq[String])
-// final case class AssertionThrow(name: AssertionName, value: Throwable, location: SourceLocation)
+  implicit val assertionThrowArbitrary: Arbitrary[AssertionThrow] = Arbitrary {
+    for {
+      name  <- arbitrary[AssertionName]
+      error <- arbitrary[Throwable]
+      loc   <- arbitrary[SourceLocation]
+    } yield AssertionThrow(name, error, loc)
+  }
+
+  implicit val assertionFailureArbitrary: Arbitrary[AssertionFailure] = Arbitrary {
+    Gen.oneOf(assertionFailedGen, assertionThrewGen)
+  }
+
+  def assertionFailedGen: Gen[AssertionFailure] =
+    fromArb[AssertionError, AssertionFailed](AssertionFailed).arbitrary
+
+  def assertionThrewGen: Gen[AssertionFailure] =
+    fromArb[AssertionThrow, AssertionThrew](AssertionThrew).arbitrary
+
+  implicit val sequentArbitrary: Arbitrary[SequentialNotRun] =
+    fromArb[AssertionName, SequentialNotRun](SequentialNotRun)
+
+  implicit val sequentialPassArbitrary: Arbitrary[SequentialPass] =
+    fromArb[AssertionName, SequentialPass](SequentialPass)
+
+  implicit val sequentialFailArbitrary: Arbitrary[SequentialFail] =
+    fromArb[AssertionError, SequentialFail](SequentialFail)
+
+  implicit val sequentialThrewArbitrary: Arbitrary[SequentialThrew] =
+    fromArb[AssertionThrow, SequentialThrew](SequentialThrew)
+
+  def assertionResultPassedGen: Gen[AssertionResultPassed] =
+    fromArb[AssertionTriple, AssertionResultPassed](AssertionResultPassed).arbitrary
+
+  def assertionResultFailedGen: Gen[AssertionResultFailed] =
+    fromArb[AssertionError, AssertionResultFailed](AssertionResultFailed).arbitrary
+
+  def assertionResultThrewGen: Gen[AssertionResultThrew] =
+    fromArb[AssertionThrow, AssertionResultThrew](AssertionResultThrew).arbitrary
+
+  implicit val assertionResultStateArbitrary: Arbitrary[AssertionResultState] = Arbitrary {
+    Gen.oneOf(assertionResultPassedGen,
+              assertionResultFailedGen,
+              assertionResultThrewGen)
+  }
+
+  implicit val singleAssertionResultArbitrary: Arbitrary[SingleAssertionResult] =
+    fromArb[AssertionResultState, SingleAssertionResult](SingleAssertionResult)
+
+  implicit val assertionCombinatorArbitrary: Arbitrary[AssertionCombinator] = Arbitrary {
+    Gen.oneOf(Independent, Sequential)
+  }
+
+  implicit val assertionStateArbitrary: Arbitrary[AssertionState] = Arbitrary {
+    Gen.oneOf(AssertionState.Passed, AssertionState.Failed)
+  }
+
+  implicit val testDataArbitrary: Arbitrary[TestData] = Arbitrary {
+    for {
+      assertion  <- arbitrary[NonEmptySeq[Assertion]]
+      combinator <- arbitrary[AssertionCombinator]
+    } yield TestData(assertion, combinator)
+  }
+
+  implicit val firstFailedArbitrary: Arbitrary[FirstFailed] = Arbitrary {
+    for {
+      name   <- arbitrary[AssertionName]
+      pass   <- arbitrary[List[SequentialPass]]
+      failed <- eitherArb[SequentialFail, SequentialThrew].arbitrary
+      notRun <- arbitrary[List[SequentialNotRun]]
+    } yield FirstFailed(name, failed, pass, notRun)
+  }
 
   private def fromArb[A: Arbitrary, T](f: A => T): Arbitrary[T] = Arbitrary {
     Arbitrary.arbitrary[A].map(f)
+  }
+
+  private def eitherArb[A: Arbitrary, B: Arbitrary]: Arbitrary[Either[A, B]] = Arbitrary {
+    Gen.oneOf(arbitrary[A].map(Left[A, B]), arbitrary[B].map(Right[A, B]))
   }
 }
