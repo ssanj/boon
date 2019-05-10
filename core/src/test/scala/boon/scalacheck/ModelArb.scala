@@ -165,13 +165,13 @@ object ModelArb {
   implicit val sequentialThrewArbitrary: Arbitrary[SequentialThrew] =
     fromArb[AssertionThrow, SequentialThrew](SequentialThrew)
 
-  def assertionResultPassedGen: Gen[AssertionResultPassed] =
+  def assertionResultPassedGen: Gen[AssertionResultState] =
     fromArb[AssertionTriple, AssertionResultPassed](AssertionResultPassed).arbitrary
 
-  def assertionResultFailedGen: Gen[AssertionResultFailed] =
+  def assertionResultFailedGen: Gen[AssertionResultState] =
     fromArb[AssertionError, AssertionResultFailed](AssertionResultFailed).arbitrary
 
-  def assertionResultThrewGen: Gen[AssertionResultThrew] =
+  def assertionResultThrewGen: Gen[AssertionResultState] =
     fromArb[AssertionThrow, AssertionResultThrew](AssertionResultThrew).arbitrary
 
   implicit val assertionResultStateArbitrary: Arbitrary[AssertionResultState] = Arbitrary {
@@ -230,13 +230,13 @@ object ModelArb {
     } yield ThrownTest(name, error, loc)
   }
 
-  def successfulTestGen: Gen[SuccessfulTest] =
+  def successfulTestGen: Gen[Test] =
       fromArb[DeferredTest, SuccessfulTest](SuccessfulTest).arbitrary
 
-  def unsuccessfulTestGen: Gen[UnsuccessfulTest] =
+  def unsuccessfulTestGen: Gen[Test] =
       fromArb[ThrownTest, UnsuccessfulTest](UnsuccessfulTest).arbitrary
 
-  def ignoredTestGen: Gen[IgnoredTest] = for {
+  def ignoredTestGen: Gen[Test] = for {
     name  <- arbitrary[TestName]
     data  <- arbitrary[Defer[TestData]]
   } yield IgnoredTest(name, data)
@@ -245,12 +245,12 @@ object ModelArb {
     Gen.oneOf(successfulTestGen, unsuccessfulTestGen, ignoredTestGen)
   }
 
-  def allPassedGen: Gen[AllPassed] = for {
+  def allPassedGen: Gen[CompositeTestResultState] = for {
     name <- arbitrary[TestName]
     pass <- arbitrary[NonEmptySeq[SequentialPass]]
   } yield AllPassed(name, pass)
 
-  def stoppedOnFirstFailedGen: Gen[StoppedOnFirstFailed] = for {
+  def stoppedOnFirstFailedGen: Gen[CompositeTestResultState] = for {
     name  <- arbitrary[TestName]
     first <- arbitrary[FirstFailed]
   } yield StoppedOnFirstFailed(name, first)
@@ -259,20 +259,40 @@ object ModelArb {
     Gen.oneOf(allPassedGen, stoppedOnFirstFailedGen)
   }
 
-  def singleTestResultGen: Gen[SingleTestResult] = for {
+  def singleTestResultGen: Gen[TestResult] = for {
     test             <- arbitrary[DeferredTest]
     assertionResults <- arbitrary[NonEmptySeq[AssertionResult]]
   } yield SingleTestResult(test, assertionResults)
 
-  def compositeTestResultGen: Gen[CompositeTestResult] = for {
+  def singleTestAllPassedTestResultGen: Gen[TestResult] = for {
+    test  <- arbitrary[DeferredTest]
+    size  <- Gen.choose(1, 5)
+    first <- assertionResultPassedGen.map(SingleAssertionResult)
+    rest  <- Gen.listOfN(size, assertionResultPassedGen.map(SingleAssertionResult))
+  } yield SingleTestResult(test, oneOrMore(first, rest:_*))
+
+  def singleTestAllFailedTestResultGen: Gen[TestResult] = for {
+    test  <- arbitrary[DeferredTest]
+    size  <- Gen.choose(1, 5)
+    first <- assertionResultFailedGen.map(SingleAssertionResult)
+    rest  <- Gen.listOfN(size, assertionResultFailedGen.map(SingleAssertionResult))
+  } yield SingleTestResult(test, oneOrMore(first, rest:_*))
+
+  def compositeTestResultGen: Gen[TestResult] = for {
     state <- arbitrary[CompositeTestResultState]
   } yield CompositeTestResult(state)
 
-  def testThrewResultGen: Gen[TestThrewResult] = for {
+  def compositeTestAllPassedTestResultGen: Gen[TestResult] =
+    allPassedGen.map(CompositeTestResult)
+
+  def compositeTestStoppedOnFirstTestResultGen: Gen[TestResult] =
+    stoppedOnFirstFailedGen.map(CompositeTestResult)
+
+  def testThrewResultGen: Gen[TestResult] = for {
     test <- arbitrary[ThrownTest]
   } yield TestThrewResult(test)
 
-  def testIgnoredResultGen: Gen[TestIgnoredResult] = for {
+  def testIgnoredResultGen: Gen[TestResult] = for {
     name <- arbitrary[TestName]
   } yield TestIgnoredResult(name)
 
@@ -282,6 +302,16 @@ object ModelArb {
               testThrewResultGen,
               testIgnoredResultGen)
   }
+
+  def onlySuccessfulTestResultGen: Gen[TestResult] =
+     Gen.oneOf(testIgnoredResultGen,
+               compositeTestAllPassedTestResultGen,
+               singleTestAllPassedTestResultGen)
+
+  def onlyUnsuccessfulTestResultGen: Gen[TestResult] =
+     Gen.oneOf(testThrewResultGen,
+               compositeTestStoppedOnFirstTestResultGen,
+               singleTestAllFailedTestResultGen)
 
   implicit val testStateArbitrary: Arbitrary[TestState] = Arbitrary {
     Gen.oneOf(TestState.Passed, TestState.Failed, TestState.Ignored)
@@ -308,11 +338,17 @@ object ModelArb {
     } yield SuiteResult(suite, results)
   }
 
-  private def fromArb[A: Arbitrary, T](f: A => T): Arbitrary[T] = Arbitrary {
+  def fromArb[A: Arbitrary, T](f: A => T): Arbitrary[T] = Arbitrary {
     Arbitrary.arbitrary[A].map(f)
   }
 
-  private def eitherArb[A: Arbitrary, B: Arbitrary]: Arbitrary[Either[A, B]] = Arbitrary {
+  def eitherArb[A: Arbitrary, B: Arbitrary]: Arbitrary[Either[A, B]] = Arbitrary {
     Gen.oneOf(arbitrary[A].map(Left[A, B]), arbitrary[B].map(Right[A, B]))
   }
+
+  def manyOf[A](maxSize: Int, genA: Gen[A]): Gen[NonEmptySeq[A]] = for {
+    size  <- Gen.choose(1, Math.max(1, maxSize))
+    first <- genA
+    rest  <- Gen.listOfN[A](Math.max(0, size - 1), genA)
+  } yield oneOrMore(first, rest:_*)
 }
