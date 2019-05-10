@@ -1,6 +1,27 @@
 package boon
 package scalacheck
 
+import boon.model.DeferredSuite
+import boon.model.SuiteResult
+import boon.model.SuiteName
+import boon.model.SuiteState
+import boon.model.TestState
+import boon.model.AssertionResult
+import boon.model.TestThrewResult
+import boon.model.TestIgnoredResult
+import boon.model.TestResult
+import boon.model.CompositeTestResult
+import boon.model.SingleTestResult
+import boon.model.CompositeTestResultState
+import boon.model.StoppedOnFirstFailed
+import boon.model.AllPassed
+import boon.model.Test
+import boon.model.IgnoredTest
+import boon.model.UnsuccessfulTest
+import boon.model.SuccessfulTest
+import boon.model.ThrownTest
+import boon.model.DeferredTest
+import boon.model.TestName
 import boon.model.FirstFailed
 import boon.model.TestData
 import boon.model.AssertionState
@@ -159,8 +180,12 @@ object ModelArb {
               assertionResultThrewGen)
   }
 
-  implicit val singleAssertionResultArbitrary: Arbitrary[SingleAssertionResult] =
-    fromArb[AssertionResultState, SingleAssertionResult](SingleAssertionResult)
+  def singleAssertionResultGen: Gen[SingleAssertionResult] =
+      fromArb[AssertionResultState, SingleAssertionResult](SingleAssertionResult).arbitrary
+
+  implicit val assertionResultArbitrary: Arbitrary[AssertionResult] = Arbitrary {
+    singleAssertionResultGen
+  }
 
   implicit val assertionCombinatorArbitrary: Arbitrary[AssertionCombinator] = Arbitrary {
     Gen.oneOf(Independent, Sequential)
@@ -184,6 +209,103 @@ object ModelArb {
       failed <- eitherArb[SequentialFail, SequentialThrew].arbitrary
       notRun <- arbitrary[List[SequentialNotRun]]
     } yield FirstFailed(name, failed, pass, notRun)
+  }
+
+  implicit val testNameArbitrary: Arbitrary[TestName] =
+      fromArb[AlphaString, TestName](as => TestName(as.value))
+
+  implicit val deferredTestArbitrary: Arbitrary[DeferredTest] = Arbitrary {
+    for {
+      name       <- arbitrary[TestName]
+      assertions <- arbitrary[NonEmptySeq[Assertion]]
+      combinator <- arbitrary[AssertionCombinator]
+    } yield DeferredTest(name, assertions, combinator)
+  }
+
+  implicit val thrownTestArbitrary: Arbitrary[ThrownTest] = Arbitrary {
+    for {
+       name  <- arbitrary[TestName]
+       error <- arbitrary[Throwable]
+       loc   <- arbitrary[SourceLocation]
+    } yield ThrownTest(name, error, loc)
+  }
+
+  def successfulTestGen: Gen[SuccessfulTest] =
+      fromArb[DeferredTest, SuccessfulTest](SuccessfulTest).arbitrary
+
+  def unsuccessfulTestGen: Gen[UnsuccessfulTest] =
+      fromArb[ThrownTest, UnsuccessfulTest](UnsuccessfulTest).arbitrary
+
+  def ignoredTestGen: Gen[IgnoredTest] = for {
+    name  <- arbitrary[TestName]
+    data  <- arbitrary[Defer[TestData]]
+  } yield IgnoredTest(name, data)
+
+  implicit val testArbitrary: Arbitrary[Test] = Arbitrary {
+    Gen.oneOf(successfulTestGen, unsuccessfulTestGen, ignoredTestGen)
+  }
+
+  def allPassedGen: Gen[AllPassed] = for {
+    name <- arbitrary[TestName]
+    pass <- arbitrary[NonEmptySeq[SequentialPass]]
+  } yield AllPassed(name, pass)
+
+  def stoppedOnFirstFailedGen: Gen[StoppedOnFirstFailed] = for {
+    name  <- arbitrary[TestName]
+    first <- arbitrary[FirstFailed]
+  } yield StoppedOnFirstFailed(name, first)
+
+  implicit val compositeTestResultStateArbitrary: Arbitrary[CompositeTestResultState] = Arbitrary {
+    Gen.oneOf(allPassedGen, stoppedOnFirstFailedGen)
+  }
+
+  def singleTestResultGen: Gen[SingleTestResult] = for {
+    test             <- arbitrary[DeferredTest]
+    assertionResults <- arbitrary[NonEmptySeq[AssertionResult]]
+  } yield SingleTestResult(test, assertionResults)
+
+  def compositeTestResultGen: Gen[CompositeTestResult] = for {
+    state <- arbitrary[CompositeTestResultState]
+  } yield CompositeTestResult(state)
+
+  def testThrewResultGen: Gen[TestThrewResult] = for {
+    test <- arbitrary[ThrownTest]
+  } yield TestThrewResult(test)
+
+  def testIgnoredResultGen: Gen[TestIgnoredResult] = for {
+    name <- arbitrary[TestName]
+  } yield TestIgnoredResult(name)
+
+  implicit val testResultArbitrary: Arbitrary[TestResult] = Arbitrary {
+    Gen.oneOf(singleTestResultGen,
+              compositeTestResultGen,
+              testThrewResultGen,
+              testIgnoredResultGen)
+  }
+
+  implicit val testStateArbitrary: Arbitrary[TestState] = Arbitrary {
+    Gen.oneOf(TestState.Passed, TestState.Failed, TestState.Ignored)
+  }
+
+  implicit val suiteStateArbitrary: Arbitrary[SuiteState] = Arbitrary {
+    Gen.oneOf(SuiteState.Passed, SuiteState.Failed)
+  }
+
+  implicit val suiteNameArbitrary: Arbitrary[SuiteName] =
+      fromArb[AlphaString, SuiteName](as => SuiteName(as.value))
+
+  implicit val deferredSuiteArbitrary: Arbitrary[DeferredSuite] = Arbitrary {
+    for {
+      name  <- arbitrary[SuiteName]
+      tests <- arbitrary[NonEmptySeq[Test]]
+    } yield DeferredSuite(name, tests)
+  }
+
+  implicit val suiteResultArbitrary: Arbitrary[SuiteResult] = Arbitrary {
+    for {
+       suite   <- arbitrary[DeferredSuite]
+       results <- arbitrary[NonEmptySeq[TestResult]]
+    } yield SuiteResult(suite, results)
   }
 
   private def fromArb[A: Arbitrary, T](f: A => T): Arbitrary[T] = Arbitrary {
