@@ -303,16 +303,6 @@ object ModelArb {
               testIgnoredResultGen)
   }
 
-  def onlySuccessfulTestResultGen: Gen[TestResult] =
-     Gen.oneOf(testIgnoredResultGen,
-               compositeTestAllPassedTestResultGen,
-               singleTestAllPassedTestResultGen)
-
-  def onlyUnsuccessfulTestResultGen: Gen[TestResult] =
-     Gen.oneOf(testThrewResultGen,
-               compositeTestStoppedOnFirstTestResultGen,
-               singleTestAllFailedTestResultGen)
-
   implicit val testStateArbitrary: Arbitrary[TestState] = Arbitrary {
     Gen.oneOf(TestState.Passed, TestState.Failed, TestState.Ignored)
   }

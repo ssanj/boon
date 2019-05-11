@@ -1,6 +1,5 @@
 package boon
 
-import boon.data.NonEmptySeq
 import boon.model.TestResult
 import boon.model.DeferredSuite
 import boon.model.TestResult
@@ -11,40 +10,62 @@ import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Prop.BooleanOperators
 import scalacheck.ModelArb._
-import scalacheck.DataArb.shuffle
 
-//TODO: Supply fully configured data sets from Gen
 object SuiteStateProps extends Properties("SuiteState") {
 
+  private case class OnlySuccessfulSuiteResult(suiteResult: SuiteResult)
+  private case class OnlyUnsuccessfulSuiteResult(suiteResult: SuiteResult)
+  private case class MixedSuiteResult(suiteResult: SuiteResult)
+
   property("Fail when all tests have failed or thrown") =
-    Prop.forAll(arbitrary[DeferredSuite], manyOf(10, onlyUnsuccessfulTestResultGen)) {
-      (dSuite: DeferredSuite, testResults: NonEmptySeq[TestResult]) =>
-      val suiteResult = SuiteResult(dSuite, testResults)
-      val suiteState  = SuiteResult.suiteResultToSuiteState(suiteResult)
+    Prop.forAll { (sr: OnlyUnsuccessfulSuiteResult) =>
+      val suiteState  = SuiteResult.suiteResultToSuiteState(sr.suiteResult)
       (suiteState == SuiteState.Failed) :| s"Expected SuiteState to be 'Failed' but got: '${suiteState}'"
     }
 
   property("Fail when there are passed and failed tests") =
-    Prop.forAll(arbitrary[DeferredSuite], manyOf(10, onlyUnsuccessfulTestResultGen), manyOf(10, onlySuccessfulTestResultGen)) {
-      (dSuite: DeferredSuite, unsuccessfulTestResults: NonEmptySeq[TestResult], successfulTestResults: NonEmptySeq[TestResult]) =>
-      val suiteResult = SuiteResult(dSuite, successfulTestResults.concat(unsuccessfulTestResults))
-      val suiteState  = SuiteResult.suiteResultToSuiteState(suiteResult)
+    Prop.forAll { (sr: MixedSuiteResult) =>
+      val suiteState  = SuiteResult.suiteResultToSuiteState(sr.suiteResult)
       (suiteState == SuiteState.Failed) :| s"Expected SuiteState to be 'Failed' but got: '${suiteState}'"
     }
 
   property("Pass when all tests have passed or been ignored") =
-    Prop.forAll(arbitrary[DeferredSuite], manyOf(10, onlySuccessfulTestResultGen)) {
-      (dSuite: DeferredSuite, testResults: NonEmptySeq[TestResult]) =>
-      val suiteResult = SuiteResult(dSuite, testResults)
-      val suiteState  = SuiteResult.suiteResultToSuiteState(suiteResult)
+    Prop.forAll { (sr: OnlySuccessfulSuiteResult) =>
+      val suiteState  = SuiteResult.suiteResultToSuiteState(sr.suiteResult)
       (suiteState == SuiteState.Passed) :| s"Expected SuiteState to be 'Passed' but got: '${suiteState}'"
     }
 
-  property("Fail when at least a single test fails") =
-    Prop.forAll(arbitrary[DeferredSuite], manyOf(10, onlySuccessfulTestResultGen), onlyUnsuccessfulTestResultGen) {
-      (dSuite: DeferredSuite, successTestResults: NonEmptySeq[TestResult], failedTestResult: TestResult) =>
-      val suiteResult = SuiteResult(dSuite, shuffle(failedTestResult +: successTestResults))
-      val suiteState  = SuiteResult.suiteResultToSuiteState(suiteResult)
-      (suiteState == SuiteState.Failed) :| s"Expected SuiteState to be 'Failed' but got: '${suiteState}'"
-    }
+  private implicit val onlySuccessfulSuiteResultArbitrary: Arbitrary[OnlySuccessfulSuiteResult] = Arbitrary {
+    for {
+      suite       <- arbitrary[DeferredSuite]
+      testResults <- manyOf(10, onlySuccessfulTestResultGen)
+    } yield OnlySuccessfulSuiteResult(SuiteResult(suite, testResults))
+  }
+
+  private implicit val onlyUnsuccessfulSuiteResultArbitrary: Arbitrary[OnlyUnsuccessfulSuiteResult] = Arbitrary {
+    for {
+      suite       <- arbitrary[DeferredSuite]
+      testResults <- manyOf(10, onlyUnsuccessfulTestResultGen)
+    } yield OnlyUnsuccessfulSuiteResult(SuiteResult(suite, testResults))
+  }
+
+  private implicit val mixedSuiteResultArbitrary: Arbitrary[MixedSuiteResult] = Arbitrary {
+    for {
+       suite        <- arbitrary[DeferredSuite]
+       unsuccessful <- onlyUnsuccessfulTestResultGen
+       successful   <- onlySuccessfulTestResultGen
+       testResults  <- manyOf(10, Gen.oneOf(onlySuccessfulTestResultGen, onlyUnsuccessfulTestResultGen))
+    } yield MixedSuiteResult(SuiteResult(suite, unsuccessful +: successful +: testResults))
+  }
+
+  private def onlyUnsuccessfulTestResultGen: Gen[TestResult] =
+    Gen.oneOf(testThrewResultGen,
+             compositeTestStoppedOnFirstTestResultGen,
+             singleTestAllFailedTestResultGen)
+
+  private def onlySuccessfulTestResultGen: Gen[TestResult] =
+    Gen.oneOf(testIgnoredResultGen,
+             compositeTestAllPassedTestResultGen,
+             singleTestAllPassedTestResultGen)
+
 }
