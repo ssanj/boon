@@ -2,7 +2,6 @@ package boon
 
 import boon.model.TestResult
 import boon.model.DeferredSuite
-import boon.model.TestResult
 import boon.model.SuiteState
 import boon.model.SuiteResult
 import org.scalacheck.Properties
