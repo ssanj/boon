@@ -47,7 +47,7 @@ import scala.util.Try
 
   def oneOrMore[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
 
-  def one[A](head: A): NonEmptySeq[A] = NonEmptySeq.nes[A](head)
+  def one[A](head: A): NonEmptySeq[A] = NonEmptySeq.one[A](head)
 
   //implicits
   implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)

@@ -20,7 +20,8 @@ lazy val commonSettings = Seq(
                       "-Ywarn-infer-any",
                       "-Ywarn-nullary-override",
                       "-Ywarn-nullary-unit",
-                      "-language:implicitConversions"
+                      "-language:implicitConversions",
+                      "-language:higherKinds"
                     ),
 
   scalacOptions in (Compile, console) := Seq(
@@ -29,7 +30,8 @@ lazy val commonSettings = Seq(
                       "-deprecation",
                       "-explaintypes",
                       "-feature",
-                      "-language:implicitConversions"
+                      "-language:implicitConversions",
+                      "-language:higherKinds"
   ),
 
   scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
@@ -45,7 +47,7 @@ lazy val boon = (project in file("core"))
     testFrameworks := Seq(new TestFramework("boon.sbt.BoonFramework"), sbt.TestFrameworks.ScalaCheck),
     libraryDependencies ++= Seq(
         "org.scala-sbt"  % "test-interface" % "1.0",
-        "org.scalacheck" %% "scalacheck"    % "1.13.4" % Test
+        "org.scalacheck" %% "scalacheck"    % "1.14.0" % Test
     )
   )
 

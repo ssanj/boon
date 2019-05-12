@@ -104,6 +104,14 @@ object NonEmptySeq {
 
   def nes[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)
 
+  def one[A](head: A): NonEmptySeq[A] = NonEmptySeq.nes[A](head)
+
+  def fromVector[A](value: Vector[A]): Option[NonEmptySeq[A]] =
+    value match {
+      case Vector() => None
+      case h +: t => Some(NonEmptySeq(h, t))
+    }
+
   def headOnly[A](xs: NonEmptySeq[A]): Boolean = xs.tail.isEmpty
 
   def nonEmptyTail[A](xs: NonEmptySeq[A]): Boolean = xs.tail.nonEmpty
