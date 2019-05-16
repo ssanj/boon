@@ -1,8 +1,7 @@
 package boon
 package model
 
-import boon.data.NonEmptySeq
-
+//typesafe equality
 trait Equality[A] {
 
   def eql(a1: A, a2: A): Boolean
@@ -47,78 +46,9 @@ object Equality {
 
   def apply[A: Equality]: Equality[A] = implicitly[Equality[A]]
 
-  def from[A](f: (A, A) => Boolean): Equality[A] = new Equality[A] {
+  private def from[A](f: (A, A) => Boolean): Equality[A] = new Equality[A] {
     override def eql(a1: A, a2: A): Boolean = f(a1, a2)
   }
 
-  def genericEquality[A] = from[A](_ == _)
-
-  implicit val intEquality     = genericEquality[Int]
-  implicit val longEquality    = genericEquality[Long]
-  implicit val booleanEquality = genericEquality[Boolean]
-  implicit val stringEquality  = genericEquality[String]
-  implicit val floatEquality   = genericEquality[Float]
-  implicit val doubleEquality  = genericEquality[Double]
-  implicit val charEquality    = genericEquality[Char]
-
-  implicit def listEquality[A: Equality] = from[List[A]] { (xs, ys) =>
-    if (xs.length == ys.length) {
-      val E = Equality[A]
-      xs.zip(ys).forall(p => E.eql(p._1, p._2))
-    } else false
-  }
-
-  implicit def nonEmptySeqEquality[A](implicit EL: Equality[List[A]]) =
-    from[NonEmptySeq[A]] { (xs, ys) =>
-      EL.eql(xs.toList, ys.toList)
-    }
-
-  implicit def optionEquality[A: Equality] = from[Option[A]] {
-    case (Some(x), Some(y)) => Equality[A].eql(x, y)
-    case (None, None)       => true
-    case _                  => false
-  }
-
-  implicit def eitherEquality[A: Equality, B: Equality] = from[Either[A, B]] {
-    case (Left(x), Left(y))   => Equality[A].eql(x, y)
-    case (Right(x), Right(y)) => Equality[B].eql(x, y)
-    case _                    => false
-  }
-
-  implicit def pairEquality[A: Equality, B: Equality] = from[(A, B)] {
-    case ((x1, y1), (x2, y2)) => Equality[A].eql(x1, x2) && Equality[B].eql(y1, y2)
-  }
-
-  implicit def tripleEquality[A: Equality, B: Equality, C: Equality] = from[(A, B, C)] {
-    case ((x1, y1, z1), (x2, y2, z2)) =>
-      Equality[A].eql(x1, x2) &&
-      Equality[B].eql(y1, y2) &&
-      Equality[C].eql(z1, z2)
-  }
-
-  implicit def tuple4Equality[A: Equality, B: Equality, C: Equality, D: Equality] = from[(A, B, C, D)] {
-    case ((a1, b1, c1, d1), (a2, b2, c2, d2)) =>
-      Equality[A].eql(a1, a2) &&
-      Equality[B].eql(b1, b2) &&
-      Equality[C].eql(c1, c2)  &&
-      Equality[D].eql(d1, d2)
-  }
-
-  implicit def mapEquality[A: Ordering: Equality, B: Ordering: Equality] = from[Map[A, B]] { (xs, ys) =>
-   (xs.isEmpty && ys.isEmpty) ||
-      (xs.size == ys.size && {
-        {
-          import scala.collection.immutable.TreeSet
-          (TreeSet.empty[A] ++ xs.keySet).zip((TreeSet.empty[A] ++ ys.keySet)).forall(x => Equality[A].eql(x._1, x._2)) &&
-          {
-            val xValues = xs.values.toSeq
-            val yValues = ys.values.toSeq
-
-            (xValues.isEmpty && yValues.isEmpty) ||
-            (xs.values.toSeq.sorted[B].zip(ys.values.toSeq.sorted[B]).forall(x => Equality[B].eql(x._1, x._2)))
-          }
-        }
-      })
-  }
-
+  implicit def genericEquality[A] = from[A](_ == _)
 }

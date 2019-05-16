@@ -21,7 +21,7 @@ object BoonType {
       override def diff(a1: A, a2: A): NonEmptySeq[String] = diffy(a1, a2)
     }
 
-  implicit def fromInstances[A](implicit equality: Equality[A], strRep: StringRep[A], diff: Difference[A]): BoonType[A] = {
+  implicit def boonTypeFromInstances[A](implicit equality: Equality[A], strRep: StringRep[A], diff: Difference[A]): BoonType[A] = {
     BoonType.from[A](equality.eql, strRep.strRep, diff.diff)
   }
 
@@ -37,7 +37,7 @@ object BoonType {
         mkString(s"${caseClass.productPrefix}(", ",", ")")
     }
 
-    val equality = Equality.genericEquality[(String, String)]
+    val fieldEquality = Equality[(String, String)]
 
     val diff = Difference.from[A] { (a1, a2) =>
       import scala.collection.immutable.TreeMap
@@ -45,7 +45,7 @@ object BoonType {
       val fields1 = TreeMap[String, String]() ++ (implicitly[CaseClassToMap[A]].asMap(a1)).toVector
       val fields2 = TreeMap[String, String]() ++ (implicitly[CaseClassToMap[A]].asMap(a2)).toVector
 
-      val diffFields = fields1.zip(fields2).filter { case (f1, f2) => equality.neql(f1, f2) }
+      val diffFields = fields1.zip(fields2).filter { case (f1, f2) => fieldEquality.neql(f1, f2) }
 
       val genericDifferences = Difference.genericDifference[A](sRep).diff(a1, a2)
       genericDifferences ++ diffFields.toSeq.map{ case ((k1, v1), (_, v2)) => s"${k1}: ${v1} != ${v2}" }
@@ -69,7 +69,7 @@ object BoonType {
     from[A](defaultBoonType.eql, defaultBoonType.strRep, diff)
   }
 
-  def contraBoonType[A, B](bToA: B => A)(implicit boonTypeA: BoonType[A]): BoonType[B] = {
+  def contraBoonType[A, B](bToA: B => A)(boonTypeA: BoonType[A]): BoonType[B] = {
     from[B]((b1, b2) => boonTypeA.eql(bToA(b1), bToA(b2)),
              b => boonTypeA.strRep(bToA(b)),
              (b1, b2) => boonTypeA.diff(bToA(b1), bToA(b2))
@@ -77,9 +77,7 @@ object BoonType {
   }
 
   implicit def fromListBoonTypeToSeq[A](
-    implicit listEquality: Equality[List[A]],
-             listStringRep: StringRep[List[A]],
-             listDiff: Difference[List[A]]): BoonType[Seq[A]] = {
-    contraBoonType[List[A], Seq[A]](_.toList)(fromInstances[List[A]])
+    implicit listBoonType: BoonType[List[A]]): BoonType[Seq[A]] = {
+    contraBoonType[List[A], Seq[A]](_.toList)(from[List[A]](listBoonType.eql, listBoonType.strRep, listBoonType.diff))
   }
 }
