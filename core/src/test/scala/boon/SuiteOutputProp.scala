@@ -1,21 +1,15 @@
 package boon
 
-import boon.model.TestResult
 import boon.model.SuiteState
-import boon.model.DeferredSuite
 import boon.model.SuiteResult
 import boon.result.SuiteOutput
 import org.scalacheck.Properties
 import org.scalacheck._
-import Arbitrary.arbitrary
 import org.scalacheck.Prop.BooleanOperators
 import scalacheck.ModelArb._
+import scalacheck.SuiteResultArb._
 
 object SuiteOutputProps extends Properties("SuiteOutput") {
-
-  private case class OnlySuccessfulSuiteResult(suiteResult: SuiteResult)
-  private case class OnlyUnsuccessfulSuiteResult(suiteResult: SuiteResult)
-  private case class MixedSuiteResult(suiteResult: SuiteResult)
 
   property("fails if any test fails") =
     Prop.forAll { result: OnlyUnsuccessfulSuiteResult =>
@@ -42,37 +36,4 @@ object SuiteOutputProps extends Properties("SuiteOutput") {
 
         (suiteOutput.state == suiteState) :| s"expected a suiteOutput: ${suiteOutput} to be equal to: ${suiteState} for ${suiteResult}"
     }
-
-  private implicit val onlyUnsuccessfulSuiteResultArbitrary: Arbitrary[OnlyUnsuccessfulSuiteResult] = Arbitrary {
-    for {
-      suite       <- arbitrary[DeferredSuite]
-      testResults <- manyOf(10, onlyUnsuccessfulTestResultGen)
-    } yield OnlyUnsuccessfulSuiteResult(SuiteResult(suite, testResults))
-  }
-
-  private def onlyUnsuccessfulTestResultGen: Gen[TestResult] =
-    Gen.oneOf(testThrewResultGen,
-             compositeTestStoppedOnFirstTestResultGen,
-             singleTestAllFailedTestResultGen)
-
-  private implicit val onlySuccessfulSuiteResultArbitrary: Arbitrary[OnlySuccessfulSuiteResult] = Arbitrary {
-    for {
-      suite       <- arbitrary[DeferredSuite]
-      testResults <- manyOf(10, onlySuccessfulTestResultGen)
-    } yield OnlySuccessfulSuiteResult(SuiteResult(suite, testResults))
-  }
-
-  private def onlySuccessfulTestResultGen: Gen[TestResult] =
-    Gen.oneOf(testIgnoredResultGen,
-             compositeTestAllPassedTestResultGen,
-             singleTestAllPassedTestResultGen)
-
-  private implicit val mixedSuiteResultArbitrary: Arbitrary[MixedSuiteResult] = Arbitrary {
-    for {
-       suite        <- arbitrary[DeferredSuite]
-       unsuccessful <- onlyUnsuccessfulTestResultGen
-       successful   <- onlySuccessfulTestResultGen
-       testResults  <- manyOf(10, Gen.oneOf(onlySuccessfulTestResultGen, onlyUnsuccessfulTestResultGen))
-    } yield MixedSuiteResult(SuiteResult(suite, unsuccessful +: successful +: testResults))
-  }
 }
