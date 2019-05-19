@@ -1,5 +1,8 @@
 # boon [![Build Status](https://travis-ci.org/ssanj/boon.svg?branch=master)](https://travis-ci.org/ssanj/boon) [ ![Download](https://api.bintray.com/packages/ssanj/maven/boon/images/download.svg) ](https://bintray.com/ssanj/maven/boon/_latestVersion)
 
+> /buːn/ (noun)
+> a thing that is helpful or beneficial
+
 boon is a small framework for testing pure code. boon is:
 
 1. Opinionated
