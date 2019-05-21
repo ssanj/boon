@@ -1,9 +1,9 @@
 package boon
 package syntax
 
+import boon.model.Difference
 import boon.model.AssertionData
 import boon.model.StringRep
-import boon.model.Predicate
 
 import scala.util.Try
 import scala.reflect.ClassTag
@@ -14,12 +14,11 @@ object exception {
     implicit classTag: ClassTag[T]): AssertionData = {
       val expectedClass = classTag.runtimeClass
       val expectedClassName = expectedClass.getName
-      val pred: Predicate[Boolean] =
-        expectedClass.isAssignableFrom(e.getClass) >> oneOrMore(s"expected: $expectedClassName got: ${e.getClass.getName}")
+      val diff = Difference.fromResult[Boolean](one(s"expected: $expectedClassName got: ${e.getClass.getName}"))
 
       //supply the location of the invocation here,
       //otherwise the error will point to the line below
-      pred.|("exception class")(implicitly, implicitly, loc) and
+      expectedClass.isAssignableFrom(e.getClass).|?("exception class", diff)(implicitly, loc) and
       assertMessage(e.getMessage)
   }
 

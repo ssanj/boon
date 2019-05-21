@@ -5,7 +5,7 @@ import boon.data.NonEmptySeq
 
 import scala.language.higherKinds
 
-//This is not a Typeclass.
+//This is not a Typeclass although it is supplied by the same mechanisms.
 trait Difference[A] {
   def diff(a1: A, a2: A): NonEmptySeq[String]
 }

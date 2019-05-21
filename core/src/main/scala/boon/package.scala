@@ -65,16 +65,16 @@ import scala.util.Try
     TestData(AssertionData.assertions, Independent)
 
   implicit def booleanToPredicate(value1: => Boolean): Predicate[Boolean] =
-    new Predicate[Boolean]((defer(value1), defer(true)), IsEqual, noErrorOverrides)
+    new Predicate[Boolean]((defer(value1), defer(true)), IsEqual)
 
   implicit def deferBooleanToPredicate(value: Defer[Boolean]): Predicate[Boolean] =
-    new Predicate[Boolean]((value, defer(true)), IsEqual, noErrorOverrides)
+    new Predicate[Boolean]((value, defer(true)), IsEqual)
 
   implicit class StringRepSyntax[A](value: => A) {
     def strRep(implicit strRepA: StringRep[A]): String = strRepA.strRep(value)
   }
 
-  def fail(reason: String): Predicate[Boolean] = false >> one(s"explicit fail: $reason")
+  def fail(reason: String): syntax.PredicateFailSyntax = new syntax.PredicateFailSyntax(one(s"explicit fail: $reason"))
 
   def pass: Predicate[Boolean] = true
 
@@ -83,6 +83,9 @@ import scala.util.Try
 
   def %@[A](provide: => A, prefix: String)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
     assertionBlock(cs(provide), Option(prefix))(loc)
+
+
+  def context(pairs: (String, String)*): Map[String, String] = Map(pairs:_*)
 
   private def assertionBlock(cs: => AssertionData, prefixOp: Option[String])(implicit loc: SourceLocation): AssertionData = {
     val nameOp = for {

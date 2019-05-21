@@ -1,6 +1,11 @@
 package boon
 package model
 
+import boon.data.NonEmptySeq
+import boon.BoonAssertions.failWith
+import boon.BoonAssertions.Desc
+import boon.BoonAssertions.Got
+import boon.BoonAssertions.Expected
 import syntax._
 import option._
 import internal.instances._
@@ -11,7 +16,7 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
     val deferInt1 = defer(10)
     val deferInt2 = defer(20)
     val intPair = (deferInt1, deferInt2)
-    val intPredicate = new Predicate[Int](intPair, IsEqual, None)
+    val intPredicate = new Predicate[Int](intPair, IsEqual)
     val assertionData = intPredicate | "Int predicate"
 
     %@(assertionData.assertions) { assertions =>
@@ -28,32 +33,41 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
           testable.difference.diff(value1, value2) =?= one("10 != 20") | "difference" and
           testable.equalityType =?= IsEqual                            | "equalityType"
         } and %@(a1.location, "a1.loc") { loc =>
-          loc.line =?= 15 | "line" and
+          loc.line =?= 20 | "line" and
           some_?(loc.fileName)(_ =?= "PredicateSuite.scala" | "fileName") and
           some_?(loc.filePath)(_.endsWith("PredicateSuite.scala") | "filePath")
         }
       }
-    } and none_?(intPredicate.overrideErrors)( pass | "no errors overridden")
-  }
-
-  private val t2 = test("Override error messages") {
-    val deferString = defer("some String")
-    val stringPair = (deferString, deferString)
-    val stringPredicate = new Predicate[String](stringPair, IsEqual, None)
-
-    none_?(stringPredicate.overrideErrors)(pass | "create without errors overridden") and
-    %@(stringPredicate >> oneOrMore("error1", "error2")) { pred1 =>
-      some_?(pred1.overrideErrors)(_ =?= oneOrMore("error1", "error2") | "having errors overridden")
     }
   }
 
-  private val t3 = test("Create Predicate with error messages") {
-    val deferChar1 = defer('c')
-    val deferChar2 = defer('d')
-    val charPair = (deferChar1, deferChar2)
-    val charPredicate = new Predicate[Char](charPair, IsNotEqual, oneOrMore("err1", "err2", "err3").some)
+  private val t2 = test("overriding difference") {
+    val errors = oneOrMore("one", "two", "three", "a one-two-three")
+    val diff = Difference.fromResult[String](errors)
+    val testPredicate = test("test predicate override diffs") {
+      "Hello" =?= "Yellow" |? ("greeting", diff)
+    }
 
-    some_?(charPredicate.overrideErrors)(_ =?= oneOrMore("err1", "err2", "err3") | "create with errors overridden")
+    Boon.runTest(testPredicate) match {
+      case SingleTestResult(_, NonEmptySeq(SingleAssertionResult(AssertionResultFailed(AssertionError(_, assertionErrors))), _)) =>
+        pass                       | "valid test result" and
+        assertionErrors =?= errors | "expected diffs"
+      case other => failWith(Expected("SingleAssertionResult/AssertionResultFailed/AssertionError"), Got(other), Desc("valid test result"))
+    }
+  }
+
+  private val t3 = test("overriding error messages") {
+    val errors = oneOrMore("four", "five", "six")
+    val testPredicate = test("test predicate override error messages") {
+      ("blue" =?= "Red") >> errors | "Colours"
+    }
+
+    Boon.runTest(testPredicate) match {
+      case SingleTestResult(_, NonEmptySeq(SingleAssertionResult(AssertionResultFailed(AssertionError(_, assertionErrors))), _)) =>
+        pass                       | "valid test result" and
+        assertionErrors =?= errors | "expected error messages"
+      case other => failWith(Expected("SingleAssertionResult/AssertionResultFailed/AssertionError"), Got(other), Desc("valid test result"))
+    }
   }
 
   override val tests = oneOrMore(t1, t2, t3)
