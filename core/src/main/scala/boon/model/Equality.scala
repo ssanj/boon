@@ -50,5 +50,7 @@ object Equality {
     override def eql(a1: A, a2: A): Boolean = f(a1, a2)
   }
 
-  implicit def genericEquality[A] = from[A](_ == _)
+  def genEq[A] = from[A](_ == _)
+
+  implicit def genericEquality[A] = genEq[A]
 }

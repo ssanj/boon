@@ -6,6 +6,7 @@ import boon.BoonAssertions.failWith
 import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
+import Equality.genEq
 import syntax._
 import option._
 import internal.instances._
@@ -33,7 +34,7 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
           testable.difference.diff(value1, value2) =?= one("10 != 20") | "difference" and
           testable.equalityType =?= IsEqual                            | "equalityType"
         } and %@(a1.location, "a1.loc") { loc =>
-          loc.line =?= 20 | "line" and
+          loc.line =?= 21 | "line" and
           some_?(loc.fileName)(_ =?= "PredicateSuite.scala" | "fileName") and
           some_?(loc.filePath)(_.endsWith("PredicateSuite.scala") | "filePath")
         }
@@ -45,7 +46,7 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
     val errors = oneOrMore("one", "two", "three", "a one-two-three")
     val diff = Difference.fromResult[String](errors)
     val testPredicate = test("test predicate override diffs") {
-      "Hello" =?= "Yellow" |? ("greeting", diff)
+      "Hello" =?= "Yellow" |? ("greeting", diff, genEq, noContext)
     }
 
     Boon.runTest(testPredicate) match {

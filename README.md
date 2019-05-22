@@ -460,9 +460,9 @@ scala> REPL.runAssertions(1 =?= 1 | "one")(ReplConfig(boon.printers.FlatPrinter)
 
 To use boon with your own custom types, you need three functions:
 
-1. `(T, T) => Boolean` - defines how two values of a type `T` are equated This is similar to the Cats [Eq](https://typelevel.org/cats/typeclasses/eq.html) typeclass.
-1. `T => String` - defines how an instance of type `T` is displayed. This is similar to the Cats [Show](https://typelevel.org/cats/typeclasses/show.html) typeclass
-1. `(T, T) => NonEmptySeq[String]` -  defines how the differences between two instances of type `T` are displayed on failure
+1. `(T, T) => Boolean` - defines how two values of a type `T` are equated. This is modelled by the [Equality](https://github.com/ssanj/boon/blob/master/core/src/main/scala/boon/model/Equality.scala) typeclass. It is similar to the Cats [Eq](https://typelevel.org/cats/typeclasses/eq.html) typeclass.
+1. `T => String` - defines how an instance of type `T` is displayed. This is modelled by the [StringRep](https://github.com/ssanj/boon/blob/master/core/src/main/scala/boon/model/StringRep.scala) typeclass. It is similar to the Cats [Show](https://typelevel.org/cats/typeclasses/show.html) typeclass
+1. `(T, T) => NonEmptySeq[String]` -  defines how the differences between two instances of type `T` are displayed on failure. This is modelled by the [Difference](https://github.com/ssanj/boon/blob/master/core/src/main/scala/boon/model/Difference.scala) trait.
 
 These three functions are bundled into the `BoonType` typeclass.
 
@@ -502,6 +502,27 @@ If we change `p1 =?= p3` we get:
 
 If you don't want to use default instances, you can use one of the many methods on [BoonType](https://github.com/ssanj/boon/blob/master/core/src/main/scala/boon/BoonType.scala) to create `BoonType` instances.
 
+## Customising Assertions
+
+If you want to customise the equality or difference function used on a Predicate use the `|?` function:
+
+```scala
+import boon._
+import boon.model.Equality.genEq
+import boon.model.Difference
+
+val diff = Difference.from[String]((v1, v2) => oneOrMore(s"$v1 is not the same as $v2"))
+
+"Hello" =?= "Yellow" |? ("greeting", diff, genEq, noContext)
+```
+
+which will result in:
+
+```bash
+   - greeting [✗]
+     => Hello is not the same as Yellow
+```
+
 ## Glossary ##
 
 ### Operators ###
@@ -529,6 +550,7 @@ If you don't want to use default instances, you can use one of the many methods 
 | Operator  | What it's for | Example |
 | ------------- | ------------- | ------------- |
 | \\|   | Also adds a context to an Assertion. *The context is displayed when an assertion fails* | x * y =?= 3 \\|("multiplication", "x" -> x.toString, "y" -> y.toString)  |
+  | \\|? | Customising Predicate output and equality  | <code>1 =?= 2 \\|? ("numbers", Difference.from[Int]((v1,v2) => oneOrMore(s"Invalid! $v1 is not $v2")), genEq, noContext)</code> |
 | >> | Provides custom errors on failure | 1 =?= 2 >> oneOrMore("error1","error2") |
 
 

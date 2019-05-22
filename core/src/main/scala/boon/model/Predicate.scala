@@ -15,16 +15,16 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
     )
   }
 
-  def |?(name: => String, difference: Difference[A], ctx: (String, String)*)(implicit E: Equality[A], loc: SourceLocation): AssertionData = {
+  def |?(name: => String, difference: Difference[A], E: Equality[A], ctx: Map[String, String])(implicit loc: SourceLocation): AssertionData = {
     new AssertionData(
       NonEmptySeq.nes(
-        defineAssertion[A](name, (pair), equalityType, Map(ctx:_*))(E, difference, loc)))
+        defineAssertion[A](name, (pair), equalityType, ctx)(E, difference, loc)))
   }
 
   def >>(diff: => NonEmptySeq[String])(implicit E: Equality[A], loc: SourceLocation): PredicateSyntaxEx = new PredicateSyntaxEx {
     override def |(name: => String, ctx: (String, String)*): AssertionData = {
       val difference = Difference.fromResult[A](diff)
-      Predicate.this.|?(name, difference, ctx:_*)
+      Predicate.this.|?(name, difference, E, Map(ctx:_*))
     }
   }
 }

@@ -4,6 +4,7 @@ package syntax
 import boon.model.Difference
 import boon.model.AssertionData
 import boon.model.StringRep
+import boon.model.Equality.genEq
 
 import scala.util.Try
 import scala.reflect.ClassTag
@@ -18,7 +19,7 @@ object exception {
 
       //supply the location of the invocation here,
       //otherwise the error will point to the line below
-      expectedClass.isAssignableFrom(e.getClass).|?("exception class", diff)(implicitly, loc) and
+      expectedClass.isAssignableFrom(e.getClass).|?("exception class", diff, genEq, noContext)(loc) and
       assertMessage(e.getMessage)
   }
 
