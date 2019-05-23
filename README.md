@@ -26,7 +26,7 @@ Some things that are unique to boon:
 Add the following to your `build.sbt` file:
 
 ```scala
-libraryDependencies += "net.ssanj" %% "boon" % "0.0.2-b00" % Test
+libraryDependencies += "net.ssanj" %% "boon" % "0.0.3-b00" % Test
 
 testFrameworks += new TestFramework("boon.sbt.BoonFramework")
 
@@ -171,19 +171,36 @@ The main difference is that if the Assertion fails you get a Boolean failure not
 [info]      => false != true
 ```
 
-With a Predicate, you can use the `>>` operator to override the failure message to something more descriptive:
+With a Predicate, you can use the `>>` operator to override (or *Replace*) the failure message to something more descriptive:
 
 ```scala
-List.empty[String].isEmpty >> oneOrMore("empty List is not empty", "I expected empty!") | "empty List is empty"
+!List.empty[String].isEmpty >> (oneOrMore("empty List is not empty", "I expected empty!"), Replace) | "empty List is empty"
 ```
 
 Results in:
 
 ```bash
-[info]    - empty List is empty [✗]
-[info]      => empty List is not empty
-[info]         I expected empty!
+   - empty List is empty [✗]
+     => empty List is not empty
+        I expected empty!
 ```
+
+You can also add (or *Append*) some additional messages to the failed output:
+
+```scala
+!List.empty[String].isEmpty >> (oneOrMore("empty List is not empty", "I expected empty!"), Append) | "empty List is empty"
+```
+
+Results in:
+
+```bash
+   - empty List is empty [✗]
+     => false != true
+        empty List is not empty
+        I expected empty!
+```
+
+Notice the *false != true* error.
 
 ### Block Assertions
 
@@ -551,7 +568,8 @@ which will result in:
 | ------------- | ------------- | ------------- |
 | \\|   | Also adds a context to an Assertion. *The context is displayed when an assertion fails* | x * y =?= 3 \\|("multiplication", "x" -> x.toString, "y" -> y.toString)  |
   | \\|? | Customising Predicate output and equality  | <code>1 =?= 2 \\|? ("numbers", Difference.from[Int]((v1,v2) => oneOrMore(s"Invalid! $v1 is not $v2")), genEq, noContext)</code> |
-| >> | Provides custom errors on failure | 1 =?= 2 >> oneOrMore("error1","error2") |
+| >> | Replace custom errors on failure | 1 =?= 2 >> (oneOrMore("error1","error2"), Replace) |
+| >> | Append custom errors on failure | 1 =?= 2 >> (oneOrMore("error1","error2"), Append) |
 
 
 ### More Methods ###
