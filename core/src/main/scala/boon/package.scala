@@ -88,8 +88,8 @@ import scala.util.Try
   def %@[A](provide: => A, prefix: String)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
     assertionBlock(cs(provide), Option(prefix))(loc)
 
-
-  def context(pairs: (String, String)*): Map[String, String] = Map(pairs:_*)
+  def ctx(first: (String, String), pairs: (String, String)*): NonEmptySeq[String] =
+    oneOrMore(first, pairs:_*).map { case (k, v) =>  s"${k} -> ${v}"}
 
   private def assertionBlock(cs: => AssertionData, prefixOp: Option[String])(implicit loc: SourceLocation): AssertionData = {
     val nameOp = for {

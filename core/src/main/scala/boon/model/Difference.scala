@@ -22,6 +22,9 @@ object Difference {
 
   def fromResult[A](f: => NonEmptySeq[String]) = from[A]((_, _) => f)
 
+  def appendResult[A](difference: Difference[A], f: => NonEmptySeq[String]): Difference[A] =
+    from[A]((v1, v2) => difference.diff(v1, v2).concat(f))
+
   //Primitives
   implicit val intDifference     = genericDifference[Int]
   implicit val longDifference    = genericDifference[Long]

@@ -27,4 +27,11 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
       Predicate.this.|?(name, difference, E, Map(ctx:_*))
     }
   }
+
+  def >>>(extra: => NonEmptySeq[String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntaxEx = new PredicateSyntaxEx {
+    override def |(name: => String, ctx: (String, String)*): AssertionData = {
+      val difference = Difference.appendResult(D, extra)
+      Predicate.this.|?(name, difference, E, Map(ctx:_*))
+    }
+  }
 }
