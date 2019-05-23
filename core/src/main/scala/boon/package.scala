@@ -74,7 +74,11 @@ import scala.util.Try
     def strRep(implicit strRepA: StringRep[A]): String = strRepA.strRep(value)
   }
 
-  def fail(reason: String): syntax.PredicateFailSyntax = new syntax.PredicateFailSyntax(one(s"explicit fail: $reason"))
+  def fail(reason: String): syntax.PredicateSyntaxEx = new syntax.PredicateSyntaxEx {
+
+    override def |(name: => String, ctx: (String, String)*): AssertionData =
+      false >> one(s"explicit fail: $reason") | (name, ctx:_*)
+  }
 
   def pass: Predicate[Boolean] = true
 
