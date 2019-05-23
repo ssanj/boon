@@ -60,7 +60,7 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
   private val t3 = test("overriding error messages") {
     val errors = oneOrMore("four", "five", "six")
     val testPredicate = test("test predicate override error messages") {
-      ("blue" =?= "Red") >> errors | "Colours"
+      ("blue" =?= "Red") >> (errors, Replace) | "Colours"
     }
 
     Boon.runTest(testPredicate) match {
@@ -71,5 +71,21 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
     }
   }
 
-  override val tests = oneOrMore(t1, t2, t3)
+  private val t4 = test("append additional error messages") {
+    val additional = oneOrMore("AA", "BB")
+    val testPredicate = test("test predicate add error messages") {
+      ("deep space 9" =?= "deep space 8") >> (additional, Append) | "Space stations"
+    }
+
+    val expectedErrors = oneOrMore("\"deep space 9\" != \"deep space 8\"").concat(additional)
+
+    Boon.runTest(testPredicate) match {
+      case SingleTestResult(_, NonEmptySeq(SingleAssertionResult(AssertionResultFailed(AssertionError(_, assertionErrors))), _)) =>
+        pass                               | "valid test result" and
+        assertionErrors =?= expectedErrors | "expected error messages"
+      case other => failWith(Expected("SingleAssertionResult/AssertionResultFailed/AssertionError"), Got(other), Desc("valid test result"))
+    }
+  }
+
+  override val tests = oneOrMore(t1, t2, t3, t4)
 }

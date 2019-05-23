@@ -2,6 +2,7 @@ package boon
 package syntax
 
 import boon.model.Predicate
+import boon.model.Replace
 import boon.model.AssertionData
 
 import scala.util.matching.Regex
@@ -15,7 +16,7 @@ object regex {
           val result: Predicate[Boolean] = reg.findFirstIn(value).fold(false)(_ => true)
           val diff = one(s"'${value}' did not match regex: /${reg}/")
 
-          result >> diff | (name, ctx:_*)
+          result >> (diff, Replace) | (name, ctx:_*)
         }
       }
   }

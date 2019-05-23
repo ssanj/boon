@@ -15,23 +15,26 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
     )
   }
 
-  def |?(name: => String, difference: Difference[A], E: Equality[A], ctx: Map[String, String])(implicit loc: SourceLocation): AssertionData = {
+  def |?(name: => String, difference: Difference[A], equality: Equality[A], ctx: Map[String, String])(implicit loc: SourceLocation): AssertionData = {
     new AssertionData(
       NonEmptySeq.nes(
-        defineAssertion[A](name, (pair), equalityType, ctx)(E, difference, loc)))
+        defineAssertion[A](name, (pair), equalityType, ctx)(equality, difference, loc)))
   }
 
-  def >>(diff: => NonEmptySeq[String])(implicit E: Equality[A], loc: SourceLocation): PredicateSyntaxEx = new PredicateSyntaxEx {
-    override def |(name: => String, ctx: (String, String)*): AssertionData = {
-      val difference = Difference.fromResult[A](diff)
-      Predicate.this.|?(name, difference, E, Map(ctx:_*))
+  def >>(diffContent: => NonEmptySeq[String], mod: DifferenceMod)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntaxEx =
+    >** { case (equality, difference) =>
+        (equality,
+          mod match {
+            case Replace => Difference.fromResult[A](diffContent)
+            case Append  => Difference.appendResult(difference, diffContent)
+          }
+        )
     }
-  }
 
-  def >>>(extra: => NonEmptySeq[String])(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntaxEx = new PredicateSyntaxEx {
+  def >**(modify: (Equality[A], Difference[A]) => (Equality[A], Difference[A]))(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntaxEx = new PredicateSyntaxEx {
     override def |(name: => String, ctx: (String, String)*): AssertionData = {
-      val difference = Difference.appendResult(D, extra)
-      Predicate.this.|?(name, difference, E, Map(ctx:_*))
+      val (equality, difference) = modify(E, D)
+      Predicate.this.|(name, ctx:_*)(equality, difference, loc)
     }
   }
 }

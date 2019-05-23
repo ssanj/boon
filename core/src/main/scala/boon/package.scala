@@ -77,7 +77,7 @@ import scala.util.Try
   def fail(reason: String): syntax.PredicateSyntaxEx = new syntax.PredicateSyntaxEx {
 
     override def |(name: => String, ctx: (String, String)*): AssertionData =
-      false >> one(s"explicit fail: $reason") | (name, ctx:_*)
+      false >> (one(s"explicit fail: $reason"), Replace) | (name, ctx:_*)
   }
 
   def pass: Predicate[Boolean] = true
