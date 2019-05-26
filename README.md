@@ -589,42 +589,14 @@ which will result in:
 
 Syntax extensions are more for ease-of-use than something that must be used. It's pretty easy to write these extensions yourself. The following extensions have been created to save you even more time.
 
-#### Exceptions ####
-
-| Operator  | What it's for | Example |
-| ------------- | ------------- | ------------- |
-| =!=  | Compares an Exception thrown by class and message | <code>flakey =!=[RuntimeException](_ =?= "Boom!" \\| "expected Boom!")</code> |
-|   | Also compares an Exception by class and message | <code>ex =!=[RuntimeException](_ =?= "Boom!" \\| "expected Boom!")</code> |
-
-#### Regular Expressions ####
-
-| Operator  | What it's for | Example |
-| ------------- | ------------- | ------------- |
-| =^= | Compares a String to a regular expression | "Path error: /some/path" =^= "Path error:.*".r |
-
-#### Option ####
-
-| Operator  | What it's for | Example |
-| ------------- | ------------- | ------------- |
-| some_? | expects a Some(value) | <code>some_?\[Int\](20.some)(_ =/= 10  \\| "Some(20) is not ten")</code>  |
-| none_? | expects a None | <code>none_?\[Int\](noneValue)(pass \\| "expected None")</code> |
-
-#### Either ####
-
-| Operator  | What it's for | Example |
-| ------------- | ------------- | ------------- |
-| left_? | expects Left value | <code>left_?\[String, Int\](leftValue)(_.endsWith("or1") \\| "ends with or1")</code> |
-| right_? | expects a Right value | <code>right_?\[String, Int\](rightValue)(_ =/= 10 \\| "right is not ten")</code> |
-
-#### null ####
-
-| Operator  | What it's for | Example |
-| ------------- | ------------- | ------------- |
-| null_? | expects a null value | <code>null_?(nullValue)(pass \\| "null value")</code> |
-| null_! | expects a non-null value | <code>null_!(notNullString)(_  =?= "notNull" \\| "not null String" )</code> |
+- [Exceptions](docs/glossary/syntax-extensions/exceptions.md)
+- [Regex](docs/glossary/syntax-extensions/regex.md)
+- [Option](docs/glossary/syntax-extensions/option.md)
+- [Either](docs/glossary/syntax-extensions/either.md)
+- [Try](docs/glossary/syntax-extensions/try.md)
+- [null](docs/glossary/syntax-extensions/null.md)
 
 ---
-
 
 ## Publishing
 
