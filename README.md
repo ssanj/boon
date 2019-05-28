@@ -38,9 +38,9 @@ You can now run all the usual `sbt` test commands such as: `test` and `testOnly`
 For more information see the following links:
 
 - [API](docs/api/index.md)
-- [Customising Output](docs/customising-output.md)
-- [Running in the REPL](docs/running-in-the-repl.md)
 - [Use Custom Types in Assertions](docs/use-custom-types-in-assertions.md)
 - [Customising Assertions](docs/customising-assertions.md)
+- [Customising Output](docs/customising-output.md)
+- [Running in the REPL](docs/running-in-the-repl.md)
 - [Glossary](docs/glossary/index.md)
 - [Publishing](docs/publishing.md)
