@@ -107,7 +107,7 @@ def tests: NonEmptySeq[Test]
 
 Running the above **Suite** produces the following output:
 
-![boon-output](images/boon-my-first-suite.png)
+![boon-output](/images/boon-my-first-suite.png)
 
 Let's update our String equality Predicate so it fails:
 
@@ -117,7 +117,7 @@ Let's update our String equality Predicate so it fails:
 
 Now when we run the Suite it produces the following output:
 
-![failure-output](images/boon-my-first-suite-failure.png)
+![failure-output](/images/boon-my-first-suite-failure.png)
 
 ### Booleans are Predicates
 
