@@ -134,37 +134,6 @@ The main difference is that if the Assertion fails you get a Boolean failure not
 [info]      => false != true
 ```
 
-With a Predicate, you can use the `>>` operator to override (or *Replace*) the failure message to something more descriptive:
-
-```scala
-!List.empty[String].isEmpty >> (oneOrMore("empty List is not empty", "I expected empty!"), Replace) | "empty List is empty"
-```
-
-Results in:
-
-```bash
-   - empty List is empty [✗]
-     => empty List is not empty
-        I expected empty!
-```
-
-You can also add (or *Append*) some additional messages to the failed output:
-
-```scala
-!List.empty[String].isEmpty >> (oneOrMore("empty List is not empty", "I expected empty!"), Append) | "empty List is empty"
-```
-
-Results in:
-
-```bash
-   - empty List is empty [✗]
-     => false != true
-        empty List is not empty
-        I expected empty!
-```
-
-Notice the *false != true* error.
-
 ### Block Assertions
 
 If you want to run multiple Assertions on an expression you can do so with the `%@` operator:
@@ -303,3 +272,30 @@ You can then use the truth table within a `table` test:
 ```scala
 val multTest = table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)
 ```
+
+### NonEmptySeq of Assertion is an Assertion
+
+Say you had a collection of values and you wanted to assert that they all held some kind of property. You could just map over those values with your Assertion and get one big Assertion that verifies it all.
+
+```scala
+val t1 = test("less than 10") {
+  oneOrMore(1, (2 to 9):_*).map(n => n < 10 | s"$n < 10")
+}
+```
+
+When we run the above Test we get:
+
+```
+ - less than 10 [passed]
+   - 1 < 10 [✓]
+   - 2 < 10 [✓]
+   - 3 < 10 [✓]
+   - 4 < 10 [✓]
+   - 5 < 10 [✓]
+   - 6 < 10 [✓]
+   - 7 < 10 [✓]
+   - 8 < 10 [✓]
+   - 9 < 10 [✓]
+```
+
+*note*: This only works with `NonEmptySeq`
