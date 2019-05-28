@@ -8,7 +8,7 @@ At the heart of boon, is a **Predicate**. A Predicate is a boolean expression. T
 actualValue =?= expectedValue
 ```
 
-_The `=?=` operator is a typesafe equality operator. See [Operators](#operators) for additional operators_.
+_The `=?=` operator is a typesafe equality operator. See [Operators](glossary/operators.md) for additional operators_.
 
 For example to test two Int operands for equality:
 
