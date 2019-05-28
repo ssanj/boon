@@ -43,4 +43,4 @@ For more information see the following links:
 - [Use Custom Types in Assertions](docs/use-custom-types-in-assertions.md)
 - [Customising Assertions](docs/customising-assertions.md)
 - [Glossary](docs/glossary/index.md)
-- [Publishing](docs/glossary/publishing.md)
+- [Publishing](docs/publishing.md)
