@@ -1,6 +1,7 @@
 package boon
 package model
 
+import scala.collection.GenTraversable
 import boon.data.NonEmptySeq
 
 trait StringRep[A] {
@@ -46,7 +47,16 @@ object StringRep {
 
   implicit val charStringRep = from[Char](c => s"'$c'")
 
-  implicit def listStringRep[A: StringRep] = from[List[A]](_.map(StringRep[A].strRep).mkString("List[", ",", "]"))
+  private def colStringRep[A: StringRep, F[A] <: GenTraversable[A]](prefix: String, open: String, close: String) =
+    from[F[A]](_.map(StringRep[A].strRep).mkString(s"${prefix}${open}", ", ", s"${close}"))
+
+  implicit def listStringRep[A: StringRep] = colStringRep[A, List]("List", "(", ")")
+
+  implicit def vectorStringRep[A: StringRep] = colStringRep[A, Vector]("Vector", "(", ")")
+
+  implicit def setStringRep[A: StringRep] = colStringRep[A, Set]("Set", "(", ")")
+
+  implicit def seqStringRep[A: StringRep] = colStringRep[A, Seq]("Seq", "(", ")")
 
   implicit def nonEmptySeqStringRep[A: StringRep] = from[NonEmptySeq[A]](_.map(StringRep[A].strRep).mkString("NES(", ",", ")"))
 

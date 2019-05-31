@@ -37,25 +37,36 @@ object Difference {
   //Type constructors
   implicit def optionDifference[A: StringRep]               = genericDifference[Option[A]]
   implicit def eitherDifference[A: StringRep, B: StringRep] = genericDifference[Either[A, B]]
-  implicit def mapDifference[A: StringRep, B: StringRep]    = genericDifference[Map[A, B]]
-  implicit def nonEmptyDifference[A: StringRep]             = seqDifference[A, NonEmptySeq](_.toSeq)
-  implicit def listDifference[A: StringRep]                 = seqDifference[A, List](identity _)
+  implicit def nonEmptyDifference[A: StringRep]             = colDifference[A, NonEmptySeq](_.toSeq)
+  implicit def listDifference[A: StringRep]                 = colDifference[A, List](identity _)
+  implicit def setDifference[A: StringRep]                  = colDifference[A, Set](_.toSeq)
+  implicit def vectorDifference[A: StringRep]               = colDifference[A, Vector](_.toSeq)
+  implicit def seqDifference[A: StringRep]                  = colDifference[A, Seq](identity _)
+  implicit def mapDifference[A: StringRep, B: StringRep]    = mapLikeDifference[A, B, Map](_.toSeq)
 
   //Tuple
   implicit def pairDifference[A: StringRep, B: StringRep]                               = genericDifference[(A, B)]
   implicit def tripleDifference[A: StringRep, B: StringRep, C: StringRep]               = genericDifference[(A, B, C)]
   implicit def tuple4Difference[A: StringRep, B: StringRep, C: StringRep, D: StringRep] = genericDifference[(A, B, C, D)]
 
-  def seqDifference[A: StringRep, S[_]](f: S[A] => Seq[A])(implicit SR: StringRep[S[A]]) =
+  def colDifference[A: StringRep, S[_]](f: S[A] => Seq[A])(implicit SR: StringRep[S[A]]): Difference[S[A]] =
     from[S[A]]{ (xs: S[A], ys: S[A]) =>
       val rep = SR
       val summary = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
-      seqDiff[A](f(xs), f(ys))(summary)
+      seqDiff(f(xs), f(ys))(summary)
     }
 
-  private def seqDiff[A](colL: Seq[A], colR: Seq[A])(summary: String): NonEmptySeq[String] = {
+  def mapLikeDifference[A: StringRep, B: StringRep, S[_, _]](f: S[A, B] => Seq[(A, B)])(implicit SR: StringRep[S[A, B]]) =
+    from[S[A, B]]{ (xs: S[A, B], ys: S[A, B]) =>
+      val rep = SR
+      val summary = s"${rep.strRep(xs)} != ${rep.strRep(ys)}"
+      implicit val mapElementStringRep: StringRep[(A, B)] = StringRep.from[(A, B)](pair => s"${StringRep[A].strRep(pair._1)} -> ${StringRep[B].strRep(pair._2)}")
+      seqDiff[(A, B)](f(xs), f(ys))(summary)
+    }
 
-    def contents(col: Seq[A]): String = if (col.isEmpty) "-" else col.mkString("[", ",", "]")
+  private def seqDiff[A: StringRep](colL: Seq[A], colR: Seq[A])(summary: String): NonEmptySeq[String] = {
+
+    def contents(col: Seq[A]): String = if (col.isEmpty) "-" else col.map(StringRep[A].strRep)mkString("[", ",", "]")
 
     val both    = colL.filter(colR.contains(_))
     val left    = colL.filter(!colR.contains(_))
