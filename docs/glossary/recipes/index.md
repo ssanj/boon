@@ -84,7 +84,7 @@ outputs:
 
 ```
 - 10 is between 1 and 20 [✗]
- => false != true
+  => false != true
 ```
 
 Now if we want a better error message we can craft our own:
@@ -100,5 +100,5 @@ and now when we run it, it outputs:
 
 ```
 - 10 is between 1 and 20 [✗]
- => 10 is not between 20 and 30
+  => 10 is not between 20 and 30
 ```
