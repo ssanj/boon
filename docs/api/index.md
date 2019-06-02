@@ -273,6 +273,18 @@ You can then use the truth table within a `table` test:
 val multTest = table[(Int, Int), Int]("Multiplication", multTable)(n => n._1 * n._2)
 ```
 
+When we run the **multTest** we get:
+
+```
+- Multiplication [passed]
+  - with (1, 4) is 4 [✓]
+  - with (2, 6) is 12 [✓]
+  - with (5, 10) is 50 [✓]
+  - with (7, 7) is 49 [✓]
+  - with (-2, -1) is 2 [✓]
+  - with (10, 20) is 200 [✓]
+```
+
 ### NonEmptySeq of Assertion is an Assertion
 
 Say you had a collection of values and you wanted to assert that they all held some kind of property. You could just map over those values with your Assertion and get one big Assertion that verifies it all.

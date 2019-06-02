@@ -91,7 +91,7 @@ Now if we want a better error message we can craft our own:
 
 ```scala
  def between(value: Int)(lower: Int, upper: Int) = {
-    val message = oneOrMore(s"$value is not between ${lower} and ${upper}")
+  val message = oneOrMore(s"$value is not between ${lower} and ${upper}")
   (value >= lower && value <= upper) >> (message, model.Replace)
  }
 ```
