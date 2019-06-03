@@ -49,6 +49,11 @@ import scala.util.Try
 
   def one[A](head: A): NonEmptySeq[A] = NonEmptySeq.one[A](head)
 
+  val Replace = DiffReplace
+  val Append  = DiffAppend
+
+  type PredicateSyntax = syntax.PredicateSyntax
+
   //implicits
   implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
 
@@ -74,7 +79,7 @@ import scala.util.Try
     def strRep(implicit strRepA: StringRep[A]): String = strRepA.strRep(value)
   }
 
-  def fail(reason: String): syntax.PredicateSyntaxEx = new syntax.PredicateSyntaxEx {
+  def fail(reason: String): PredicateSyntax = new PredicateSyntax {
 
     override def |(name: => String, ctx: (String, String)*): AssertionData =
       false >> (one(s"explicit fail: $reason"), Replace) | (name, ctx:_*)

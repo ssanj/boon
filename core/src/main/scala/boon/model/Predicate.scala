@@ -1,7 +1,6 @@
 package boon
 package model
 
-import boon.syntax.PredicateSyntaxEx
 import boon.data.NonEmptySeq
 import Boon.defineAssertion
 
@@ -21,7 +20,7 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
         defineAssertion[A](name, (pair), equalityType, ctx)(equality, difference, loc)))
   }
 
-  def >>(diffContent: => NonEmptySeq[String], mod: DifferenceMod)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntaxEx =
+  def >>(diffContent: => NonEmptySeq[String], mod: DifferenceMod)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntax =
     >** { case (equality, difference) =>
         (equality,
           mod match {
@@ -31,7 +30,7 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
         )
     }
 
-  private def >**(modify: (Equality[A], Difference[A]) => (Equality[A], Difference[A]))(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntaxEx = new PredicateSyntaxEx {
+  private def >**(modify: (Equality[A], Difference[A]) => (Equality[A], Difference[A]))(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntax = new PredicateSyntax {
     override def |(name: => String, ctx: (String, String)*): AssertionData = {
       val (equality, difference) = modify(E, D)
       Predicate.this.|(name, ctx:_*)(equality, difference, loc)

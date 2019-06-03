@@ -3,7 +3,6 @@ package boon
 import boon.data.NonEmptySeq
 import boon.model.TestName
 import boon.model.AllPassed
-import boon.model.Replace
 import boon.model.CompositeTestResult
 import BoonAssertions.assertSequentialPass
 import BoonAssertions.failWith

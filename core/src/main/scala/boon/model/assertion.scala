@@ -64,5 +64,5 @@ case object Independent extends AssertionCombinator
 case object Sequential extends AssertionCombinator
 
 sealed trait DifferenceMod
-case object Replace extends DifferenceMod
-case object Append extends DifferenceMod
+case object DiffReplace extends DifferenceMod
+case object DiffAppend extends DifferenceMod

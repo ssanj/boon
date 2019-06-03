@@ -3,6 +3,6 @@ package syntax
 
 import boon.model.AssertionData
 
-trait PredicateSyntaxEx {
+trait PredicateSyntax {
   def |(name: => String, ctx: (String, String)*): AssertionData
 }
