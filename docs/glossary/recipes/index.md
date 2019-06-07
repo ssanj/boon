@@ -37,6 +37,57 @@ values.exists(_.isLeft)  | "has a Left" and
 values.exists(_.isRight) | "has a Right"
 ```
 
+## A collection that has Left and Right values in particular positions
+
+```scala
+import syntax.either._
+import syntax.nes._
+
+def error(value: String): Either[String, Int] = Left(value)
+
+def success(value: Int): Either[String, Int] = Right(value)
+
+val l1 = oneOrMore(success(1), error("e1"), success(3), success(4))
+
+type E = Either[String, Int]
+
+
+val assertions = oneOrMore(isRight(_:E), isLeft(_:E), isRight(_:E), isRight(_:E))
+
+positional[E](l1)(assertions)
+```
+
+which results in:
+
+```
+  - match lengths [✓]
+  - is Right [✓]
+  - is Left [✓]
+  - is Right [✓]
+  - is Right [✓]
+```
+
+With a failing assertion:
+
+```scala
+val assertions2 = oneOrMore(isRight(_:E), isRight(_:E), isRight(_:E), isRight(_:E))
+
+positional[E](l1)(assertions2)
+```
+
+returns:
+
+```
+  - match lengths [✓]
+  - is Right [✓]
+  - is Right [✗]
+    => expected Right got: Left("e1")
+    at ...
+      #: values -> NES(Right(1),Left("e1"),Right(3),Right(4))
+  - is Right [✓]
+  - is Right [✓]
+```
+
 ## A String matches a Regular expression
 
 ```scala

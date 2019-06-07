@@ -8,3 +8,4 @@ Syntax extensions are more for ease-of-use than something that must be used. It'
 - [Either](/docs/glossary/syntax-extensions/either.md)
 - [Try](/docs/glossary/syntax-extensions/try.md)
 - [null](/docs/glossary/syntax-extensions/null.md)
+- [NonEmptySeq](/docs/glossary/syntax-extensions/nes.md)

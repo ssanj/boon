@@ -3,7 +3,6 @@ package syntax
 
 import boon.model.StringRep
 import boon.model.AssertionData
-import boon.data.NonEmptySeq
 
 object either {
 
@@ -31,16 +30,6 @@ object either {
 
   def isRight[A: StringRep, B: StringRep](either: Either[A, B])(implicit loc: SourceLocation): AssertionData = {
     either.isRight >> (one(s"expected Right got: ${StringRep[Either[A, B]].strRep(either)}"), Replace) | "is Right"
-  }
-
-  def eithers[L: StringRep, R: StringRep](values: NonEmptySeq[Either[L, R]])(assertions: NonEmptySeq[Either[L, R] => AssertionData]): AssertionData = {
-    (values.length =?= assertions.length) >> (
-    oneOrMore(
-      "lengths of values is different to assertions",
-      s"values length: ${values.length}",
-      s"assertions length: ${assertions.length}"
-    ), Replace) | "match lengths" and
-    values.zip(assertions).map { case (v, a) => a(v) }.context(Map("values" -> values.strRep))
   }
 }
 
