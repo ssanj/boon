@@ -1,4 +1,4 @@
-## Glossary ##
+# Glossary #
 
 - [Operators](/docs/glossary/operators.md)
 - [Methods](/docs/glossary/methods.md)

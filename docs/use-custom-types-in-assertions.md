@@ -1,4 +1,4 @@
-## Use Custom Types in Assertions
+# Use Custom Types in Assertions
 
 To use boon with your own custom types, you need three functions:
 

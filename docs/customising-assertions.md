@@ -1,6 +1,6 @@
-## Customising Assertions
+# Customising Assertions
 
-### Customising Output
+## Customising Output
 
 Sometimes we want to customise the failure messages of an Assertion. Given the following:
 
@@ -46,7 +46,7 @@ which results in:
         I expected empty!
 ```
 
-### Using a Custom Difference and Equality
+## Using a Custom Difference and Equality
 
 If you want to customise the equality or difference function used on a Predicate use the `|?` function:
 

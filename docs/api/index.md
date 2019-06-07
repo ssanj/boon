@@ -1,6 +1,6 @@
-## API
+# API
 
-### Predicate
+## Predicate
 
 At the heart of boon, is a **Predicate**. A Predicate is a boolean expression. The most basic way of creating a Predicate in boon, is by testing two values for equality:
 
@@ -16,7 +16,7 @@ For example to test two Int operands for equality:
 1 =?= 1
 ```
 
-### Assertion
+## Assertion
 
 A Predicate with a description is an **Assertion**:
 
@@ -38,7 +38,7 @@ Assertions are first class constructs in boon and can be combined with the `and`
 true =?= true       | "Boolean equality"
 ```
 
-### Test
+## Test
 
 **Assertions** are grouped into a **Test**:
 
@@ -50,7 +50,7 @@ test("equality of things") {
 }
 ```
 
-### Suite
+## Suite
 
 **Tests** are grouped into a **Suite**. All Suites must follow these rules:
 - Must be an `object` - This prevents inheritance abuse
@@ -119,7 +119,7 @@ Now when we run the Suite it produces the following output:
 
 ![failure-output](/images/boon-my-first-suite-failure.png)
 
-### Booleans are Predicates
+## Booleans are Predicates
 
 Any `Boolean` expression can be turned into a Predicate. That Predicate can then be made an Assertion:
 
@@ -134,7 +134,7 @@ The main difference is that if the Assertion fails you get a Boolean failure not
 [info]      => false != true
 ```
 
-### Block Assertions
+## Block Assertions
 
 If you want to run multiple Assertions on an expression you can do so with the `%@` operator:
 
@@ -163,7 +163,7 @@ results in the prefix prepended to each Assertion description:
 
 _When nesting blocks with prefixes, lower blocks will have the prefix of each upper block prepended to their Assertions_.
 
-### Contextual Errors
+## Contextual Errors
 
 Sometimes when a test fails you want more information about the values of certain variables used to calculate the result. You can specify these values when creating an Assertion:
 
@@ -185,7 +185,7 @@ When the above Assertion fails, the contextual values supplied will be displayed
 [info]           value -> "ob"
 ```
 
-### Independent Assertions
+## Independent Assertions
 
 By default, all Assertions are executed independently of each other. What this means is that a prior failing Assertion, will not prevent a subsequent Assertion from running:
 
@@ -222,7 +222,7 @@ val t1 = test("equality of things") {
 }
 ```
 
-### Sequential Assertions
+## Sequential Assertions
 
 What if we didn't want to run any of the other Assertions after a failing Assertion? We could specify that by using the `seq()` method:
 
@@ -249,7 +249,7 @@ Notice that the **String equality** and **Boolean equality** Assertions did not 
 
 Sequential Assertions are shown with a '↓' symbol in the output.
 
-### Tabulated Tests
+## Tabulated Tests
 
 If you have a truth table of inputs against some expected output, you can create a tabulated test. Start off by creating a `truthTable`:
 
@@ -285,7 +285,7 @@ When we run the **multTest** we get:
   - with (10, 20) is 200 [✓]
 ```
 
-### NonEmptySeq of Assertion is an Assertion
+## NonEmptySeq of Assertion is an Assertion
 
 Say you had a collection of values and you wanted to assert that they all held some kind of property. You could just map over those values with your Assertion and get one big Assertion that verifies it all.
 

@@ -1,4 +1,4 @@
-### Methods ###
+# Methods
 
 | Method  | What it's for | Example |
 | ------------- | ------------- | ------------- |

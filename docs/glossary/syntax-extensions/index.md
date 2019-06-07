@@ -1,4 +1,4 @@
-### Syntax Extensions ###
+# Syntax Extensions
 
 Syntax extensions are more for ease-of-use than something that must be used. It's pretty easy to write these extensions yourself. The following extensions have been created to save you even more time.
 

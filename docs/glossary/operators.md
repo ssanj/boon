@@ -1,4 +1,4 @@
-### Operators ###
+# Operators
 
 | Operator  | What it's for | Example |
 | ------------- | ------------- | ------------- |

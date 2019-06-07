@@ -1,4 +1,4 @@
-## Customise Output
+# Customise Output
 
 To customise the output of boon, you must implement the `boon.printers.BoonPrinter` trait:
 

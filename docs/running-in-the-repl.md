@@ -1,4 +1,4 @@
-## Running in the REPL
+# Running in the REPL
 
 Add the following import to run any Assertion, Test or Suite in a Scala Repl:
 
@@ -6,7 +6,7 @@ Add the following import to run any Assertion, Test or Suite in a Scala Repl:
 import boon._
 ```
 
-### Assertions
+## Assertions
 
 To run any Assertions use the `REPL.runAssertions` method:
 
@@ -31,7 +31,7 @@ Pete Holmes [passed]
 
 _The suite and test names are randomly generated_.
 
-### Tests
+## Tests
 
 To run any Tests use the `REPL.runTests` method:
 
@@ -59,7 +59,7 @@ Tig Notaro [passed]
 
 _The suite names are randomly generated_.
 
-### Suites
+## Suites
 
 To run any Suites use the `REPL.runSuites` method:
 
