@@ -47,6 +47,20 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
     NonEmptySeq((head, 0), bldr.result)
   }
 
+  def zip[B](other: NonEmptySeq[B]): NonEmptySeq[(A, B)] = {
+    val headO = other.head
+    val tailO = other.tail
+
+    NonEmptySeq((head, headO) ,tail.zip(tailO))
+  }
+
+  def zipAll[B](other: NonEmptySeq[B], defA: => A, defB: => B): NonEmptySeq[(A, B)] = {
+    val headO = other.head
+    val tailO = other.tail
+
+    NonEmptySeq((head, headO) ,tail.zipAll(tailO, defA, defB))
+  }
+
   def foreach(f: A => Unit): Unit = {
    val _ = map(f)
    ()
