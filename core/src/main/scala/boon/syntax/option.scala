@@ -1,6 +1,7 @@
 package boon
 package syntax
 
+import boon.model.StringRep
 import boon.model.AssertionData
 
 object option {
@@ -13,10 +14,17 @@ object option {
 
   def none[A]: Option[A] = None
 
+  def isSome[A](option: Option[A])(implicit loc: SourceLocation): AssertionData =
+    option.isDefined >> (one("expected Some got: None"), Replace) | "is Some"
+
   def some_?[A](option: Option[A])(f: A => AssertionData): AssertionData =
     option.fold(fail(s"expected Some but got None") | "expect Some")(f)
 
   def none_?[A](option: Option[A])(f: => AssertionData): AssertionData =
     option.fold(f)(_ => fail(s"expected None but got: $option") | "expect None")
+
+  def isNone[A: StringRep](option: Option[A])(implicit loc: SourceLocation): AssertionData =
+    option.isEmpty >> (one(s"expected None got: ${StringRep[Option[A]].strRep(option)}"), Replace) | "is None"
+
 }
 

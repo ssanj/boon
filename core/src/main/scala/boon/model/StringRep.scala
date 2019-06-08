@@ -1,6 +1,7 @@
 package boon
 package model
 
+import scala.util.Try
 import scala.collection.GenTraversable
 import boon.data.NonEmptySeq
 
@@ -22,6 +23,12 @@ trait StringRep[A] {
      */
     def equalValuesHaveSameStringRep(value1: A, value2: A, equalityA: Equality[A], equalityStr: Equality[String]): Boolean =
       !equalityA.eql(value1, value2) || equalityStr.eql(strRep(value1), strRep(value2))
+
+    /* Equal Strings should have equal values
+     * strRep(x) == strRep(y) then x == y
+     */
+    def sameStringRepHasEqualValues(value1: A, value2: A, equalityA: Equality[A], equalityStr: Equality[String]): Boolean =
+      !equalityStr.eql(strRep(value1), strRep(value2)) || equalityA.eql(value1, value2)
   }
 
   val stringReplaws = new StringRepLaws {}
@@ -62,6 +69,11 @@ object StringRep {
 
   implicit def eitherStringRep[A: StringRep, B: StringRep] =
     from[Either[A, B]](_.fold(l => s"Left(${StringRep[A].strRep(l)})", r => s"Right(${StringRep[B].strRep(r)})"))
+
+  implicit def throwableStringRep = from[Throwable](t => s"${t.getClass.getName}(${t.getMessage})")
+
+  implicit def tryStringRep[A: StringRep] =
+    from[Try[A]](_.fold(t => s"Failure(${StringRep[Throwable].strRep(t)})", success => s"Success(${StringRep[A].strRep(success)})"))
 
   implicit def optionStringRep[A: StringRep] = from[Option[A]](_.fold("None")(v => s"Some(${StringRep[A].strRep(v)})"))
 

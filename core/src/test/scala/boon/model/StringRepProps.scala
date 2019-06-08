@@ -7,6 +7,7 @@ import org.scalacheck.Properties
 import org.scalacheck._
 import Prop.forAll
 import scala.reflect.runtime.universe._
+import scala.util.Try
 
 object StringRepProps extends Properties("Equality") {
 
@@ -52,6 +53,14 @@ object StringRepProps extends Properties("Equality") {
   strRepLaws[Option[Double]]
   strRepLaws[Option[Char]]
 
+  strRepLaws[Try[Int]]
+  strRepLaws[Try[Long]]
+  strRepLaws[Try[String]]
+  strRepLaws[Try[Boolean]]
+  strRepLaws[Try[Float]]
+  strRepLaws[Try[Double]]
+  strRepLaws[Try[Char]]
+
   strRepLaws[(Int, Int)]
   strRepLaws[(Int, String)]
   strRepLaws[(Boolean, Double)]
@@ -75,6 +84,8 @@ object StringRepProps extends Properties("Equality") {
     property(s"${typeName}.stability") = forAll(stabilityLaw[A] _)
 
     property(s"${typeName}.equalValuesHaveSameStringRep") = forAll(equalValuesHaveSameStringRepLaw[A] _)
+
+    property(s"${typeName}.sameStringRepHasEqualValues") = forAll(sameStringRepHasEqualValues[A] _)
   }
 
   private def stabilityLaw[A: StringRep](value: A): Boolean = {
@@ -83,5 +94,9 @@ object StringRepProps extends Properties("Equality") {
 
   private def equalValuesHaveSameStringRepLaw[A: StringRep : Equality](value1: A, value2: A): Boolean = {
     StringRep[A].stringReplaws.equalValuesHaveSameStringRep(value1, value2, Equality[A], strEquality)
+  }
+
+  private def sameStringRepHasEqualValues[A: StringRep : Equality](value1: A, value2: A): Boolean = {
+    StringRep[A].stringReplaws.sameStringRepHasEqualValues(value1, value2, Equality[A], strEquality)
   }
 }
