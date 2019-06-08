@@ -47,6 +47,8 @@ lazy val boon = (project in file("core"))
     testFrameworks := Seq(new TestFramework("boon.sbt.BoonFramework"), sbt.TestFrameworks.ScalaCheck),
     libraryDependencies ++= Seq(
         "org.scala-sbt"  % "test-interface" % "1.0",
+        compilerPlugin("com.github.ghik" %% "silencer-plugin" % "1.4.1"),
+        "com.github.ghik" %% "silencer-lib" % "1.4.1" % Provided,
         "org.scalacheck" %% "scalacheck"    % "1.14.0" % Test
     )
   )
