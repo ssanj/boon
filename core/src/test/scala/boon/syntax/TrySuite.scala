@@ -12,13 +12,16 @@ object TrySuite extends SuiteLike("Try Suite") {
     val tryVal2 = Try(10)
 
     success_?(tryVal1)(_ =?= "hello" | "String success") and
-    success_?(tryVal2)(_ =?= 10      | "Int Success")
+    success_?(tryVal2)(_ =?= 10      | "Int Success")    and 
+    isSuccess(tryVal1)                                   and
+    isSuccess(tryVal2)
   }
 
   private val t2 = test("failures") {
-    val tryVal1 = Try(throw new RuntimeException("Ooops!"))
+    val tryVal1: Try[String] = Try(throw new RuntimeException("Ooops!"))
 
-    failure_?(tryVal1)(_ =!=[RuntimeException](_ =?= "Ooops!" | "ex message"))
+    failure_?(tryVal1)(_ =!=[RuntimeException](_ =?= "Ooops!" | "ex message")) and 
+    isFailure(tryVal1)
   }
 
   override val tests = oneOrMore(t1, t2)

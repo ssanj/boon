@@ -8,7 +8,7 @@ object nulls {
   def null_![A](value: => A)(f : A => AssertionData): AssertionData =
     fold[A, AssertionData](value)(fail(s"expected not null value") | "not null value")(f)
 
-  def notNull[A](value: => A)(implicit loc: SourceLocation): AssertionData =
+  def isNotNull[A](value: => A)(implicit loc: SourceLocation): AssertionData =
     fold[A, AssertionData](value)(
       false >> (one(s"expected not null got: null"), Replace) | "not null")(
       _ => pass | "not null")

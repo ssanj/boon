@@ -31,9 +31,9 @@ object CustomClassesSuite extends SuiteLike("CustomClasses") {
 
  private val t2 = test("default TC instance for Sum type") {
    sealed trait Colour
-   case object Red extends Colour
+   case object Red   extends Colour
    case object Green extends Colour
-   case object Blue extends Colour
+   case object Blue  extends Colour
 
    implicit val colourBoonType: BoonType[Colour] = BoonType.defaults[Colour]
 
