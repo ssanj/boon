@@ -2,3 +2,6 @@
 target
 .ctags_srcs
 .tags
+.bloop
+.metals
+project/.bloop
