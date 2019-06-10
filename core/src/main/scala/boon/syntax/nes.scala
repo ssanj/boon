@@ -14,6 +14,8 @@ object nes {
       s"values length: ${values.length}",
       s"assertions length: ${assertions.length}"
     ), Replace) | "match lengths" and
-    values.zip(assertions).map { case (v, af) => af(v).context(Map("received value" -> StringRep[A].strRep(v))) }.context(Map("values" -> values.strRep))
+    values.zipWithIndex.zip(assertions).map { 
+      case ((v, index), af) => af(v).context(Map(s"expected value at (${index})" -> StringRep[A].strRep(v))) 
+    }.context(Map("values" -> values.strRep))
   }
 }

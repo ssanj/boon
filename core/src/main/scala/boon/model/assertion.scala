@@ -5,6 +5,8 @@ import boon.data._
 
 final case class AssertionTriple(name: AssertionName, context: Map[String, String], location: SourceLocation)
 
+final case class AssertionFailureDouble(name: AssertionName, errors: NonEmptySeq[String])
+
 object AssertionTriple {
 
   def from(assertion: Assertion): AssertionTriple = AssertionTriple(assertion.name, assertion.context, assertion.location)
@@ -35,6 +37,11 @@ object AssertionResult {
     case SingleAssertionResult(_: AssertionResultPassed)         => AssertionState.Passed
     case SingleAssertionResult(_: AssertionResultFailed)         => AssertionState.Failed
     case SingleAssertionResult(_: AssertionResultThrew )         => AssertionState.Failed
+  }
+
+  def getErrors(ar: AssertionResult): Option[AssertionFailureDouble] = ar match {
+    case SingleAssertionResult(AssertionResultFailed(AssertionError(assertion, errors))) => Some(AssertionFailureDouble(assertion.name, errors))
+    case _ => None
   }
 }
 
