@@ -14,6 +14,10 @@ final case class AssertionData(assertions: NonEmptySeq[Assertion]) {
     AssertionData(assertionsWithContext)
   }
 
+  def label(f: AssertionName => AssertionName): AssertionData = {
+    this.copy(assertions = assertions.map(a => a.copy(name = f(a.name))))
+  }
+
   def seq(): TestData = TestData(assertions, Sequential)
 
   def ind(): TestData = TestData(assertions, Independent)
