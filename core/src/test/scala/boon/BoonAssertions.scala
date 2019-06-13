@@ -65,6 +65,14 @@ private[boon] object BoonAssertions {
     }
   }
 
+  def mapElements2[A: Ordering, B: Ordering](elements: Map[A, B], prefix: => String)(f1: (A, B) => AssertionData, f2: (A, B) => AssertionData): AssertionData = {
+    elements.size =?= 2 | s"${prefix} has 2 elements" and
+    %@(elements.toVector.sorted) { els =>
+      %@(els(0), s"${prefix}(0)") { Function.tupled(f1) } and
+      %@(els(1), s"${prefix}(1)") { Function.tupled(f2) }
+    }
+  }
+
   def nesElements1[A](elements: NonEmptySeq[A], prefix: => String)(f1: A => AssertionData): AssertionData = {
     elements.length =?= 1 | s"$prefix has 1 element" and
     %@(elements.toSeq) { els =>

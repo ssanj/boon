@@ -1,4 +1,5 @@
-package boon.syntax
+package boon
+package syntax
 
 import boon.model.AssertionFailureDouble
 import boon.model.AssertionData
@@ -12,10 +13,12 @@ import boon.BoonAssertions.Expected
 import boon._
 import syntax.either._
 import syntax.option._
+import syntax.regex._
 import syntax.nes._
 import BoonAssertions.failWith
 import BoonAssertions.nesElements1
 import BoonAssertions.nesElements5
+import BoonAssertions.mapElements2
 import model.AssertionResult.assertionNameFromResult
 import model.AssertionResult.getErrors
 
@@ -35,7 +38,7 @@ object NesSuite extends SuiteLike("NonEmptySeq Suite") {
       case SingleTestResult(DeferredTest(TestName(testName), _, _), assertionResults) =>
         testName =?= "positional failure test" | "test name"        and
         nesElements5[AssertionResult](assertionResults, "assertionResults")(
-          assertionLength _,
+          assertionLength (4) _,
           assertionIsRight(0) _,
           assertionIsLeft (1) _,
           assertionIsRight(2) _,
@@ -59,7 +62,7 @@ object NesSuite extends SuiteLike("NonEmptySeq Suite") {
       case SingleTestResult(DeferredTest(TestName(testName), _, _), assertionResults) =>
         testName =?= "positional success test" | "test name"        and
         nesElements5[AssertionResult](assertionResults, "assertionResults")(
-          assertionLength _,
+          assertionLength (4) _,
           assertionIsRight(0) _,
           assertionIsRight(1) _,
           assertionIsRight(2) _,
@@ -74,15 +77,19 @@ object NesSuite extends SuiteLike("NonEmptySeq Suite") {
 
   private def success(value: Int): Either[String, Int] = Right(value)
 
-  private def assertionLength(ar: AssertionResult): AssertionData = 
-    assertionNameFromResult(ar).value =?= "match lengths" | "positional match length"
+  private def assertionLength(length: Int)(ar: AssertionResult): AssertionData = 
+    assertionNameFromResult(ar).value =?= s"match lengths of $length" | "positional match length"
 
   private def assertionIsLeft(index: Int)(ar: AssertionResult): AssertionData = {
     some_?[AssertionFailureDouble](getErrors(ar)) { failureDouble =>
 
-      failureDouble.name.value =?= s"element(${index}) is Right" | "failed isRight assertion" and
+      failureDouble.assertion.name.value =?= s"element(${index}) is Right" | "failed isRight assertion" and
       nesElements1[String](failureDouble.errors, "errors")(
         _ =?= "expected Right got: Left(\"some error\")"| "error message"
+      ) and 
+      mapElements2(failureDouble.assertion.context, "ctx")(
+        (k, v) => k =?= s"expected value at (${index})" | "key 1" and v =?= "Left(\"some error\")" | "value 1",
+        (k, v) => s"values" =?= k | "key 2" and v =^= s"""(${index}) -> Left(.)""".r | "value 2"
       )
     }
   }
