@@ -26,7 +26,7 @@ Some things that are unique to boon:
 Add the following to your `build.sbt` file:
 
 ```scala
-libraryDependencies += "net.ssanj" %% "boon" % "0.0.4-b01" % Test
+libraryDependencies += "net.ssanj" %% "boon" % "0.0.5-b01" % Test
 
 testFrameworks += new TestFramework("boon.sbt.BoonFramework")
 
