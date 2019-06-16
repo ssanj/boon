@@ -1,6 +1,5 @@
 package boon
 
-import boon.data.NonEmptySeq
 import boon.model.AssertionResultThrew
 import boon.model.AssertionThrow
 import boon.model.AssertionName
@@ -14,6 +13,8 @@ import boon.model.AssertionTriple
 import boon.model.AssertionResultPassed
 import boon.model.SingleAssertionResult
 import boon.model.AssertionData
+
+import scala.collection.SortedMap
 
 private[boon] object BoonAssertions {
 
@@ -53,11 +54,6 @@ private[boon] object BoonAssertions {
       }
     }
 
-  def nesElements[A](elements: NonEmptySeq[A], no: Int, f: Seq[A] => AssertionData): AssertionData = {
-    elements.length =?= no | "no of elements" and
-    %@(elements.toSeq, "element")(f)
-  }
-
   def seqElements1[A](elements: Seq[A], prefix: => String)(f1: A => AssertionData): AssertionData = {
     elements.length =?= 1 | s"$prefix has 1 element" and
     %@(elements) { els =>
@@ -65,56 +61,15 @@ private[boon] object BoonAssertions {
     }
   }
 
-  def mapElements2[A: Ordering, B: Ordering](elements: Map[A, B], prefix: => String)(f1: (A, B) => AssertionData, f2: (A, B) => AssertionData): AssertionData = {
-    elements.size =?= 2 | s"${prefix} has 2 elements" and
-    %@(elements.toVector.sorted) { els =>
-      %@(els(0), s"${prefix}(0)") { Function.tupled(f1) } and
-      %@(els(1), s"${prefix}(1)") { Function.tupled(f2) }
-    }
-  }
-
-  def nesElements1[A](elements: NonEmptySeq[A], prefix: => String)(f1: A => AssertionData): AssertionData = {
-    elements.length =?= 1 | s"$prefix has 1 element" and
-    %@(elements.toSeq) { els =>
-      %@(els(0), s"${prefix}(0)") { e1 => f1(e1) }
-    }
-  }
-
-  def nesElements2[A](elements: NonEmptySeq[A], prefix: => String)(f1: A => AssertionData, f2: A => AssertionData): AssertionData = {
-    elements.length =?= 2 | s"$prefix has 2 elements" and
-    %@(elements.toSeq) { els =>
-      %@(els(0), s"${prefix}(0)") { e1 => f1(e1) } and
-      %@(els(1), s"${prefix}(1)") { e2 => f2(e2) }
-    }
-  }
-
-  def nesElements3[A](elements: NonEmptySeq[A], prefix: => String)(f1: A => AssertionData, f2: A => AssertionData, f3: A => AssertionData): AssertionData = {
-    elements.length =?= 3 | s"$prefix has 3 elements" and
-    %@(elements.toSeq) { els =>
-      %@(els(0), s"${prefix}(0)") { e1 => f1(e1) } and
-      %@(els(1), s"${prefix}(1)") { e2 => f2(e2) } and
-      %@(els(2), s"${prefix}(2)") { e3 => f3(e3) }
-    }
-  }
-
-  def nesElements4[A](elements: NonEmptySeq[A], prefix: => String)(f1: A => AssertionData, f2: A => AssertionData, f3: A => AssertionData, f4: A => AssertionData): AssertionData = {
-    elements.length =?= 4 | s"$prefix has 4 elements" and
-    %@(elements.toSeq) { els =>
-      %@(els(0), s"${prefix}(0)") { e1 => f1(e1) } and
-      %@(els(1), s"${prefix}(1)") { e2 => f2(e2) } and
-      %@(els(2), s"${prefix}(2)") { e3 => f3(e3) } and
-      %@(els(3), s"${prefix}(3)") { e4 => f4(e4) }
-    }
-  }
-
-  def nesElements5[A](elements: NonEmptySeq[A], prefix: => String)(f1: A => AssertionData, f2: A => AssertionData, f3: A => AssertionData, f4: A => AssertionData, f5: A => AssertionData): AssertionData = {
-    elements.length =?= 5 | s"$prefix has 5 elements" and
-    %@(elements.toSeq) { els =>
-      %@(els(0), s"${prefix}(0)") { e1 => f1(e1) } and
-      %@(els(1), s"${prefix}(1)") { e2 => f2(e2) } and
-      %@(els(2), s"${prefix}(2)") { e3 => f3(e3) } and
-      %@(els(3), s"${prefix}(3)") { e4 => f4(e4) } and
-      %@(els(4), s"${prefix}(4)") { e5 => f5(e5) }
+  def mapElements2[A: Ordering, B](elements: Map[A, B], prefix: => String)(f1: (A, B) => AssertionData, f2: (A, B) => AssertionData): AssertionData = {
+    if (elements.size != 2) {
+      elements.size =?= 2 | s"${prefix} has 2 elements"
+    } else {
+      elements.size =?= 2 | s"${prefix} has 2 elements" and
+      %@(SortedMap.apply[A, B](elements.toVector:_*).toVector) { els =>
+        %@(els(0), s"${prefix}(0)") { Function.tupled(f1) } and
+        %@(els(1), s"${prefix}(1)") { Function.tupled(f2) }
+      }
     }
   }  
 }

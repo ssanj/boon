@@ -8,8 +8,8 @@ import result.AssertionOutput
 import result.TestPassedOutput
 import result.TestThrewOutput
 import result.TestIgnoredOutput
-import BoonAssertions.nesElements1
-import BoonAssertions.nesElements2
+import syntax.nes.nesElements1
+import syntax.nes.nesElements2
 
 object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
 

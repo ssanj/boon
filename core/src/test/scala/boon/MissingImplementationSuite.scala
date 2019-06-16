@@ -10,7 +10,7 @@ import result.Trace
 import model.TestState
 import model.AssertionData
 import model.internal.instances._
-import BoonAssertions.nesElements3
+import syntax.nes.nesElements3
 
 object MissingImplementationSuite extends SuiteLike("Missing Implementation Suite") {
 

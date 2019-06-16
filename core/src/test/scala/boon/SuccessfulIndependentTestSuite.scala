@@ -9,7 +9,7 @@ import BoonAssertions.assertAssertionResultPassed
 import BoonAssertions.Expected
 import BoonAssertions.Got
 import BoonAssertions.Desc
-import BoonAssertions.nesElements3
+import syntax.nes.nesElements3
 
 object SuccessfulIndependentTestSuite extends SuiteLike("BoonSuite") {
 

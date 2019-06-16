@@ -6,8 +6,8 @@ import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
 import boon.BoonAssertions.failWith
-import boon.BoonAssertions.nesElements1
-import boon.BoonAssertions.nesElements2
+import syntax.nes.nesElements1
+import syntax.nes.nesElements2
 import boon.model.AssertionResult
 import boon.model.SingleAssertionResult
 import boon.model.AssertionResultPassed
