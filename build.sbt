@@ -49,8 +49,7 @@ lazy val boon = (project in file("core"))
         "org.scala-sbt"  % "test-interface" % "1.0",
         compilerPlugin("com.github.ghik" %% "silencer-plugin" % "1.4.1"),
         "com.github.ghik" %% "silencer-lib" % "1.4.1" % Provided,
-        "org.scalacheck" %% "scalacheck"    % "1.14.0" % Test,
-        "net.ssanj" %% "zen" % "3.0.0"
+        "org.scalacheck" %% "scalacheck"    % "1.14.0" % Test
     )
   )
 
