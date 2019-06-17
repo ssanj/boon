@@ -14,7 +14,7 @@ import boon.BoonAssertions.Expected
 import boon.model.TestName
 import boon.model.internal.instances._
 import boon.BoonAssertions.failWith
-import syntax.nes.positional
+import syntax.collection.positional
 import syntax.exception._
 import syntax.option.none
 

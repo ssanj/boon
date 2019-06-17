@@ -9,8 +9,7 @@ import result.AssertionOutput
 import result.TestPassedOutput
 import result.TestThrewOutput
 import result.TestIgnoredOutput
-import syntax.nes.positional
-import syntax.nes.positional
+import syntax.collection.positional
 import model.internal.instances._
 
 object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {

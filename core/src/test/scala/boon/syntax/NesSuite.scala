@@ -14,9 +14,9 @@ import boon._
 import syntax.either._
 import syntax.option._
 import syntax.regex._
-import syntax.nes._
+import syntax.collection._
 import BoonAssertions.failWith
-import nes.positional
+import collection.positional
 import model.AssertionResult.assertionNameFromResult
 import model.AssertionResult.getErrors
 import model.internal.instances._

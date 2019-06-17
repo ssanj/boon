@@ -6,7 +6,7 @@ import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
 import boon.BoonAssertions.failWith
-import syntax.nes.positional
+import syntax.collection.positional
 import boon.model.AssertionResult
 import boon.model.SingleAssertionResult
 import boon.model.AssertionResultPassed

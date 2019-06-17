@@ -7,7 +7,7 @@ import model.AssertionData
 import model.StringRep
 import scala.collection.immutable.SortedMap
 
-object nes {
+object collection {
 
   def positional[A: StringRep](values: NonEmptySeq[A], prefix: => String)(assertions: NonEmptySeq[A => AssertionData]): AssertionData = {
     (values.length =?= assertions.length) >> (

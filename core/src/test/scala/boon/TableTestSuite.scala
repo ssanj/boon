@@ -5,7 +5,7 @@ import boon.model.AssertionTriple
 import boon.model.AssertionResult
 import boon.model.AssertionResultPassed
 import boon.model.SingleAssertionResult
-import syntax.nes.positional
+import syntax.collection.positional
 import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected

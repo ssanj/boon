@@ -15,7 +15,7 @@ import BoonAssertions.assertSequentialPass
 import BoonAssertions.Expected
 import BoonAssertions.Got
 import BoonAssertions.Desc
-import syntax.nes.positionalSeq
+import syntax.collection.positionalSeq
 
 object MixedSequentialStopsOnFailureTestSuite extends SuiteLike("BoonSuite") {
 
