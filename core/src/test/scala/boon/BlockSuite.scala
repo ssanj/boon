@@ -6,8 +6,7 @@ import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
 import boon.BoonAssertions.failWith
-import syntax.nes.nesElements1
-import syntax.nes.nesElements2
+import syntax.nes.positional
 import boon.model.AssertionResult
 import boon.model.SingleAssertionResult
 import boon.model.AssertionResultPassed
@@ -15,6 +14,7 @@ import boon.model.Independent
 import boon.model.TestName
 import boon.model.DeferredTest
 import boon.model.SingleTestResult
+import boon.model.internal.instances._
 
 object BlockSuite extends SuiteLike("Block Test Suite") {
 
@@ -29,10 +29,10 @@ object BlockSuite extends SuiteLike("Block Test Suite") {
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
         name =?= "my block test" | "test name" and
-        nesElements2(assertions, "assertions")(
-          _.name.value =?= "length"  | "assertion",
-          _.name.value =?= "reverse" | "assertion"
-        ) and assertionResults.toSeq.forall {
+        positional(assertions, "assertions"){
+          oneOrMore(_.name.value =?= "length"  | "assertion", 
+                    _.name.value =?= "reverse" | "assertion")
+        } and assertionResults.toSeq.forall {
           case SingleAssertionResult(AssertionResultPassed(_)) =>  true
           case _ => false
         } | ("all passed",
@@ -70,9 +70,7 @@ object BlockSuite extends SuiteLike("Block Test Suite") {
     Boon.runTest(test) match {
       case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), _) =>
         name =?= testName | "test name" and
-        nesElements1(assertions, "block")(
-          _.name.value =?= assertionName  | "assertion",
-        )
+        positional(assertions, "block")(one(_.name.value =?= assertionName  | "assertion"))
       case other => failWith(Expected("SingleTestResult"),  Got(other), Desc("test type"))
     }
   }

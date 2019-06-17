@@ -60,7 +60,7 @@ private[boon] object BoonAssertions {
       %@(els(0), s"${prefix}(0)") { e1 => f1(e1) }
     }
   }
-
+  
   def mapElements2[A: Ordering, B](elements: Map[A, B], prefix: => String)(f1: (A, B) => AssertionData, f2: (A, B) => AssertionData): AssertionData = {
     if (elements.size != 2) {
       elements.size =?= 2 | s"${prefix} has 2 elements"

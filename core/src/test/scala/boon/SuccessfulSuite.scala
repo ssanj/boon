@@ -3,12 +3,13 @@ package boon
 import data.NonEmptySeq
 import model.TestData
 import model.TestState
+import model.internal.instances._
 import result.SuiteOutput
 import result.AssertionOutput
 import result.TestPassedOutput
 import result.TestThrewOutput
 import result.TestIgnoredOutput
-import syntax.nes.nesElements1
+import syntax.nes.positional
 import syntax.nes.nesElements2
 
 object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
@@ -46,9 +47,9 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
         )
       , test2 =>
         test2.name =?= "String.reverse" | "test.name" and
-        nesElements1(test2.assertions, "tests")(
-          assertions2 => SuiteOutput.assertionName(assertions2) =?= "Hola" | "assertion.name"
-        )
+        positional(test2.assertions, "tests"){
+          one(assertions2 => SuiteOutput.assertionName(assertions2) =?= "Hola" | "assertion.name")
+        }
     )
   }
 

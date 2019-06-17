@@ -12,8 +12,9 @@ import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
 import boon.model.TestName
+import boon.model.internal.instances._
 import boon.BoonAssertions.failWith
-import syntax.nes.nesElements1
+import syntax.nes.positional
 import syntax.exception._
 import syntax.option.none
 
@@ -26,7 +27,7 @@ object BlockWithExceptionSuite extends SuiteLike("Block Test Suite") {
       }
     }
 
-    assertBlockException(tx, "assertion @ (BlockWithExceptionTestSuite.scala:24) !!threw an Exception!!")
+    assertBlockException(tx, "assertion @ (BlockWithExceptionTestSuite.scala:25) !!threw an Exception!!")
   }
 
   private val t2 = test("exception in block") {
@@ -37,7 +38,7 @@ object BlockWithExceptionSuite extends SuiteLike("Block Test Suite") {
       }
     }
 
-    assertBlockException(tx, "assertion @ (BlockWithExceptionTestSuite.scala:34) !!threw an Exception!!")
+    assertBlockException(tx, "assertion @ (BlockWithExceptionTestSuite.scala:35) !!threw an Exception!!")
   }
 
   private val t3 = test("exception without prefix and without location") {
@@ -68,12 +69,14 @@ object BlockWithExceptionSuite extends SuiteLike("Block Test Suite") {
     Boon.runTest(test) match {
       case SingleTestResult(DeferredTest(TestName(testName), _, _), assertionResults) =>
         testName =?= "my exceptional test" | "test name" and
-        nesElements1(assertionResults, "assertionResult") {
-          case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(assertionName), error, _))) =>
-            assertionName =?= errorMessage | "assertion name" and
-            error =!=[IllegalStateException](_ =?= "blows!" | "assertion error")
-          case other => failWith(Expected("SingleAssertionResult/AssertionResultFailed"),  Got(other), Desc("assertion result type"))
-        }
+        positional(assertionResults, "assertionResult")(
+          one({
+              case SingleAssertionResult(AssertionResultThrew(AssertionThrow(AssertionName(assertionName), error, _))) =>
+                            assertionName =?= errorMessage | "assertion name" and
+                            error =!=[IllegalStateException](_ =?= "blows!" | "assertion error")
+              case other => failWith(Expected("SingleAssertionResult/AssertionResultFailed"),  Got(other), Desc("assertion result type"))              
+          })
+        )
 
       case other => failWith(Expected("SingleTestResult"),  Got(other), Desc("test type"))
     }

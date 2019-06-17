@@ -2,6 +2,8 @@ package boon
 package model
 package internal
 
+import boon.result.AssertionOutput
+
 //All implicits for internal boon models.
 object instances {
   implicit val assertionCombinatorBoonType = BoonType.defaults[AssertionCombinator]
@@ -9,6 +11,10 @@ object instances {
   implicit val assertionBoonType = BoonType.defaults[Assertion]
 
   implicit val assertionDataBoonType = BoonType.defaults[AssertionData]
+  
+  implicit val assertionResultBoonType = BoonType.defaults[AssertionResult]
+  
+  implicit val assertionOutputBoonType = BoonType.defaults[AssertionOutput]
 
   implicit val assertionStateBoonType = BoonType.defaults[AssertionState]
 
