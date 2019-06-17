@@ -19,7 +19,7 @@ import BoonAssertions.failWith
 import collection.positional
 import model.AssertionResult.assertionNameFromResult
 import model.AssertionResult.getErrors
-import model.internal.instances._
+import internal.instances._
 
 object NesSuite extends SuiteLike("NonEmptySeq Suite") {
 

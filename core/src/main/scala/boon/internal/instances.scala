@@ -1,10 +1,10 @@
 package boon
-package model
 package internal
 
-import boon.result.AssertionOutput
+import model._
+import result._
 
-//All implicits for internal boon models.
+//All implicits for internal boon types - mainly used for testing boon.
 object instances {
   implicit val assertionCombinatorBoonType = BoonType.defaults[AssertionCombinator]
 

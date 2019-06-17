@@ -12,7 +12,7 @@ import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
 import boon.model.TestName
-import boon.model.internal.instances._
+import boon.internal.instances._
 import boon.BoonAssertions.failWith
 import syntax.collection.positional
 import syntax.exception._

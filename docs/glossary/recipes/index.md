@@ -41,7 +41,7 @@ values.exists(_.isRight) | "has a Right"
 
 ```scala
 import syntax.either._
-import syntax.nes._
+import syntax.collection._
 
 def error(value: String): Either[String, Int] = Left(value)
 

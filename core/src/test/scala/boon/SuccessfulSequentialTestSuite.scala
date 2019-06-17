@@ -10,7 +10,7 @@ import BoonAssertions.Expected
 import BoonAssertions.Got
 import BoonAssertions.Desc
 import syntax.collection.positional
-import model.internal.instances._
+import internal.instances._
 
 object SuccessfulSequentialTestSuite extends SuiteLike("BoonSuite") {
 

@@ -9,7 +9,7 @@ import result.Trace
 import data.NonEmptySeq
 import model.TestState
 import model.AssertionData
-import model.internal.instances._
+import internal.instances._
 
 object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
 

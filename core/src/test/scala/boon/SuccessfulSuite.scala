@@ -3,14 +3,14 @@ package boon
 import data.NonEmptySeq
 import model.TestData
 import model.TestState
-import model.internal.instances._
+import internal.instances._
 import result.SuiteOutput
 import result.AssertionOutput
 import result.TestPassedOutput
 import result.TestThrewOutput
 import result.TestIgnoredOutput
 import syntax.collection.positional
-import model.internal.instances._
+import internal.instances._
 
 object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
 

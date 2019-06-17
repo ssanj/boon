@@ -4,7 +4,7 @@ import boon.model.AssertionName
 import boon.model.Assertion
 import boon.model.AssertionError
 import boon.model.SequentialFail
-import boon.model.internal.instances._
+import boon.internal.instances._
 import boon.model.AssertionName
 import boon.model.FirstFailed
 import boon.model.TestName

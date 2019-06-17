@@ -9,7 +9,7 @@ import result.AssertionOutput
 import result.Trace
 import model.TestState
 import model.AssertionData
-import model.internal.instances._
+import internal.instances._
 import syntax.collection.positional
 
 object MissingImplementationSuite extends SuiteLike("Missing Implementation Suite") {

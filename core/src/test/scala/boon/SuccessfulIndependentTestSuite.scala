@@ -4,7 +4,7 @@ import boon.model.Independent
 import boon.model.TestName
 import boon.model.DeferredTest
 import boon.model.SingleTestResult
-import boon.model.internal.instances._
+import boon.internal.instances._
 import BoonAssertions.failWith
 import BoonAssertions.assertAssertionResultPassed
 import BoonAssertions.Expected

@@ -14,7 +14,7 @@ import boon.model.Independent
 import boon.model.TestName
 import boon.model.DeferredTest
 import boon.model.SingleTestResult
-import boon.model.internal.instances._
+import boon.internal.instances._
 
 object BlockSuite extends SuiteLike("Block Test Suite") {
 

@@ -4,7 +4,7 @@ package syntax
 import boon.model.TestState.Failed
 import boon.model.TestState.Passed
 import boon.model.TestResult
-import boon.model.internal.instances._
+import boon.internal.instances._
 import regex._
 
 object RegexSuite extends SuiteLike("RegexSuite") {
