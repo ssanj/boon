@@ -10,7 +10,7 @@ import result.Trace
 import model.TestState
 import model.AssertionData
 import model.internal.instances._
-import syntax.nes.nesElements3
+import syntax.nes.positional
 
 object MissingImplementationSuite extends SuiteLike("Missing Implementation Suite") {
 
@@ -26,11 +26,13 @@ object MissingImplementationSuite extends SuiteLike("Missing Implementation Suit
   private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], state: TestState): AssertionData = {
     name =?= "test for missing implementations" | "test name"    and
     state =?= TestState.Failed                  | "test failed"  and
-    nesElements3(t1assertions, "assertions")(
-      asserNotImplementedTest("Boolean test", 14),
-      asserNotImplementedTest("Int test", 15),
-      asserNotImplementedTest("Unsafe test", 16)
-    )
+    positional(t1assertions, "assertions"){
+      oneOrMore(
+        asserNotImplementedTest("Boolean test", 14),
+        asserNotImplementedTest("Int test", 15),
+        asserNotImplementedTest("Unsafe test", 16)
+      )
+    }
   }
 
   private def asserNotImplementedTest(expectedName: String, expectedLoc: Int)(ao: AssertionOutput): AssertionData = {

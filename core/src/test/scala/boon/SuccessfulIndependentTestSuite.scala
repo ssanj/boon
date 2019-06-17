@@ -4,12 +4,13 @@ import boon.model.Independent
 import boon.model.TestName
 import boon.model.DeferredTest
 import boon.model.SingleTestResult
+import boon.model.internal.instances._
 import BoonAssertions.failWith
 import BoonAssertions.assertAssertionResultPassed
 import BoonAssertions.Expected
 import BoonAssertions.Got
 import BoonAssertions.Desc
-import syntax.nes.nesElements3
+import syntax.nes.positional
 
 object SuccessfulIndependentTestSuite extends SuiteLike("BoonSuite") {
 
@@ -23,11 +24,13 @@ object SuccessfulIndependentTestSuite extends SuiteLike("BoonSuite") {
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults) =>
         name =?= "String test" | "test name" and
-        nesElements3(assertionResults, "results")(
-          assertAssertionResultPassed("concat"),
-          assertAssertionResultPassed("length"),
-          assertAssertionResultPassed("reverse")
-        ) seq()
+        positional(assertionResults, "results"){
+          oneOrMore(
+            assertAssertionResultPassed("concat"),
+            assertAssertionResultPassed("length"),
+            assertAssertionResultPassed("reverse")
+          )
+        } seq()
 
       case other => failWith(Expected(s"SingleTestResult"), Got(other), Desc("test result type"))
     }

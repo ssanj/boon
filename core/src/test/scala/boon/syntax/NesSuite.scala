@@ -18,10 +18,9 @@ import syntax.regex._
 import syntax.nes._
 import BoonAssertions.failWith
 import nes.positional
-import nes.nesElements3
-import nes.nesElements5
 import model.AssertionResult.assertionNameFromResult
 import model.AssertionResult.getErrors
+import model.internal.instances._
 
 object NesSuite extends SuiteLike("NonEmptySeq Suite") {
 
@@ -38,13 +37,15 @@ object NesSuite extends SuiteLike("NonEmptySeq Suite") {
     Boon.runTest(positionalTest) match {
       case SingleTestResult(DeferredTest(TestName(testName), _, _), assertionResults) =>
         testName =?= "positional failure test" | "test name"        and
-        nesElements5[AssertionResult](assertionResults, "assertionResults")(
-          assertionLength (4) _,
-          assertionIsRight(0) _,
-          failAssertionIsLeft (1) _,
-          assertionIsRight(2) _,
-          assertionIsRight(3) _
-        )
+        positional[AssertionResult](assertionResults, "assertionResults"){
+          oneOrMore(
+            assertionLength (4) _,
+            assertionIsRight(0) _,
+            failAssertionIsLeft (1) _,
+            assertionIsRight(2) _,
+            assertionIsRight(3) _
+          )
+        }
         
       case other => failWith(Expected("SingleTestResult/SingleAssertionResult/AssertionError"), Got(other), Desc("test type"))
     }
@@ -62,13 +63,15 @@ object NesSuite extends SuiteLike("NonEmptySeq Suite") {
     Boon.runTest(positionalTest) match {
       case SingleTestResult(DeferredTest(TestName(testName), _, _), assertionResults) =>
         testName =?= "positional success test" | "test name"        and
-        nesElements5[AssertionResult](assertionResults, "assertionResults")(
-          assertionLength (4) _,
-          assertionIsRight(0) _,
-          assertionIsRight(1) _,
-          assertionIsRight(2) _,
-          assertionIsRight(3) _
-        )
+        positional[AssertionResult](assertionResults, "assertionResults"){
+          oneOrMore(
+            assertionLength (4) _,
+            assertionIsRight(0) _,
+            assertionIsRight(1) _,
+            assertionIsRight(2) _,
+            assertionIsRight(3) _
+          )
+        }
         
       case other => failWith(Expected("SingleTestResult"), Got(other), Desc("test type"))
     }
@@ -85,11 +88,13 @@ object NesSuite extends SuiteLike("NonEmptySeq Suite") {
     Boon.runTest(positionalTest) match {
       case SingleTestResult(DeferredTest(TestName(testName), _, _), assertionResults) =>
         testName =?= "positional assertions are less than elements" | "test name" and
-        nesElements3[AssertionResult](assertionResults, "assertionResults")(
-          ar => assertionLength (2)(ar) and assertionLengthMustFail(ar),
-          assertionIsRight(0) _,
-          assertionIsRight(1) _
-        )
+        positional[AssertionResult](assertionResults, "assertionResults"){
+          oneOrMore(
+            ar => assertionLength (2)(ar) and assertionLengthMustFail(ar),
+            assertionIsRight(0) _,
+            assertionIsRight(1) _
+          )
+        }
         
       case other => failWith(Expected("SingleTestResult"), Got(other), Desc("test type"))
     }    
@@ -104,11 +109,13 @@ object NesSuite extends SuiteLike("NonEmptySeq Suite") {
 
   private def assertionLengthMustFail(ar: AssertionResult): AssertionData = {
     some_?[AssertionFailureDouble](getErrors(ar)){ afd =>
-      nesElements3(afd.errors, "errors")(
-        _ =?= "length of elements is different to assertions" | "must fail length check",
-        _ =?= "elements length: 4" | "length of elements",
-        _ =?= "assertions length: 2" | "length of assertions",
-      )
+      positional(afd.errors, "errors"){
+        oneOrMore(
+          _ =?= "length of elements is different to assertions" | "must fail length check",
+          _ =?= "elements length: 4" | "length of elements",
+          _ =?= "assertions length: 2" | "length of assertions"
+        )
+      }
     }
   }  
 

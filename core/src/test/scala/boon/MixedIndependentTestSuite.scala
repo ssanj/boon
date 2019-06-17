@@ -13,7 +13,8 @@ import BoonAssertions.assertAssertionResultThrew
 import BoonAssertions.Expected
 import BoonAssertions.Got
 import BoonAssertions.Desc
-import syntax.nes.nesElements3
+import syntax.nes.positional
+import model.internal.instances._
 
 object MixedIndependentTestSuite extends SuiteLike("BoonSuite") {
 
@@ -28,14 +29,16 @@ object MixedIndependentTestSuite extends SuiteLike("BoonSuite") {
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults) =>
         name =?= "success + fails + errors" | "test name"   and
-        nesElements3(assertionResults, "results")(
-          assertAssertionResultPassed("truism"),
-          assertAssertionResultFailed("falsism"),
-          assertAssertionResultThrew(
-            "error",
-            _ =!=[NotImplementedError](_ =?= "an implementation is missing" | "assertion thrown")
+        positional(assertionResults, "results"){
+          oneOrMore(
+            assertAssertionResultPassed("truism"),
+            assertAssertionResultFailed("falsism"),
+            assertAssertionResultThrew(
+              "error",
+              _ =!=[NotImplementedError](_ =?= "an implementation is missing" | "assertion thrown")
+            )
           )
-        )
+        }
 
       case other => failWith(Expected("SingleTestResult"), Got(other), Desc("test result type"))
     }

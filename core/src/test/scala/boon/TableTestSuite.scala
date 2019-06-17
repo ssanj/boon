@@ -5,7 +5,7 @@ import boon.model.AssertionTriple
 import boon.model.AssertionResult
 import boon.model.AssertionResultPassed
 import boon.model.SingleAssertionResult
-import syntax.nes.nesElements4
+import syntax.nes.positional
 import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
@@ -14,6 +14,7 @@ import boon.model.Independent
 import boon.model.TestName
 import boon.model.DeferredTest
 import boon.model.SingleTestResult
+import boon.model.internal.instances._
 
 object TableTestSuite extends SuiteLike("Table Test Suite") {
 
@@ -32,12 +33,14 @@ object TableTestSuite extends SuiteLike("Table Test Suite") {
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
         name =?= "addition table" | "test name" and
-        nesElements4(assertions, "truthTable")(
-          _.name.value =?= "with (1, 1) is 2" | "val",
-          _.name.value =?= "with (1, 2) is 3" | "val",
-          _.name.value =?= "with (1, 3) is 4" | "val",
-          _.name.value =?= "with (2, 3) is 5" | "val"
-        ) and
+        positional(assertions, "truthTable"){
+          oneOrMore(
+            _.name.value =?= "with (1, 1) is 2" | "val",
+            _.name.value =?= "with (1, 2) is 3" | "val",
+            _.name.value =?= "with (1, 3) is 4" | "val",
+            _.name.value =?= "with (2, 3) is 5" | "val"
+          )
+        } and
         assertionResults.toSeq.forall {
           case SingleAssertionResult(AssertionResultPassed(_)) =>  true
           case _ => false
@@ -62,12 +65,14 @@ object TableTestSuite extends SuiteLike("Table Test Suite") {
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
         name =?= "addition table" | "test name" and
-        nesElements4(assertions, "truthTable")(
-          _.name.value =?= "with (1, 1) is 2" | "val",
-          _.name.value =?= "with (1, 2) is 3" | "val",
-          _.name.value =?= "with (1, 3) is 2" | "val",
-          _.name.value =?= "with (2, 3) is 5" | "val"
-        ) and
+        positional(assertions, "truthTable"){
+          oneOrMore(
+            _.name.value =?= "with (1, 1) is 2" | "val",
+            _.name.value =?= "with (1, 2) is 3" | "val",
+            _.name.value =?= "with (1, 3) is 2" | "val",
+            _.name.value =?= "with (2, 3) is 5" | "val"
+          )
+        } and
         %@(assertionResults.partition[String, String] {
           case SingleAssertionResult(AssertionResultPassed(AssertionTriple(AssertionName(name), _, _))) =>  Left[String, String](name)
           case other => Right[String, String](AssertionResult.assertionNameFromResult(other).value)

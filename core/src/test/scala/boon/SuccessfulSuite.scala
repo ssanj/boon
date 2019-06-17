@@ -10,13 +10,16 @@ import result.TestPassedOutput
 import result.TestThrewOutput
 import result.TestIgnoredOutput
 import syntax.nes.positional
-import syntax.nes.nesElements2
+import syntax.nes.positional
+import model.internal.instances._
 
 object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
 
   final case class XFailedOutput(name: String)
 
   final case class XPassedOutput(name: String, assertions: NonEmptySeq[AssertionOutput], state: TestState)
+
+  private implicit val boonXPassedOutput = BoonType.defaults[XPassedOutput]
 
   private val t1 = test("can run a successful test with assertions") {
 
@@ -38,19 +41,23 @@ object SuccessfulSuite extends SuiteLike("SuccessfulSuite") {
 
   private def assertTestOutput(passed: NonEmptySeq[XPassedOutput]): TestData = {
     pass | "test type" and
-    nesElements2(passed, "passed")(
-      test1 =>
-        test1.name =?= "String.length" | "test.name" and
-        nesElements2(test1.assertions, "tests")(
-          assertions1 => SuiteOutput.assertionName(assertions1) =?= "empty" | "assertion.name",
-          assertions2 => SuiteOutput.assertionName(assertions2) =?= "hello" | "assertion.name"
-        )
-      , test2 =>
-        test2.name =?= "String.reverse" | "test.name" and
-        positional(test2.assertions, "tests"){
-          one(assertions2 => SuiteOutput.assertionName(assertions2) =?= "Hola" | "assertion.name")
-        }
-    )
+    positional(passed, "passed"){
+      oneOrMore(
+        test1 =>
+          test1.name =?= "String.length" | "test.name" and
+          positional(test1.assertions, "tests"){
+            oneOrMore(
+              assertions1 => SuiteOutput.assertionName(assertions1) =?= "empty" | "assertion.name",
+              assertions2 => SuiteOutput.assertionName(assertions2) =?= "hello" | "assertion.name"
+            )
+          }
+        , test2 =>
+          test2.name =?= "String.reverse" | "test.name" and
+          positional(test2.assertions, "tests"){
+            one(assertions2 => SuiteOutput.assertionName(assertions2) =?= "Hola" | "assertion.name")
+          }
+      )
+    }
   }
 
   private def unexpectedFailedOutput(message: NonEmptySeq[XFailedOutput] => String,

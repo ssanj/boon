@@ -9,7 +9,8 @@ import BoonAssertions.failWith
 import BoonAssertions.Expected
 import BoonAssertions.Got
 import BoonAssertions.Desc
-import syntax.nes.nesElements4
+import syntax.nes.positional
+import model.internal.instances._
 
 object SuccessfulSequentialTestSuite extends SuiteLike("BoonSuite") {
 
@@ -39,12 +40,14 @@ object SuccessfulSequentialTestSuite extends SuiteLike("BoonSuite") {
     Boon.runTest(tx) match {
       case CompositeTestResult(AllPassed(TestName(name), passed)) =>
         name =?= "NonEmptySeq test" | "test name" and
-        nesElements4(passed, "passed")(
-          assertSequentialPass("length"),
-          assertSequentialPass("head"),
-          assertSequentialPass("last"),
-          assertSequentialPass("contains")
-        )
+        positional(passed, "passed"){
+          oneOrMore(
+            assertSequentialPass("length"),
+            assertSequentialPass("head"),
+            assertSequentialPass("last"),
+            assertSequentialPass("contains")
+          )
+        }
 
       case other => failWith(Expected("CompositeTestResult"), Got(other), Desc("test result type"))
     }

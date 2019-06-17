@@ -20,6 +20,8 @@ object instances {
 
   implicit val testStateBoonType = BoonType.defaults[TestState]
 
+  implicit val sequentialPassBoonType = BoonType.defaults[SequentialPass]
+
   implicit val suiteStateBoonType = BoonType.defaults[SuiteState]
 
   implicit val equalityTypeBoonType = BoonType.defaults[EqualityType]
