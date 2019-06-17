@@ -14,8 +14,6 @@ import boon.model.AssertionResultPassed
 import boon.model.SingleAssertionResult
 import boon.model.AssertionData
 
-import scala.collection.SortedMap
-
 private[boon] object BoonAssertions {
 
   final case class Expected(value: String)
@@ -53,23 +51,4 @@ private[boon] object BoonAssertions {
         case other => failWith(Expected("SingleAssertionResult/AssertionResultThrew"), Got(other), Desc("assertion result type"))
       }
     }
-
-  def seqElements1[A](elements: Seq[A], prefix: => String)(f1: A => AssertionData): AssertionData = {
-    elements.length =?= 1 | s"$prefix has 1 element" and
-    %@(elements) { els =>
-      %@(els(0), s"${prefix}(0)") { e1 => f1(e1) }
-    }
-  }
-  
-  def mapElements2[A: Ordering, B](elements: Map[A, B], prefix: => String)(f1: (A, B) => AssertionData, f2: (A, B) => AssertionData): AssertionData = {
-    if (elements.size != 2) {
-      elements.size =?= 2 | s"${prefix} has 2 elements"
-    } else {
-      elements.size =?= 2 | s"${prefix} has 2 elements" and
-      %@(SortedMap.apply[A, B](elements.toVector:_*).toVector) { els =>
-        %@(els(0), s"${prefix}(0)") { Function.tupled(f1) } and
-        %@(els(1), s"${prefix}(1)") { Function.tupled(f2) }
-      }
-    }
-  }  
 }

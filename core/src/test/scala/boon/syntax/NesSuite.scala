@@ -10,7 +10,6 @@ import boon.model.SingleTestResult
 import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
-import boon.BoonAssertions.mapElements2
 import boon._
 import syntax.either._
 import syntax.option._
