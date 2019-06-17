@@ -5,7 +5,7 @@ import boon.model.AssertionName
 import data.NonEmptySeq
 import model.AssertionData
 import model.StringRep
-import scala.collection.SortedMap
+import scala.collection.immutable.SortedMap
 
 object nes {
 
@@ -30,7 +30,7 @@ object nes {
     }.mkString("(", ",", ")")
   }
 
-  def positional[A: StringRep](values: Seq[A], prefix: => String)(assertions: NonEmptySeq[A => AssertionData]): AssertionData = {
+  def positionalSeq[A: StringRep](values: Seq[A], prefix: => String)(assertions: NonEmptySeq[A => AssertionData]): AssertionData = {
     NonEmptySeq.fromVector(values.toVector).fold({
       false >> (one(s"$prefix is empty"), Replace) | s"${prefix} has length of ${assertions.length}"
     }){ elements => 
@@ -38,16 +38,11 @@ object nes {
     }
   }
   
-  def mapElements2[A: Ordering, B](elements: Map[A, B], prefix: => String)(f1: (A, B) => AssertionData, f2: (A, B) => AssertionData): AssertionData = {
-    if (elements.size != 2) {
-      elements.size =?= 2 | s"${prefix} has 2 elements"
-    } else {
-      elements.size =?= 2 | s"${prefix} has 2 elements" and
-      %@(SortedMap.apply[A, B](elements.toVector:_*).toVector) { els =>
-        %@(els(0), s"${prefix}(0)") { Function.tupled(f1) } and
-        %@(els(1), s"${prefix}(1)") { Function.tupled(f2) }
-      }
+  def positionalMap[A: Ordering : StringRep, B: StringRep](valuesMap: Map[A, B], prefix: => String)(assertions: NonEmptySeq[(A, B) => AssertionData]): AssertionData = {
+    NonEmptySeq.fromVector(SortedMap(valuesMap.toSeq:_*).toVector).fold({
+      false >> (one(s"$prefix is empty"), Replace) | s"${prefix} has length of ${assertions.length}"
+    }){ elements =>
+      positional[(A, B)](elements, prefix)(assertions.map(f => Function.tupled(f)))
     }
-  }  
-
+  } 
 }

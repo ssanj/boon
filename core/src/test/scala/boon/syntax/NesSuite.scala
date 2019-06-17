@@ -124,10 +124,12 @@ object NesSuite extends SuiteLike("NonEmptySeq Suite") {
       positional[String](failureDouble.errors, "errors"){
         one(_ =?= "expected Right got: Left(\"some error\")"| "error message")
       } and 
-      mapElements2(failureDouble.context, "ctx")(
-        (k, v) => k =?= s"expected value at (${index})" | "key 1" and v =?= "Left(\"some error\")" | "value 1",
-        (k, v) => s"values" =?= k | "key 2" and v =^= s"""(${index}) -> Left(.)""".r | "value 2"
-      )
+      positionalMap(failureDouble.context, "ctx"){
+        oneOrMore(
+          (k, v) => k =?= s"expected value at (${index})" | "key 1" and v =?= "Left(\"some error\")" | "value 1",
+          (k, v) => s"values" =?= k | "key 2" and v =^= s"""(${index}) -> Left(.)""".r | "value 2"
+        )
+      }
     }
   }
 
