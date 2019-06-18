@@ -107,8 +107,8 @@ import scala.util.Try
       defer[Boolean](throw ex) | s"${name} !!threw an Exception!!" //safe because it is deferred
     }, { ad =>
         val path  = prefixOp.fold("")(p => s"${p}.")
-        val newAd = ad.assertions.map(assertion => assertion.copy(name = AssertionName(s"${path}${assertion.name.value}")))
-        AssertionData(newAd)
+        val assertionWithPath = ad.assertions.map(assertion => assertion.copy(name = AssertionName(s"${path}${assertion.name.value}")))
+        AssertionData(assertionWithPath)
     })
   }
 }

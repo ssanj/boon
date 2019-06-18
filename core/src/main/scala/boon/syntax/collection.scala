@@ -9,19 +9,21 @@ import scala.collection.immutable.SortedMap
 
 object collection {
 
-  def positional[A: StringRep](values: NonEmptySeq[A], prefix: => String)(assertions: NonEmptySeq[A => AssertionData]): AssertionData = {
+  def positional[A: StringRep](values: => NonEmptySeq[A], prefix: => String)(assertions: => NonEmptySeq[A => AssertionData]): AssertionData = {
     (values.length =?= assertions.length) >> (
     oneOrMore(
       s"length of $prefix is different to assertions",
       s"$prefix length: ${values.length}",
       s"assertions length: ${assertions.length}"
     ), Replace) | s"${prefix} has length of ${assertions.length}" and
-    values.zipWithIndex.zip(assertions).map { 
-      case ((v, index), af) => 
-        af(v).
-        label(name => AssertionName(s"${prefix}(${index}).${name.value}")).
-        context(Map(s"expected value at ${prefix}(${index})" -> StringRep[A].strRep(v))) 
-    }.context(Map("values" -> toStringKVP[A](prefix).strRep(values)))
+    %@(values.zipWithIndex.zip(assertions)) { zipped => //handle inputs safely
+      zipped.map { 
+        case ((v, index), af) => 
+          af(v).
+          label(name => AssertionName(s"${prefix}(${index}).${name.value}")).
+          context(Map(s"expected value at ${prefix}(${index})" -> StringRep[A].strRep(v))) 
+      }.context(Map("values" -> toStringKVP[A](prefix).strRep(values)))
+    }
   }
 
   private def toStringKVP[A: StringRep](prefix: String): StringRep[NonEmptySeq[A]] = StringRep.from[NonEmptySeq[A]] { values =>
