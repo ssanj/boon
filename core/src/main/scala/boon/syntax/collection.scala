@@ -20,14 +20,14 @@ object collection {
       case ((v, index), af) => 
         af(v).
         label(name => AssertionName(s"${prefix}(${index}).${name.value}")).
-        context(Map(s"expected value at (${index})" -> StringRep[A].strRep(v))) 
-    }.context(Map("values" -> toStringKVP[A].strRep(values)))
+        context(Map(s"expected value at ${prefix}(${index})" -> StringRep[A].strRep(v))) 
+    }.context(Map("values" -> toStringKVP[A](prefix).strRep(values)))
   }
 
-  private def toStringKVP[A: StringRep]: StringRep[NonEmptySeq[A]] = StringRep.from[NonEmptySeq[A]] { values =>
+  private def toStringKVP[A: StringRep](prefix: String): StringRep[NonEmptySeq[A]] = StringRep.from[NonEmptySeq[A]] { values =>
     values.zipWithIndex.map {
-      case (v, index) => s"${index} -> ${StringRep[A].strRep(v)}"
-    }.mkString("(", ",", ")")
+      case (v, index) => s"${prefix}(${index}) -> ${StringRep[A].strRep(v)}"
+    }.mkString("(", ", ", ")")
   }
 
   def positionalSeq[A: StringRep](values: Seq[A], prefix: => String)(assertions: NonEmptySeq[A => AssertionData]): AssertionData = {

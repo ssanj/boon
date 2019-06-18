@@ -42,6 +42,13 @@ object exception {
     }
   }
 
+  def isException[T <: Throwable](implicit classTag: ClassTag[T], loc: SourceLocation): Throwable => AssertionData = e => {
+      val expectedClass = classTag.runtimeClass
+      val expectedClassName = expectedClass.getName
+      val diff = Difference.fromResult[Boolean](one(s"expected: $expectedClassName got: ${e.getClass.getName}"))
+      expectedClass.isAssignableFrom(e.getClass).|?("exception class", diff, genEq, noContext)(loc)
+  }
+
   implicit def toExceptionSyntax[A](value: => A): ExceptionSyntax[A] = new ExceptionSyntax[A](value)
 
   implicit def toThrowableSyntax(value: => Throwable): ThrowableSyntax = new ThrowableSyntax(value)

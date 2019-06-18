@@ -11,7 +11,7 @@ object OptionSuite extends SuiteLike("OptionSuite") {
     50.some =/= none[Int] | "Some != None"                and
     some_?[Int](20.some)(_ =/= 10  | "twenty is not ten") and
     some_?[String]("value".some)(_ => pass | "is Some")   and
-    isSome(30.some)                                       and
+    isSome[Int](30.some)                                  and
     isSome("Metals".some)
   }
 

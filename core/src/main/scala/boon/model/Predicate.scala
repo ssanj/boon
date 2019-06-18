@@ -20,7 +20,7 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
         defineAssertion[A](name, (pair), equalityType, ctx)(equality, difference, loc)))
   }
 
-  def >>(diffContent: => NonEmptySeq[String], mod: DifferenceMod)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntax =
+  def >>(diffContent: => NonEmptySeq[String], mod: DifferenceMod)(implicit E: Equality[A], D: Difference[A]): PredicateSyntax =
     >** { case (equality, difference) =>
         (equality,
           mod match {
@@ -30,8 +30,8 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
         )
     }
 
-  private def >**(modify: (Equality[A], Difference[A]) => (Equality[A], Difference[A]))(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): PredicateSyntax = new PredicateSyntax {
-    override def |(name: => String, ctx: (String, String)*): AssertionData = {
+  private def >**(modify: (Equality[A], Difference[A]) => (Equality[A], Difference[A]))(implicit E: Equality[A], D: Difference[A]): PredicateSyntax = new PredicateSyntax {
+    override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData = {
       val (equality, difference) = modify(E, D)
       Predicate.this.|(name, ctx:_*)(equality, difference, loc)
     }

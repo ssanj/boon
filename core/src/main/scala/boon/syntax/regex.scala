@@ -11,7 +11,7 @@ object regex {
   final class StringSyntax(value: => String) {
     def =^=(reg: Regex): PredicateSyntax =
       new PredicateSyntax {
-        override def |(name: => String, ctx: (String, String)*): AssertionData = {
+        override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData = {
           val result: Predicate[Boolean] = reg.findFirstIn(value).fold(false)(_ => true)
           val diff = one(s"'${value}' did not match regex: /${reg}/")
 

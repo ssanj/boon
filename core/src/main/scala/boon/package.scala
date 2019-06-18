@@ -81,7 +81,7 @@ import scala.util.Try
 
   def fail(reason: String): PredicateSyntax = new PredicateSyntax {
 
-    override def |(name: => String, ctx: (String, String)*): AssertionData =
+    override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData =
       false >> (one(s"explicit fail: $reason"), Replace) | (name, ctx:_*)
   }
 

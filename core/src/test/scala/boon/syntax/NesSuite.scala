@@ -126,8 +126,8 @@ object NesSuite extends SuiteLike("NonEmptySeq Suite") {
       } and 
       positionalMap(failureDouble.context, "ctx"){
         oneOrMore(
-          (k, v) => k =?= s"expected value at (${index})" | "key 1" and v =?= "Left(\"some error\")" | "value 1",
-          (k, v) => s"values" =?= k | "key 2" and v =^= s"""(${index}) -> Left(.)""".r | "value 2"
+          (k, v) => k =?= s"expected value at elements(${index})" | "key 1" and v =?= "Left(\"some error\")" | "value 1",
+          (k, v) => s"values" =?= k | "key 2" and v =^= s"\\(${index}\\) -> Left".r | "value 2"
         )
       }
     }

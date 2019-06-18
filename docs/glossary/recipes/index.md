@@ -54,17 +54,17 @@ type E = Either[String, Int]
 
 val assertions = oneOrMore(isRight(_:E), isLeft(_:E), isRight(_:E), isRight(_:E))
 
-positional[E](l1)(assertions)
+positional[E](l1, "assertions")(assertions)
 ```
 
 which results in:
 
 ```
-  - match lengths [✓]
-  - is Right [✓]
-  - is Left [✓]
-  - is Right [✓]
-  - is Right [✓]
+  - assertions has length of 4 [✓]
+  - assertions(0).is Right [✓]
+  - assertions(1).is Left [✓]
+  - assertions(2).is Right [✓]
+  - assertions(3).is Right [✓]
 ```
 
 With a failing assertion:
@@ -72,20 +72,21 @@ With a failing assertion:
 ```scala
 val assertions2 = oneOrMore(isRight(_:E), isRight(_:E), isRight(_:E), isRight(_:E))
 
-positional[E](l1)(assertions2)
+positional[E](l1, "assertions")(assertions2)
 ```
 
 returns:
 
 ```
-  - match lengths [✓]
-  - is Right [✓]
-  - is Right [✗]
+  - assertions has length of 4 [✓]
+  - assertions(0).is Right [✓]
+  - assertions(1).is Right [✗]
     => expected Right got: Left("e1")
-    at ...
-      #: values -> NES(Right(1),Left("e1"),Right(3),Right(4))
-  - is Right [✓]
-  - is Right [✓]
+    at
+      #: expected value at assertions(1) -> Left("e1")
+         values -> (assertions(0) -> Right(1), assertions(1) -> Left("e1"), assertions(2) -> Right(3), assertions(3) -> Right(4))
+  - assertions(2).is Right [✓]
+  - assertions(3).is Right [✓]
 ```
 
 ## A String matches a Regular expression

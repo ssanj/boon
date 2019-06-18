@@ -1,11 +1,13 @@
 package boon
 package syntax
 
-import model.StringRep
 import model.AssertionData
 
 object equal {
 
-  def isSame[A: BoonType](value1: => A): A =>  AssertionData = 
-    value2 =>  value1 =?= value2 | s"${StringRep[A].strRep(value1)} is same as ${StringRep[A].strRep(value2)}"
+  def isSame[A: BoonType](value1: => A)(implicit loc: SourceLocation): A => AssertionData = 
+    value2 => value1 =?= value2 | s"${value1.strRep} is same as ${value2.strRep}"
+
+  def isDiff[A: BoonType](value1: => A)(implicit loc: SourceLocation): A => AssertionData = 
+    value2 =>  value1 =/= value2 | s"${value1.strRep} is different to ${value2.strRep}"
 }
