@@ -13,7 +13,7 @@ object `try` {
 
   def isFailure[A: StringRep](tryVal: Try[A])(implicit loc: SourceLocation): AssertionData = {
     tryVal.fold(_ => pass | "is Try#Failure",
-                _ => false >> (one(s"expected Failure got: ${StringRep[Try[A]].strRep(tryVal)}"), Replace) | "is Try#Failure")
+                _ => invalid(s"expected Failure got: ${StringRep[Try[A]].strRep(tryVal)}") | "is Try#Failure")
   }
 
   def success_?[A](tryVal: Try[A])(f: A => AssertionData): AssertionData = {
@@ -21,7 +21,7 @@ object `try` {
   }
 
   def isSuccess[A: StringRep](tryVal: Try[A])(implicit loc: SourceLocation): AssertionData =
-    tryVal.fold(_ => false >> (one(s"expected Success got: ${StringRep[Try[A]].strRep(tryVal)}"), Replace) | "is Try#Success",
+    tryVal.fold(_ => invalid(s"expected Success got: ${StringRep[Try[A]].strRep(tryVal)}") | "is Try#Success",
                 _ => pass | "is Try#Success")
 }
 

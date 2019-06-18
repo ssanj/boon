@@ -63,6 +63,10 @@ import scala.util.Try
   implicit def toAssertionDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): AssertionData =
     assertionDatas.tail.foldLeft(assertionDatas.head)(_ and _)
 
+  implicit def toAssertionDataFromVectorOfAssertionData(assertionDatas: Vector[AssertionData]): AssertionData = {
+    NonEmptySeq.fromVector(assertionDatas).fold(fail("Empty Vector of AssertionData") | "have assertions")(identity)
+  }
+
   implicit def toTestDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): TestData =
     toTestData(toAssertionDataFromSeqOfAssertionData(assertionDatas))
 
@@ -79,10 +83,11 @@ import scala.util.Try
     def strRep(implicit strRepA: StringRep[A]): String = strRepA.strRep(value)
   }
 
-  def fail(reason: String): PredicateSyntax = new PredicateSyntax {
+  def fail(reason: String): PredicateSyntax = invalid(s"explicit fail: $reason")
 
+  def invalid(first: String, rest: String*): PredicateSyntax = new PredicateSyntax {
     override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData =
-      false >> (one(s"explicit fail: $reason"), Replace) | (name, ctx:_*)
+      false >> (oneOrMore(first, rest:_*), Replace) | (name, ctx:_*)
   }
 
   def pass: Predicate[Boolean] = true
