@@ -46,11 +46,13 @@ object Equality {
 
   def apply[A: Equality]: Equality[A] = implicitly[Equality[A]]
 
-  private def from[A](f: (A, A) => Boolean): Equality[A] = new Equality[A] {
+  def from[A](f: (A, A) => Boolean): Equality[A] = new Equality[A] {
     override def eql(a1: A, a2: A): Boolean = f(a1, a2)
   }
 
   def genEq[A] = from[A](_ == _)
 
   implicit def genericEquality[A] = genEq[A]
+
+  implicit val throwableEquality = from[Throwable]((t1, t2) => t1.getClass == t2.getClass && t1.getMessage == t2.getMessage)
 }

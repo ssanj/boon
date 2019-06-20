@@ -66,6 +66,8 @@ object EqualityProps extends Properties("Equality") {
   equalityLaws[Map[Int, String]]
   equalityLaws[Map[String, String]]
   equalityLaws[Map[Long, Char]]
+  
+  equalityLaws[Throwable]
 
   private def equalityLaws[A: Equality: Arbitrary](implicit typeTag: TypeTag[A]): Unit = {
     val typeName = typeOf[A].toString

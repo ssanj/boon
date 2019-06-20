@@ -75,6 +75,8 @@ object StringRepProps extends Properties("Equality") {
   strRepLaws[Map[Int, String]]
   strRepLaws[Map[String, String]]
   strRepLaws[Map[Long, Char]]
+  
+  strRepLaws[Throwable]
 
   private val strEquality = Equality[String]
 
