@@ -4,12 +4,10 @@ package model
 import boon.data.NonEmptySeq
 import scalacheck.DataArb._
 import org.scalacheck.Properties
-import org.scalacheck._
-import Prop.forAll
 import scala.reflect.runtime.universe._
 import scala.util.Try
 
-object StringRepProps extends Properties("Equality") {
+object StringRepProps extends Properties("Equality") with StringRepLawDefinition {
 
   strRepLaws[Int]
   strRepLaws[Long]
@@ -77,28 +75,4 @@ object StringRepProps extends Properties("Equality") {
   strRepLaws[Map[Long, Char]]
   
   strRepLaws[Throwable]
-
-  private val strEquality = Equality[String]
-
-  private def strRepLaws[A: StringRep : Equality : Arbitrary](implicit typeTag: TypeTag[A]): Unit = {
-    val typeName = typeOf[A].toString
-
-    property(s"${typeName}.stability") = forAll(stabilityLaw[A] _)
-
-    property(s"${typeName}.equalValuesHaveSameStringRep") = forAll(equalValuesHaveSameStringRepLaw[A] _)
-
-    property(s"${typeName}.sameStringRepHasEqualValues") = forAll(sameStringRepHasEqualValues[A] _)
-  }
-
-  private def stabilityLaw[A: StringRep](value: A): Boolean = {
-    StringRep[A].stringReplaws.stability(value, strEquality)
-  }
-
-  private def equalValuesHaveSameStringRepLaw[A: StringRep : Equality](value1: A, value2: A): Boolean = {
-    StringRep[A].stringReplaws.equalValuesHaveSameStringRep(value1, value2, Equality[A], strEquality)
-  }
-
-  private def sameStringRepHasEqualValues[A: StringRep : Equality](value1: A, value2: A): Boolean = {
-    StringRep[A].stringReplaws.sameStringRepHasEqualValues(value1, value2, Equality[A], strEquality)
-  }
 }
