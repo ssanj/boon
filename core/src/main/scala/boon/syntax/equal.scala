@@ -23,6 +23,8 @@ object equal {
           f(valueA, valueB) >> (one(s"${valueA.strRep} can't be equated to ${valueB.strRep}"), Replace) | (name, ctx:_*)
         }
       }
+
+      def =?=(f:(A, B) => AssertionData): AssertionData = f(valueA, valueB)
     }
   }
 }
