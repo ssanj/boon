@@ -7,7 +7,7 @@ import org.scalacheck.Properties
 import scala.reflect.runtime.universe._
 import scala.util.Try
 
-object StringRepProps extends Properties("Equality") with StringRepLawDefinition {
+object StringRepProps extends Properties("StringRep") with StringRepLawDefinition {
 
   strRepLaws[Int]
   strRepLaws[Long]

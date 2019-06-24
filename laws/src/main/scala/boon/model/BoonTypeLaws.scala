@@ -5,8 +5,8 @@ import org.scalacheck.Properties
 import org.scalacheck.Arbitrary
 import scala.reflect.runtime.universe._
 
-/** Given a [[boon.BoonType]] and an org.scalacheck.Arbitrary instance, verifies 
-  * laws for a valid [[boon.BoonType]] instance.
+/** Given a boon.BoonType and an org.scalacheck.Arbitrary instance, verifies 
+  * laws for a valid boon.BoonType instance.
   *
   *  @example {{{
   * 
@@ -17,9 +17,9 @@ import scala.reflect.runtime.universe._
   *    }
   *  }}}
   * 
-  *  @tparam T Type to run [[boon.BoonType]] law checks against.
-  *  @see [[boon.Equality]]
-  *  @see [[boon.StringRep]]
+  *  @tparam T Type to run boon.BoonType law checks against.
+  *  @see boon.Equality
+  *  @see boon.StringRep
   */
 trait BoonTypeLaws {
 
