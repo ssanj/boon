@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.8",
   organization := "net.ssanj",
-  version := "0.0.6-b01",
+  version := "0.0.7-b01",
   licenses ++= Seq(("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))),
   scalacOptions ++= Seq(
                       "-encoding", "utf-8",
@@ -54,6 +54,17 @@ lazy val boon = (project in file("core"))
   )
 
 
+lazy val boonLaws = (project in file("laws"))
+  .dependsOn(boon % "test->test;compile->compile")
+  .settings(
+    commonSettings,
+    name := "boon-laws",
+    testFrameworks := Seq(sbt.TestFrameworks.ScalaCheck),
+    libraryDependencies ++= Seq(
+        "org.scalacheck" %% "scalacheck" % "1.14.0"
+    )
+  )
+
 lazy val boonMacro = (project in file("macro"))
   .settings(
     commonSettings,
@@ -67,4 +78,4 @@ lazy val boonProj = (project in file(".")).
   settings(
     commonSettings,
     name := "boon-project",
-  ).aggregate(boonMacro, boon)
+  ).aggregate(boonMacro, boon, boonLaws)
