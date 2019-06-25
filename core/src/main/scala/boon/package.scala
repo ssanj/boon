@@ -91,7 +91,8 @@ import scala.util.Try
         }
       }
 
-      def =>>(f: (A, B) => AssertionData): AssertionData = f(valueA, valueB)
+      def =>>(f: (A, B) => AssertionData)(implicit ABS: StringRep[(A, B)]): AssertionData = 
+        f(valueA, valueB).context(Map("values" -> (ABS.strRep((valueA, valueB)))))
     }
   }  
 
