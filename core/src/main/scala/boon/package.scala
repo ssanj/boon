@@ -4,6 +4,7 @@ import boon.model._
 import boon.data.NonEmptySeq
 
 import scala.util.Try
+import scala.collection.Iterable
 
   def test(name: => String)(data: => TestData)(implicit testLocation: SourceLocation): Test =
     Try(data).fold(ex => {
@@ -63,8 +64,8 @@ import scala.util.Try
   implicit def toAssertionDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): AssertionData =
     assertionDatas.tail.foldLeft(assertionDatas.head)(_ and _)
 
-  implicit def toAssertionDataFromVectorOfAssertionData(assertionDatas: Vector[AssertionData]): AssertionData = {
-    NonEmptySeq.fromVector(assertionDatas).fold(fail("Empty Vector of AssertionData") | "have assertions")(identity)
+  implicit def toAssertionDataFromIterableOfAssertionData(assertionDatas: Iterable[AssertionData]): AssertionData = {
+    NonEmptySeq.fromVector(assertionDatas.toVector).fold(fail("Empty collection of AssertionData") | "have assertions")(identity)
   }
 
   implicit def toTestDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): TestData =
@@ -85,12 +86,7 @@ import scala.util.Try
 
   implicit class DualTypeEqualitySyntax[A](valueA: => A) { 
     def =>=[B](valueB: => B): DualTypeEquality[A, B] = new DualTypeEquality[A, B] {
-      override def =>>(f:(A, B) => Boolean)(implicit AS: StringRep[A], BS: StringRep[B]): PredicateSyntax = new PredicateSyntax {
-        override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData = {
-          f(valueA, valueB) >> (one(s"${valueA.strRep} can't be equated to ${valueB.strRep}"), Replace) | (name, ctx:_*)
-        }
-      }
-
+  
       override def =>>(f: (A, B) => AssertionData)(implicit ABS: StringRep[(A, B)]): AssertionData = 
         f(valueA, valueB).context(Map("values" -> (ABS.strRep((valueA, valueB)))))
     }

@@ -285,7 +285,7 @@ When we run the **multTest** we get:
   - with (10, 20) is 200 [✓]
 ```
 
-## NonEmptySeq of Assertion is an Assertion
+## Collections of Assertions are an Assertion
 
 Say you had a collection of values and you wanted to assert that they all held some kind of property. You could just map over those values with your Assertion and get one big Assertion that verifies it all.
 
@@ -310,4 +310,35 @@ When we run the above Test we get:
    - 9 < 10 [✓]
 ```
 
-*note*: This only works with `NonEmptySeq`
+*note*: This works with `NonEmptySeq` and any `scala.collection.Iterable`
+
+## Assertions on Differing Types
+
+Sometimes you want to run an Assertion on a couple of different types.  You can't use the type safe equal operator (`=?=`) as it expects the same types.
+
+For example to run an Assertion on a `String` and an `Int`, you just need to provide a `Assertion` function that compares the two values:
+
+```
+valueOfType1 =>= valueOfType2 =>> ((v1, v2) => Assertion)
+```
+
+For example to Assert that the length of "Hello World" is 11:
+
+```
+"Hello World" =>= 11 =>> ((a, b) => a.length =?= b | "greet length") 
+```
+
+When we run the above we get:
+
+```
+  - greet length [✓]
+```
+
+or when it fails we get:
+
+```
+  - greet length [✗]
+    => 11 != 12
+    at ...
+      #: values -> ("Hello World", 12)
+```
