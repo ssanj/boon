@@ -7,7 +7,7 @@ import scala.util.Try
 
 object `try` {
 
-  def failure_?[A](tryVal: Try[A])(f: Throwable => AssertionData): AssertionData = {
+  def failure_?[A](tryVal: Try[A])(f: Throwable => AssertionData)(implicit loc: SourceLocation): AssertionData = {
     tryVal.fold(f, _ => fail(s"expected Failure but got ${tryVal}") | "expected Try#Failure" )
   }
 
@@ -16,7 +16,7 @@ object `try` {
                 _ => invalid(s"expected Failure got: ${StringRep[Try[A]].strRep(tryVal)}") | "is Try#Failure")
   }
 
-  def success_?[A](tryVal: Try[A])(f: A => AssertionData): AssertionData = {
+  def success_?[A](tryVal: Try[A])(f: A => AssertionData)(implicit loc: SourceLocation): AssertionData = {
     tryVal.fold(_ => fail(s"expected Success but got ${tryVal}") | "expected Try#Success", f)
   }
 

@@ -14,7 +14,7 @@ object either {
 
   implicit def toEitherSyntax[A](value: => A): EitherSyntax[A] = new EitherSyntax[A](value)
 
-  def left_?[A: StringRep, B: StringRep](either: Either[A, B])(f: A => AssertionData): AssertionData = {
+  def left_?[A: StringRep, B: StringRep](either: Either[A, B])(f: A => AssertionData)(implicit loc: SourceLocation): AssertionData = {
     either.fold(f, _ => fail(s"expected Left but got ${either}") | "expected Left" ).
       context(Map("either" -> StringRep[Either[A, B]].strRep(either)))
   }
@@ -23,7 +23,7 @@ object either {
     either.isLeft >> (one(s"expected Left got: ${StringRep[Either[A, B]].strRep(either)}"), Replace) | "is Left"
   }
 
-  def right_?[A: StringRep, B: StringRep](either: Either[A, B])(f: B => AssertionData): AssertionData = {
+  def right_?[A: StringRep, B: StringRep](either: Either[A, B])(f: B => AssertionData)(implicit loc: SourceLocation): AssertionData = {
     either.fold(_ => fail(s"expected Right but got ${either}") | "expected Right", f).
       context(Map("either" -> StringRep[Either[A, B]].strRep(either)))
   }

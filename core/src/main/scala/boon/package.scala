@@ -84,14 +84,14 @@ import scala.util.Try
   }
 
   implicit class DualTypeEqualitySyntax[A](valueA: => A) { 
-    def =>=[B](valueB: => B) = new DualTypeEquality[A, B] {
-      def =>>(f:(A, B) => Boolean)(implicit AS: StringRep[A], BS: StringRep[B]): PredicateSyntax = new PredicateSyntax {
+    def =>=[B](valueB: => B): DualTypeEquality[A, B] = new DualTypeEquality[A, B] {
+      override def =>>(f:(A, B) => Boolean)(implicit AS: StringRep[A], BS: StringRep[B]): PredicateSyntax = new PredicateSyntax {
         override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData = {
           f(valueA, valueB) >> (one(s"${valueA.strRep} can't be equated to ${valueB.strRep}"), Replace) | (name, ctx:_*)
         }
       }
 
-      def =>>(f: (A, B) => AssertionData)(implicit ABS: StringRep[(A, B)]): AssertionData = 
+      override def =>>(f: (A, B) => AssertionData)(implicit ABS: StringRep[(A, B)]): AssertionData = 
         f(valueA, valueB).context(Map("values" -> (ABS.strRep((valueA, valueB)))))
     }
   }  
