@@ -3,7 +3,7 @@ package syntax
 
 import either._
 
-object EitherSuite extends SuiteLike("EitherSuite") {
+object EitherSuite extends SuiteLike("Either Syntax Suite") {
 
   private val t1 = test("rights") {
     10.right[String] =?= 10.right[String]    | "equal right"    and

@@ -3,7 +3,7 @@ package syntax
 
 import option._
 
-object OptionSuite extends SuiteLike("OptionSuite") {
+object OptionSuite extends SuiteLike("Option Syntax Suite") {
 
   private val t1 = test("some") {
     10.some =?= 10.some   | "equal Some"                  and

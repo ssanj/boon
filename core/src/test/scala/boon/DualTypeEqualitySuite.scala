@@ -18,7 +18,6 @@ import boon.BoonAssertions.Expected
 import boon.BoonAssertions.failWith
 import syntax.collection._
 import syntax.option._
-// import internal.instances._
 import scala.util.matching.Regex
 
 object DualityTypeEqualitySuite extends SuiteLike("DualityTypeEquality Suite") {
@@ -48,7 +47,7 @@ object DualityTypeEqualitySuite extends SuiteLike("DualityTypeEquality Suite") {
         name =?= "equates unsuccessfully" | "test name"                    and
         aName =?= "expect Some" | "assertion name"                         and
         context =?= Map("values" -> "(/\\d{3}/, \"A12B\")")   | "context"  and
-        location.line =?= 43 | "error location"                            and
+        location.line =?= 42 | "error location"                            and
         positional(errors, "assertion.errors")(one(_.contains("expected Some") | "reason"))
 
        case other => failWith(Expected("SingleTestResult with 1 test"), Got(other), Desc("test type"))

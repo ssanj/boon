@@ -5,7 +5,7 @@ import syntax.`try`._
 import syntax.exception._
 import scala.util.Try
 
-object TrySuite extends SuiteLike("Try Suite") {
+object TrySuite extends SuiteLike("Try Syntax Suite") {
 
   private val t1 = test("success") {
     val tryVal1 = Try("hello")

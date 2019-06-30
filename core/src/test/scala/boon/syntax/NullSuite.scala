@@ -3,7 +3,7 @@ package syntax
 
 import nulls._
 
-object NullSuite extends SuiteLike("NullSuite") {
+object NullSuite extends SuiteLike("Null Syntax Suite") {
 
   private val t1 = test("null values") {
     val nullValue = null

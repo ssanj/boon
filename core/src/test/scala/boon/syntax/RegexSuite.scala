@@ -7,7 +7,7 @@ import boon.model.TestResult
 import boon.internal.instances._
 import regex._
 
-object RegexSuite extends SuiteLike("RegexSuite") {
+object RegexSuite extends SuiteLike("Regex Syntax Suite") {
 
   private val missTest = test("regex miss") {
     "Hello" =^= "^.*HH.*$".r | "miss"

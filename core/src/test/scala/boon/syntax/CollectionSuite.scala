@@ -21,7 +21,7 @@ import model.AssertionResult.assertionNameFromResult
 import model.AssertionResult.getErrors
 import internal.instances._
 
-object NesSuite extends SuiteLike("NonEmptySeq Suite") {
+object CollectionSuite extends SuiteLike("Collection Syntax Suite") {
 
   private type E = Either[String, Int]
 
