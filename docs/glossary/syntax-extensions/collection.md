@@ -12,7 +12,7 @@ import syntax.collection._
 Run Assertions on values in corresponding positions of a `NonEmptySeq`. Matches the lengths of values and Assertions before asserting each of the values against the corresponding Assertion.
 
 ```scala
-positional[Int](oneOrMore(1,2,3,4), "values")(oneOrMore(_ =?= 1 | "one", _ =?= 2 | "two", _ =?= 3 | "three", _ =?= 4 | "four"))
+positional(oneOrMore(1,2,3,4), "values")(oneOrMore(_ =?= 1 | "one", _ =?= 2 | "two", _ =?= 3 | "three", _ =?= 4 | "four"))
 ```
 
 with a successful Assertion:
@@ -28,7 +28,7 @@ with a successful Assertion:
 with a failing Assertion:
 
 ```scala
-positional[Int](oneOrMore(1,2,3,4), "values")(oneOrMore(_ =?= 1 | "one", _ =?= 3 | "two", _ =?= 3 | "three", _ =?= 1 | "four"))
+positional(oneOrMore(1,2,3,4), "values")(oneOrMore(_ =?= 1 | "one", _ =?= 3 | "two", _ =?= 3 | "three", _ =?= 1 | "four"))
 ```
 
 When run returns:
@@ -54,9 +54,56 @@ When run returns:
 positionalSeq is the same as positional only with the input value being a `Seq` instead of a `NonEmptySeq`
 
 ```scala
-positional[Int](Vector(1,2,3,4), "values")(oneOrMore(_ =?= 1 | "one", _ =?= 3 | "two", _ =?= 3 | "three", _ =?= 1 | "four"))
-
+positionalSeq(Vector(1,2,3,4), "values")(oneOrMore(_ =?= 1 | "one", _ =?= 3 | "two", _ =?= 3 | "three", _ =?= 1 | "four"))
 ```
 
 ## positionalMap
 
+Runs Assertions on a Map. Assertions will be run in the order specified by the `Ordering` of the Map key.
+
+```scala
+val m1 = Map("Bilbo" -> List("Ring"), "Sam" -> List("Bread", "Cheese"), "Frodo" -> List("Biscuits"))
+
+
+positionalMap(m1,"hobbits")(oneOrMore(
+  (k,v) => k == "Bilbo" && v.contains("Ring") | "Bilbo has the ring",
+  (k,v) => k == "Frodo" && v.contains("Biscuits") | "Frodo has biscuits",
+  (k,v) => k == "Sam" && Seq("Bread", "Cheese").forall(v.contains) | "Sam has bread and cheese"
+))
+```
+
+When run returns:
+
+```
+  - hobbits has length of 3 [✓]
+  - hobbits(0).Bilbo has the ring [✓]
+  - hobbits(1).Frodo has biscuits [✓]
+  - hobbits(2).Sam has bread and cheese [✓]
+```
+
+with a failing Assertion:
+
+```scala
+positionalMap(m1,"hobbits")(oneOrMore(
+  (k,v) => k == "Bilbo" && v.contains("Flute") | "Bilbo has the flute",
+  (k,v) => k == "Frodo" && v.contains("Ring") | "Frodo has ring",
+  (k,v) => k == "Sam" && Seq("Bread", "Cheese").forall(v.contains) | "Sam has bread and cheese"
+))
+```
+
+when run:
+
+```
+  - hobbits has length of 3 [✓]
+  - hobbits(0).Bilbo has the flute [✗]
+    => false != true
+    at ...
+      #: expected value at hobbits(0) -> ("Bilbo", List("Ring"))
+         values -> (hobbits(0) -> ("Bilbo", List("Ring")), hobbits(1) -> ("Frodo", List("Biscuits")), hobbits(2) -> ("Sam", List("Bread", "Cheese")))
+  - hobbits(1).Frodo has ring [✗]
+    => false != true
+    at ...
+      #: expected value at hobbits(1) -> ("Frodo", List("Biscuits"))
+         values -> (hobbits(0) -> ("Bilbo", List("Ring")), hobbits(1) -> ("Frodo", List("Biscuits")), hobbits(2) -> ("Sam", List("Bread", "Cheese")))
+  - hobbits(2).Sam has bread and cheese [✓]
+```
