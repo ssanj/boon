@@ -1,7 +1,7 @@
-package boon
-package syntax
+package example.syntax
 
-import option._
+import boon._
+import syntax.option._
 
 object OptionSuite extends SuiteLike("Option Syntax Suite") {
 

@@ -1,4 +1,4 @@
-package boon.syntax
+package example.syntax
 
 import boon._
 import syntax.`try`._

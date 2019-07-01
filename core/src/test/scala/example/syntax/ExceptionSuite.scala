@@ -1,7 +1,7 @@
-package boon
-package syntax
+package example.syntax
 
-import exception._
+import boon._
+import syntax.exception._
 
 object ExceptionSuite extends SuiteLike("Exception Syntax Suite") {
 

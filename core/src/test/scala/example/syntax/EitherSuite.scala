@@ -1,7 +1,7 @@
-package boon
-package syntax
+package example.syntax
 
-import either._
+import boon._
+import syntax.either._
 
 object EitherSuite extends SuiteLike("Either Syntax Suite") {
 
