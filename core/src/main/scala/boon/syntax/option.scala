@@ -20,8 +20,8 @@ object option {
   def some_?[A: StringRep](option: Option[A])(f: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
     option.fold(fail(s"expected Some but got None") | "expect Some")(f(_).context(Map("value" -> option.strRep)))
 
-  def none_?[A](option: Option[A])(f: => AssertionData)(implicit loc: SourceLocation): AssertionData =
-    option.fold(f)(_ => fail(s"expected None but got: $option") | "expect None")
+  def none_?[A: StringRep](option: Option[A])(f: => AssertionData)(implicit loc: SourceLocation): AssertionData =
+    option.fold(f)(_ => fail(s"expected None but got: $option") | ("expect None", "value" -> option.strRep))
 
   def isNone[A: StringRep](option: Option[A])(implicit loc: SourceLocation): AssertionData =
     option.isEmpty >> (one(s"expected None got: ${StringRep[Option[A]].strRep(option)}"), Replace) | "is None"
