@@ -1,7 +1,7 @@
-package boon
-package syntax
+package example.syntax
 
-import nulls._
+import boon._
+import syntax.nulls._
 
 object NullSuite extends SuiteLike("Null Syntax Suite") {
 
