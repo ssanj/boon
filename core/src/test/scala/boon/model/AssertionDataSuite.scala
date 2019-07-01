@@ -1,7 +1,7 @@
 package boon
 package model
 
-import internal.instances._
+import boon.internal.instances._
 
 object AssertionDataSuite extends SuiteLike("AssertionData Suite") {
 

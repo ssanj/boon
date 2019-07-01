@@ -9,7 +9,7 @@ import boon.BoonAssertions.Expected
 import Equality.genEq
 import syntax._
 import option._
-import internal.instances._
+import boon.internal.instances._
 
 object PredicateSuite extends SuiteLike("Predicate Suite") {
 

@@ -1,7 +1,7 @@
 package example
 
 import boon._
-import syntax.regex._
+import boon.syntax.regex._
 
 object StringSuite extends SuiteLike("StringSuite") {
   private val t1 = test("String methods") {
