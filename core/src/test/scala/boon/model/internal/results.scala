@@ -2,6 +2,7 @@ package boon
 package model
 
 import boon.data.NonEmptySeq
+import syntax.collection._
 
 object internal {
 
@@ -24,6 +25,41 @@ object internal {
                               assertionError.assertion.location, 
                               assertionError.errors))
     case _ => None
+  }
+
+  def singleTestPassed(
+      testName: String, 
+      assertionName: String, 
+      context: Map[String, String], 
+      location: Int)(result: TestResult): AssertionData =  {
+        getSingleTestPassed(result) match {
+          case Some(SingleTestPassed(TestName(tName), AssertionTriple(AssertionName(aName), ctx, loc))) =>
+            tName =?= testName | "test name"           and
+            aName =?= assertionName | "assertion name" and
+            ctx =?= context | "context"                and
+            loc.line =?= location | "location"
+
+          case None => invalid(s"Expected test success, got: $result") | "test type"
+        }
+
+  }
+
+  def singleTestFailed(
+      testName: String, 
+      assertionName: String, 
+      context: Map[String, String], 
+      location: Int, 
+      error: String)(result: TestResult): AssertionData =  {
+        getSingleTestFailed(result) match {
+          case Some(SingleTestFailed(TestName(tName), AssertionName(aName), ctx, loc, errors)) =>
+            tName =?= testName | "test name"           and
+            aName =?= assertionName | "assertion name" and
+            ctx =?= context | "context"                and
+            loc.line =?= location | "location"         and
+            positional(errors, "assertion.errors")(one(_ =?= error | "error message"))
+
+          case None => invalid(s"Expected test failure, got: $result") | "test type"
+        }
   }
 }
 
