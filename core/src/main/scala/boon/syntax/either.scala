@@ -16,7 +16,7 @@ object either {
 
   def left_?[A: StringRep, B: StringRep](either: Either[A, B])(f: A => AssertionData)(implicit loc: SourceLocation): AssertionData = {
     either.fold(f, _ => fail(s"expected Left but got ${either}") | "expected Left" ).
-      context(Map("either" -> StringRep[Either[A, B]].strRep(either)))
+      context(Map("value" -> StringRep[Either[A, B]].strRep(either)))
   }
 
   def isLeft[A: StringRep, B: StringRep](either: Either[A, B])(implicit loc: SourceLocation): AssertionData = {
@@ -24,8 +24,8 @@ object either {
   }
 
   def right_?[A: StringRep, B: StringRep](either: Either[A, B])(f: B => AssertionData)(implicit loc: SourceLocation): AssertionData = {
-    either.fold(_ => fail(s"expected Right but got ${either}") | "expected Right", f).
-      context(Map("either" -> StringRep[Either[A, B]].strRep(either)))
+    either.fold(_ => invalid(s"expected Right but got ${either.strRep}") | "expected Right", f).
+      context(Map("value" -> either.strRep))
   }
 
   def isRight[A: StringRep, B: StringRep](either: Either[A, B])(implicit loc: SourceLocation): AssertionData = {
