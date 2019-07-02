@@ -6,11 +6,9 @@ import boon.model.AssertionData
 
 object option {
 
-  final class OptionSyntax[A](value: => A) {
+  implicit final class OptionSyntax[A](value: => A) {
     def some: Option[A] = Some[A](value)
   }
-
-  implicit def toOptionSyntax[A](value: => A): OptionSyntax[A] = new OptionSyntax[A](value)
 
   def none[A]: Option[A] = None
 
