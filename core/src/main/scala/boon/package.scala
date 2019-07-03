@@ -84,12 +84,9 @@ import scala.collection.Iterable
     def strRep(implicit strRepA: StringRep[A]): String = strRepA.strRep(value)
   }
 
-  implicit class DualTypeEqualitySyntax[A](valueA: => A) { 
-    def =>=[B](valueB: => B): DualTypeEquality[A, B] = new DualTypeEquality[A, B] {
-  
-      override def =>>(f: (A, B) => AssertionData)(implicit ABS: StringRep[(A, B)]): AssertionData = 
-        f(valueA, valueB).context(Map("values" -> (ABS.strRep((valueA, valueB)))))
-    }
+  implicit class DualTypeEqualitySyntax[A, B](valueAB: => (A, B)) { 
+    def =>=(f: (A, B) => AssertionData)(implicit ABS: StringRep[(A, B)]): AssertionData =
+      Function.tupled(f)(valueAB).context(Map("values" -> (ABS.strRep(valueAB))))
   }  
 
   def fail(reason: String): PredicateSyntax = invalid(s"explicit fail: $reason")

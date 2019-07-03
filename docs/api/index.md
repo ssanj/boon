@@ -319,13 +319,13 @@ Sometimes you want to run an Assertion on a couple of different types.  You can'
 For example to run an Assertion on a `String` and an `Int`, you just need to provide a `Assertion` function that compares the two values:
 
 ```
-valueOfType1 =>= valueOfType2 =>> ((v1, v2) => Assertion)
+(valueOfType1, valueOfType2) =>= ((v1, v2) => Assertion)
 ```
 
 For example to Assert that the length of "Hello World" is 11:
 
 ```
-"Hello World" =>= 11 =>> ((a, b) => a.length =?= b | "greet length") 
+("Hello World", 11) =>= ((a, b) => a.length =?= b | "greet length") 
 ```
 
 When we run the above we get:

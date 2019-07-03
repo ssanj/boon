@@ -24,7 +24,7 @@ object DualityTypeEqualitySuite extends SuiteLike("DualityTypeEquality Suite") {
 
   private val t1 = test("equates different types successfully") {
     val equalSuccessTest = test("equates successfully") {
-      "hello world" =>= 11 =>> (_.length =?= _ | "greeting length")
+      ("hello world", 11) =>= (_.length =?= _ | "greeting length")
     }
 
     Boon.runTest(equalSuccessTest) match {
@@ -36,10 +36,10 @@ object DualityTypeEqualitySuite extends SuiteLike("DualityTypeEquality Suite") {
     }
   }
 
-  private val t2 = test("equales different types unsuccessfully") {
+  private val t2 = test("equates different types unsuccessfully") {
     implicit val regexStringRep = StringRep.from[Regex](r => s"/${r}/")
     val equalUnsuccessfulTest = test("equates unsuccessfully") {
-      raw"\d{3}".r =>= "A12B" =>> ((r, v) =>  some_?(r.findFirstIn(v))(_ =?= "123" | "regex match"))
+      (raw"\d{3}".r, "A12B") =>= ((r, v) =>  some_?(r.findFirstIn(v))(_ =?= "123" | "regex match"))
     }
 
     Boon.runTest(equalUnsuccessfulTest) match {
