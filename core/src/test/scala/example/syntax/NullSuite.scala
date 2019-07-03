@@ -6,9 +6,9 @@ import syntax.nulls._
 object NullSuite extends SuiteLike("Null Syntax Suite") {
 
   private val t1 = test("null values") {
-    val nullValue = null
-    null_?(null)(pass | "null literal")    and
-    null_?(nullValue)(pass | "null value") and 
+    val nullValue: String = null
+    null_?(null: String)(pass | "null literal") and
+    null_?(nullValue)(pass | "null value")      and 
     isNull[String](nullValue)
   }
 
