@@ -21,7 +21,7 @@ import model.AssertionResult.assertionNameFromResult
 import model.AssertionResult.getErrors
 import internal.instances._
 
-object CollectionSuite extends SuiteLike("Collection Syntax Suite") {
+object CollectionSyntaxSuite extends SuiteLike("Collection Syntax Suite") {
 
   private type E = Either[String, Int]
 
@@ -127,7 +127,8 @@ object CollectionSuite extends SuiteLike("Collection Syntax Suite") {
       positionalMap(failureDouble.context, "ctx"){
         oneOrMore(
           (k, v) => k =?= s"expected value at elements(${index})" | "key 1" and v =?= "Left(\"some error\")" | "value 1",
-          (k, v) => s"values" =?= k | "key 2" and v =^= s"\\(${index}\\) -> Left".r | "value 2"
+          (k, v) => "value" =?= k | "key 2" and v =?= "Left(\"some error\")" | "value 2",
+          (k, v) => "values" =?= k | "key 3" and v =^= s"\\(${index}\\) -> Left".r | "value 3"
         )
       }
     }

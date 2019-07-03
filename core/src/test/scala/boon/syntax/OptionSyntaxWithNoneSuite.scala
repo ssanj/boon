@@ -16,7 +16,7 @@ object OptionSyntaxWithNoneSuite extends SuiteLike("Option Syntax none_? Suite")
       assertionName = "expect None",
       context       = Map("value" -> "Some(20)"),
       location      = 11,
-      error         = "explicit fail: expected None but got: Some(20)" 
+      error         = "expected None but got: Some(20)" 
     )(Boon.runTest(failOnNoneTest))
   }
 
@@ -35,7 +35,7 @@ object OptionSyntaxWithNoneSuite extends SuiteLike("Option Syntax none_? Suite")
 
   private val t3 = test("Option Syntax none_? fails on Assertion") {
     val failOnAssertion = test("fails on Assertion") {
-      none_?(none[Int])(fail("some error") | "is none")
+      none_?(none[Int])(invalid("some error") | "is none")
     }
 
     singleTestFailed(
@@ -43,7 +43,7 @@ object OptionSyntaxWithNoneSuite extends SuiteLike("Option Syntax none_? Suite")
       assertionName = "is none",
       context       = noContext,
       location      = 38,
-      error         = "explicit fail: some error" 
+      error         = "some error" 
     )(Boon.runTest(failOnAssertion))    
   }
 

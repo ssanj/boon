@@ -14,7 +14,7 @@ object OptionSyntaxWithIsSomeSuite extends SuiteLike("Option Syntax isSome Suite
     singleTestFailed(
       testName      = "fails on None",
       assertionName = "is Some",
-      context       = noContext,
+      context       = Map("value" -> "None"),
       location      = 11,
       error         = "expected Some got: None"
     )(Boon.runTest(failOnNoneTest))
@@ -28,7 +28,7 @@ object OptionSyntaxWithIsSomeSuite extends SuiteLike("Option Syntax isSome Suite
     singleTestPassed(
       testName      = "passes on Some",
       assertionName = "is Some",
-      context       = noContext,
+      context       = Map("value" -> "Some(20)"),
       location      = 25,
     )(Boon.runTest(passOnSomeTest))
   }
