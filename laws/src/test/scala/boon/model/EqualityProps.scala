@@ -3,6 +3,7 @@ package model
 
 import boon.data.NonEmptySeq
 import scalacheck.DataArb._
+import scalacheck.GeneralArb._
 import org.scalacheck.Properties
 import org.scalacheck._
 
@@ -66,4 +67,6 @@ object EqualityProps extends Properties("Equality") with EqualityLawDefinition {
   equalityLaws[Map[Long, Char]]
   
   equalityLaws[Throwable]
+  equalityLaws[Null.type]
+  equalityLaws[Plain]
 }

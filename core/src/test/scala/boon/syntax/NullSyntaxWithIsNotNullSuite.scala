@@ -4,30 +4,30 @@ package syntax
 import boon.model.internal._
 import nulls._
 
-object NullSyntaxWithNotNullSuite extends SuiteLike("Null Syntax null_! Suite") {
+object NullSyntaxWithIsNotNullSuite extends SuiteLike("Null Syntax isNotNull Suite") {
 
-  private val t1 = test("Null Syntax null_! fails on null") {
+  private val t1 = test("Null Syntax isNotNull fails on null") {
     val failOnNullTest = test("fails on null") {
-      null_![String](null)(_ =?= "something" | "is not null thingo")
+      isNotNull[String](null)
     }
 
     singleTestFailed(
       testName      = "fails on null",
-      assertionName = "expected not null",
+      assertionName = "is not null",
       context       = Map("value" -> "null"),
       location      = 11,
       error         = "expected not null got: null"
     )(Boon.runTest(failOnNullTest))
   }
 
-  private val t2 = test("Null Syntax null_! passes on not null") {
+  private val t2 = test("Null Syntax isNotNull passes on not null") {
     val passOnNotNullTest = test("passes on not null") {
-      null_![String]("hooroo")(_ =?= "hooroo" | "is not null thingo")
+      isNotNull[String]("hooroo")
     }
 
     singleTestPassed(
       testName      = "passes on not null",
-      assertionName = "is not null thingo",
+      assertionName = "is not null",
       context       = Map("value" -> "\"hooroo\""),
       location      = 25,
     )(Boon.runTest(passOnNotNullTest))

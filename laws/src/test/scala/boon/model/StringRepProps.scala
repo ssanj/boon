@@ -3,6 +3,7 @@ package model
 
 import boon.data.NonEmptySeq
 import scalacheck.DataArb._
+import scalacheck.GeneralArb._
 import org.scalacheck.Properties
 import scala.reflect.runtime.universe._
 import scala.util.Try
@@ -75,4 +76,6 @@ object StringRepProps extends Properties("StringRep") with StringRepLawDefinitio
   strRepLaws[Map[Long, Char]]
   
   strRepLaws[Throwable]
+  strRepLaws[Null.type]
+  strRepLaws[Plain]
 }
