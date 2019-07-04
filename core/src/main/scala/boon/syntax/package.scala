@@ -11,8 +11,8 @@ package object syntax {
 
   def plain(value: => String): Plain = Plain(value)
 
-  def ctx[A: StringRep](value: => A): (String, String) = ("value" -> value.strRep)
+  def input[A: StringRep](value: => A): (String, String) = ("value" -> value.strRep)
   
-  def ctxM[A: StringRep](value: => A): Map[String, String] = Map("value" -> value.strRep)
+  def inputM[A: StringRep](value: => A): Map[String, String] = Map("value" -> value.strRep)
 }
 
