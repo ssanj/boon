@@ -16,7 +16,7 @@ object OptionSyntaxWithSomeSuite extends SuiteLike("Option Syntax some_? Suite")
       assertionName = "expect Some",
       context       = noContext,
       location      = 11,
-      error         = "expected Some but got None"
+      error         = "expected Some got: None"
     )(Boon.runTest(failOnNoneTest))
   }
 

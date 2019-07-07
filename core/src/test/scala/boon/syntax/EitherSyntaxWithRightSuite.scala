@@ -16,7 +16,7 @@ object EitherSyntaxWithRightSuite extends SuiteLike("Either Syntax right_? Suite
       assertionName = "expected Right",
       context       = Map("value" -> "Left(\"someError\")"),
       location      = 11,
-      error         = "expected Right but got Left(\"someError\")"
+      error         = "expected Right got: Left(\"someError\")"
     )(Boon.runTest(failOnLeftTest))
   }
 

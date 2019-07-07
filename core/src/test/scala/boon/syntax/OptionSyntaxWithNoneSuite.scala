@@ -16,7 +16,7 @@ object OptionSyntaxWithNoneSuite extends SuiteLike("Option Syntax none_? Suite")
       assertionName = "expect None",
       context       = Map("value" -> "Some(20)"),
       location      = 11,
-      error         = "expected None but got: Some(20)" 
+      error         = "expected None got: Some(20)" 
     )(Boon.runTest(failOnNoneTest))
   }
 
