@@ -17,7 +17,7 @@ object EqualSyntaxWithIsDiffSuite extends SuiteLike("Equal Syntax isDiff Suite")
       assertionName = "10 is different to 10",
       context       = Map("value" -> "10"),
       location      = 11,
-      error         = "10 != 10"
+      error         = "10 == 10"
     )(Boon.runTest(failOnEquals))
   }
 

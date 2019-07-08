@@ -47,11 +47,11 @@ object BoonProps extends Properties("BoonProps") {
     val value2 = testable.value2.run
     val rep = StringRep[A].strRep _
 
-    (value1.asInstanceOf[A] == v1)   :| "value1"                 &&
-    (value2.asInstanceOf[A] == v2)   :| "value2"                 &&
-    (testable.equalityType == eqt)   :| "equality type"          &&
+    (value1.asInstanceOf[A] == v1)   :| "value1"                          &&
+    (value2.asInstanceOf[A] == v2)   :| "value2"                          &&
+    (testable.equalityType == eqt)   :| "equality type"                   &&
     (testable.equality.eql(value1, value2) == (v1 == v2 )) :| "equality"  &&
-    (testable.difference.diff(value1, value2) == one(s"${rep(v1)} != ${rep(v2)}")) :| "diff"
+    (testable.difference.diff(value1, value2, IsEqual) == one(s"${rep(v1)} != ${rep(v2)}")) :| "diff"
   }
 
   private def assertionProp[A: BoonType](name: String, v1: A, v2: A, eqt: EqualityType, context: Map[String, String]): Prop = {

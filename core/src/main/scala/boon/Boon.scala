@@ -37,7 +37,7 @@ object Boon {
       val eqFunc = testable.equalityType.fold(testable.equality.neql _, testable.equality.eql _)
 
       if (eqFunc(value1, value2)) SingleAssertionResult(AssertionResultPassed(AssertionTriple(assertion.name, assertion.context, assertion.location)))
-      else SingleAssertionResult(AssertionResultFailed(AssertionError(assertion, testable.difference.diff(value1, value2))))
+      else SingleAssertionResult(AssertionResultFailed(AssertionError(assertion, testable.difference.diff(value1, value2, testable.equalityType))))
 
     }.fold(t => SingleAssertionResult(AssertionResultThrew(AssertionThrow(assertion.name, t, assertion.location))), identity _)
   }

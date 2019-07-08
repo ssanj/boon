@@ -28,11 +28,11 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
           val value1 = testable.value1.run
           val value2 = testable.value2.run
 
-          value1.asInstanceOf[Int] =?= 10                              | "value1"     and
-          value2.asInstanceOf[Int] =?= 20                              | "value2"     and
-          testable.equality.eql(value1, value2) =?= false              | "equality"   and
-          testable.difference.diff(value1, value2) =?= one("10 != 20") | "difference" and
-          testable.equalityType =?= IsEqual                            | "equalityType"
+          value1.asInstanceOf[Int] =?= 10                                       | "value1"     and
+          value2.asInstanceOf[Int] =?= 20                                       | "value2"     and
+          testable.equality.eql(value1, value2) =?= false                       | "equality"   and
+          testable.difference.diff(value1, value2, IsEqual) =?= one("10 != 20") | "difference" and
+          testable.equalityType =?= IsEqual                                     | "equalityType"
         } and %@(a1.location, "a1.loc") { loc =>
           loc.line =?= 21 | "line" and
           some_?(loc.fileName)(_ =?= "PredicateSuite.scala" | "fileName") and
