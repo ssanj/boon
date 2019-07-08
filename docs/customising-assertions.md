@@ -52,17 +52,41 @@ If you want to customise the equality or difference function used on a Predicate
 
 ```scala
 import boon._
-import boon.model.Equality.genEq
-import boon.model.Difference
+import boon.model._
+import Equality.genEq
 
-val diff = Difference.from[String]((v1, v2) => oneOrMore(s"$v1 is not the same as $v2"))
+val diff = Difference.from[String]((v1, v2, et) => {
+    val equalityType = et match {
+      case IsEqual    => "is not the same as"
+      case IsNotEqual => "is the same as"
+    }
+    oneOrMore(s"$v1 $equalityType $v2")
+  }
+)
+```
 
+When asserting values are the same with `=?=` :
+
+```scala
 "Hello" =?= "Yellow" |? ("greeting", diff, genEq, noContext)
 ```
 
-which will result in:
+will result in:
 
 ```bash
    - greeting [✗]
      => Hello is not the same as Yellow
+```
+
+Or when asserting a difference with `=/=` :
+
+```scala
+"Hello" =/= "Hello" |? ("greeting", diff, genEq, noContext)
+```
+
+will result in:
+
+```bash
+   - greeting [✗]
+     => Hello is the same as Yellow
 ```
