@@ -6,6 +6,7 @@ import boon.model.TestState.Passed
 import boon.model.TestResult
 import boon.internal.instances._
 import regex._
+import equal._
 
 object RegexSuite extends SuiteLike("Regex Syntax Suite") {
 
@@ -26,5 +27,10 @@ object RegexSuite extends SuiteLike("Regex Syntax Suite") {
     }
   }
 
-  override val tests = oneOrMore(t1, matchTest)
+  private val t2 = test("matching groups") {
+    val date = raw"(\d{4})-(\d{2})-(\d{2})".r
+    "2018-07-10" =^=(date, isSame("2018"), isSame("07"), isSame("10")) | "date match"
+  }
+
+  override val tests = oneOrMore(t1, t2)
 }
