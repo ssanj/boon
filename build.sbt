@@ -15,7 +15,6 @@ lazy val commonSettings = Seq(
                       "-Ypartial-unification",
                       "-Ywarn-infer-any",
                       "-Ywarn-inaccessible",
-                      "-Ywarn-unused:_",
                       "-Yno-adapted-args",
                       "-Ywarn-infer-any",
                       "-Ywarn-nullary-override",
