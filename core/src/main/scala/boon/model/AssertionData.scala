@@ -4,8 +4,8 @@ package model
 import boon.data.NonEmptySeq
 
 /** Represents a collection of [[boon.model.Assertion]]s and its
- * combinators.  
- *  
+ * combinators.
+ *
  * @param assertions The [[boon.model.Assertion]]s that make up this object
  */
 final case class AssertionData(assertions: NonEmptySeq[Assertion]) {
@@ -30,13 +30,13 @@ final case class AssertionData(assertions: NonEmptySeq[Assertion]) {
   /** Combines the Assertions in this object sequentially
    * so they fail on the first Assertion error.
    */
-  def seq(): TestData = TestData(assertions, Sequential)
+  def sequentially(): TestData = TestData(assertions, Sequential)
 
   /** Combines the Assertions in this object independently
-   * so they continue to run irrespective of previous 
+   * so they continue to run irrespective of previous
    * Assertion failures.
    */
 
-  def ind(): TestData = TestData(assertions, Independent)
+  def individually(): TestData = TestData(assertions, Independent)
 }
 

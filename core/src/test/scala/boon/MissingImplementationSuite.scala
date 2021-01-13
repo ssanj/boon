@@ -18,9 +18,12 @@ object MissingImplementationSuite extends SuiteLike("Missing Implementation Suit
       val so    = MissingImplFixtures.run
       val tests = so.tests
 
-      tests.length =?= 1 | "no of tests" and %@(tests.head) {
-        _.fold(testRan, testThrew, testIgnored)
-      } seq()
+      sequentially(
+        tests.length =?= 1 | "no of tests" and
+        %@(tests.head) {
+          _.fold(testRan, testThrew, testIgnored)
+        }
+      )
   }
 
   private def testRan(name: String, t1assertions: NonEmptySeq[AssertionOutput], state: TestState): AssertionData = {

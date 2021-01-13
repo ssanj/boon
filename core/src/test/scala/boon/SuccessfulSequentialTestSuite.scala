@@ -31,10 +31,12 @@ object SuccessfulSequentialTestSuite extends SuiteLike("BoonSuite") {
           "Slice of watermelon"
         )
 
-      saturdayMenu.length =?= 10                                                                     | "length"   and
-      saturdayMenu.head   =?= "Chocolate cake"                                                       | "head"     and
-      saturdayMenu.last   =?= "Slice of watermelon"                                                  | "last"     and
-      saturdayMenu.contains("Pickle") >> (one(s"Could not find 'Pickle' in $saturdayMenu"), Replace) | "contains" seq()
+      sequentially(
+        saturdayMenu.length =?= 10                                                                     | "length"   and
+        saturdayMenu.head   =?= "Chocolate cake"                                                       | "head"     and
+        saturdayMenu.last   =?= "Slice of watermelon"                                                  | "last"     and
+        saturdayMenu.contains("Pickle") >> (one(s"Could not find 'Pickle' in $saturdayMenu"), Replace) | "contains"
+      )
     }
 
     Boon.runTest(tx) match {

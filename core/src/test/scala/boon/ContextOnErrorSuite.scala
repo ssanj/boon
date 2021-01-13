@@ -16,9 +16,12 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
   private val so = ContextOnErrorFixture.run
 
   private val t1 = test("show context on error") {
-    so.tests.length =?= 1 | "have 1 test" and %@(so.tests.head) {
-      _.fold(testRan, testThrew, testIgnored)
-    } seq()
+    sequentially(
+      so.tests.length =?= 1 | "have 1 test" and
+      %@(so.tests.head) {
+        _.fold(testRan, testThrew, testIgnored)
+      }
+    )
   }
 
   private def testIgnored(name: String): AssertionData = {
