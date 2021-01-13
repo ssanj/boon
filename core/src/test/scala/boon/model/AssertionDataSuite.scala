@@ -8,13 +8,13 @@ object AssertionDataSuite extends SuiteLike("AssertionData Suite") {
   private val assertionData = true | "truism"
 
   private val t1 = test("Create Sequential TestData") {
-    val testData = assertionData.seq()
+    val testData = assertionData.sequentially()
     testData.assertions =?= assertionData.assertions | "assertions" and
     testData.combinator =?= Sequential | "combinator"
   }
 
   private val t2 = test("Create Independent TestData") {
-    val testData = assertionData.ind()
+    val testData = assertionData.individually()
     testData.assertions =?= assertionData.assertions | "assertions" and
     testData.combinator =?= Independent | "combinator"
   }

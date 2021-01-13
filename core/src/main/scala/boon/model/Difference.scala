@@ -2,7 +2,6 @@ package boon
 package model
 
 import boon.data.NonEmptySeq
-import scala.language.higherKinds
 
 //This is not a Typeclass although it is supplied by the same mechanisms.
 trait Difference[A] {

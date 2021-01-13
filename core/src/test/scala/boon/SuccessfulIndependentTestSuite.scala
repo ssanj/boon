@@ -23,14 +23,16 @@ object SuccessfulIndependentTestSuite extends SuiteLike("BoonSuite") {
 
     Boon.runTest(tx) match {
       case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults) =>
-        name =?= "String test" | "test name" and
-        positional(assertionResults, "results"){
-          oneOrMore(
-            assertAssertionResultPassed("concat"),
-            assertAssertionResultPassed("length"),
-            assertAssertionResultPassed("reverse")
-          )
-        } seq()
+        sequentially(
+          name =?= "String test" | "test name" and
+          positional(assertionResults, "results"){
+            oneOrMore(
+              assertAssertionResultPassed("concat"),
+              assertAssertionResultPassed("length"),
+              assertAssertionResultPassed("reverse")
+            )
+          }
+        )
 
       case other => failWith(Expected(s"SingleTestResult"), Got(other), Desc("test result type"))
     }

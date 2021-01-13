@@ -8,7 +8,7 @@ import boon.result.TestOutput
 import boon.model.TestState
 import boon.model.SuiteState
 import boon.result.SuiteOutput
-import scala.compat.Platform.EOL
+import java.lang.System.{lineSeparator => EOL}
 import Colourise.green
 import Colourise.red
 
@@ -33,7 +33,7 @@ object FlatPrinter extends BoonPrinter {
     to.fold[String](testPassed(co, suiteName), testThrew(co, suiteName), testIgnored(suiteName))
   }
 
-  private def testPassed(co: ColourOutput, pContext: String)(name: String, @unused assertions: NonEmptySeq[AssertionOutput], state: TestState): String = {
+  private def testPassed(co: ColourOutput, pContext: String)(name: String, assertions: NonEmptySeq[AssertionOutput], state: TestState): String = {
     val testName = state match {
       case TestState.Passed  => Colourise.colourise(green(co), name)
       case TestState.Failed  => Colourise.colourise(red(co), name)
@@ -43,7 +43,7 @@ object FlatPrinter extends BoonPrinter {
     s"${pContext} / ${testName}"
   }
 
-  private def testThrew(co: ColourOutput, pContext: String)(name: String, @unused error: String, @unused trace: Seq[Trace], @unused loc: SourceLocation): String = {
+  private def testThrew(co: ColourOutput, pContext: String)(name: String, error: String, trace: Seq[Trace], loc: SourceLocation): String = {
     val testName = Colourise.colourise(red(co), name)
     s"${pContext} / ${testName}"
   }

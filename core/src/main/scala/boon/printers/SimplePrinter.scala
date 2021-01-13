@@ -1,7 +1,7 @@
 package boon
 package printers
 
-import scala.compat.Platform.EOL
+import java.lang.System.{lineSeparator => EOL}
 
 import boon.data.NonEmptySeq
 import NonEmptySeq.nonEmptyTail

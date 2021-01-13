@@ -84,10 +84,10 @@ import scala.collection.Iterable
     def strRep(implicit strRepA: StringRep[A]): String = strRepA.strRep(value)
   }
 
-  implicit class DualTypeEqualitySyntax[A, B](valueAB: => (A, B)) { 
+  implicit class DualTypeEqualitySyntax[A, B](valueAB: => (A, B)) {
     def =>=(f: (A, B) => AssertionData)(implicit ABS: StringRep[(A, B)]): AssertionData =
       Function.tupled(f)(valueAB).context(Map("values" -> (ABS.strRep(valueAB))))
-  }  
+  }
 
   def fail(reason: String): PredicateSyntax = invalid(s"explicit fail: $reason")
 
@@ -95,6 +95,10 @@ import scala.collection.Iterable
     override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData =
       false >> (oneOrMore(first, rest:_*), Replace) | (name, ctx:_*)
   }
+
+  def sequentially(ad: AssertionData): TestData = ad.sequentially()
+
+  def individually(ad: AssertionData): TestData = ad.individually()
 
   def pass: Predicate[Boolean] = true
 

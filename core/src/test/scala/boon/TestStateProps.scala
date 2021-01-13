@@ -4,7 +4,7 @@ import boon.model.TestResult
 import boon.model.TestState
 import org.scalacheck.Properties
 import org.scalacheck._
-import org.scalacheck.Prop.BooleanOperators
+import org.scalacheck.Prop.propBoolean
 import scalacheck.ModelArb._
 
 object TestStateProps extends Properties("TestState") {

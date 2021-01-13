@@ -17,7 +17,7 @@ import boon.model.TestResult
 import org.scalacheck.Properties
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Prop.BooleanOperators
+import org.scalacheck.Prop.propBoolean
 import scalacheck.ModelArb._
 import scalacheck.DataArb._
 

@@ -2,7 +2,6 @@ package boon
 package model
 
 import scala.util.Try
-import scala.collection.GenTraversable
 import boon.data.NonEmptySeq
 
 trait StringRep[A] {
@@ -54,8 +53,8 @@ object StringRep {
 
   implicit val charStringRep = from[Char](c => s"'$c'")
 
-  private def colStringRep[A: StringRep, F[A] <: GenTraversable[A]](prefix: String, open: String, close: String) =
-    from[F[A]](_.map(StringRep[A].strRep).mkString(s"${prefix}${open}", ", ", s"${close}"))
+  private def colStringRep[A: StringRep, F[A] <: IterableOnce[A]](prefix: String, open: String, close: String) =
+    from[F[A]](_.iterator.map(StringRep[A].strRep).mkString(s"${prefix}${open}", ", ", s"${close}"))
 
   implicit def listStringRep[A: StringRep] = colStringRep[A, List]("List", "(", ")")
 
