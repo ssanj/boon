@@ -8,7 +8,7 @@ import boon.result.TestOutput
 import boon.model.TestState
 import boon.model.SuiteState
 import boon.result.SuiteOutput
-import scala.compat.Platform.EOL
+import java.lang.System.{lineSeparator => EOL}
 import Colourise.green
 import Colourise.red
 
