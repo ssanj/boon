@@ -4,7 +4,7 @@ import boon.model.SuiteState
 import boon.model.SuiteResult
 import org.scalacheck.Properties
 import org.scalacheck._
-import org.scalacheck.Prop.BooleanOperators
+import org.scalacheck.Prop.propBoolean
 import scalacheck.SuiteResultArb._
 
 object SuiteStateProps extends Properties("SuiteState") {

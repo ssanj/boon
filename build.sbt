@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.12",
   organization := "net.ssanj",
-  version := "0.0.10-b01",
+  version := "0.1.0",
   licenses ++= Seq(("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))),
   scalacOptions ++= Seq(
                       "-encoding", "utf-8",
@@ -39,6 +39,8 @@ lazy val commonSettings = Seq(
 
 lazy val scalaReflect = Def.setting { "org.scala-lang" % "scala-reflect" % scalaVersion.value }
 
+lazy val scalaCheckVersion = "1.15.2"
+
 lazy val boon = (project in file("core"))
   .dependsOn(boonMacro)
   .settings(
@@ -49,7 +51,7 @@ lazy val boon = (project in file("core"))
         "org.scala-sbt"  % "test-interface" % "1.0",
         compilerPlugin("com.github.ghik" %% "silencer-plugin" % "1.4.1"),
         "com.github.ghik" %% "silencer-lib" % "1.4.1" % Provided,
-        "org.scalacheck" %% "scalacheck"    % "1.14.0" % Test
+        "org.scalacheck" %% "scalacheck"    % scalaCheckVersion % Test
     )
   )
 
@@ -61,7 +63,7 @@ lazy val boonLaws = (project in file("laws"))
     name := "boon-laws",
     testFrameworks := Seq(sbt.TestFrameworks.ScalaCheck),
     libraryDependencies ++= Seq(
-        "org.scalacheck" %% "scalacheck" % "1.14.0"
+        "org.scalacheck" %% "scalacheck" % scalaCheckVersion
     )
   )
 

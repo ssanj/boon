@@ -5,7 +5,7 @@ import boon.model.AssertionResult
 import boon.model.AssertionState
 import org.scalacheck.Properties
 import org.scalacheck._
-import org.scalacheck.Prop.BooleanOperators
+import org.scalacheck.Prop.propBoolean
 import scalacheck.ModelArb._
 
 object AssertionStateProps extends Properties("AssertionState") {
