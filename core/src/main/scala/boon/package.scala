@@ -59,13 +59,13 @@ import scala.collection.Iterable
   implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
 
   implicit def deferAToEqSyntax[A](dValue: Defer[A]): EqSyntax[A] =
-    new EqSyntax[A](dValue.run) //this is safe because EqSyntax is lazy
+    new EqSyntax[A](dValue.run()) //this is safe because EqSyntax is lazy
 
   implicit def toAssertionDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): AssertionData =
     assertionDatas.tail.foldLeft(assertionDatas.head)(_ and _)
 
   implicit def toAssertionDataFromIterableOfAssertionData(assertionDatas: Iterable[AssertionData]): AssertionData = {
-    NonEmptySeq.fromVector(assertionDatas.toVector).fold(fail("Empty collection of AssertionData") | "have assertions")(identity)
+    NonEmptySeq.fromVector(assertionDatas.toVector).fold(fail("Empty collection of AssertionData") |("have assertions"))(identity)
   }
 
   implicit def toTestDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): TestData =
@@ -93,7 +93,7 @@ import scala.collection.Iterable
 
   def invalid(first: String, rest: String*): PredicateSyntax = new PredicateSyntax {
     override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData =
-      false >> (oneOrMore(first, rest:_*), Replace) | (name, ctx:_*)
+      false.>> (oneOrMore(first, rest:_*), Replace).| (name, ctx:_*)
   }
 
   def sequentially(ad: AssertionData): TestData = ad.sequentially()

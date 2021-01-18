@@ -40,11 +40,11 @@ final case class NonEmptySeq[A](head: A, tail: Seq[A]) { self =>
     var idx = 1
     val it = tail.iterator
     while (it.hasNext) {
-      bldr += ((it.next, idx))
+      bldr += ((it.next(), idx))
       idx += 1
     }
 
-    NonEmptySeq((head, 0), bldr.result)
+    NonEmptySeq((head, 0), bldr.result())
   }
 
   def zip[B](other: NonEmptySeq[B]): NonEmptySeq[(A, B)] = {
@@ -122,8 +122,8 @@ object NonEmptySeq {
 
   def fromVector[A](value: Vector[A]): Option[NonEmptySeq[A]] =
     value match {
-      case Vector() => None
       case h +: t => Some(NonEmptySeq(h, t))
+      case _      => None
     }
 
   def headOnly[A](xs: NonEmptySeq[A]): Boolean = xs.tail.isEmpty

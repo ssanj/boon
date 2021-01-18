@@ -7,7 +7,7 @@ final case class Trace(className: String, fileName: Option[String], methodName: 
 object Exception {
 
   def getTraces(ex: Throwable, depth: Int): Seq[Trace] = {
-    val traces: Seq[StackTraceElement] = java.util.Arrays.asList(ex.getStackTrace:_*).asScala
+    val traces: Seq[StackTraceElement] = java.util.Arrays.asList(ex.getStackTrace:_*).asScala.toSeq
 
     traces.map { st =>
       Trace(st.getClassName, Option(st.getFileName), st.getMethodName, {

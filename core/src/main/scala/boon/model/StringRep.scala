@@ -2,7 +2,7 @@ package boon
 package model
 
 import scala.util.Try
-import scala.collection.GenTraversable
+import scala.collection.IterableOnce
 import boon.data.NonEmptySeq
 
 trait StringRep[A] {

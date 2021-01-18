@@ -2,7 +2,6 @@ package boon
 package model
 
 import boon.data.NonEmptySeq
-import scala.language.higherKinds
 
 //This is not a Typeclass although it is supplied by the same mechanisms.
 trait Difference[A] {
@@ -76,7 +75,7 @@ object Difference {
 
   private def seqDiff[A: StringRep](colL: Seq[A], colR: Seq[A])(summary: String): NonEmptySeq[String] = {
 
-    def contents(col: Seq[A]): String = if (col.isEmpty) "-" else col.map(StringRep[A].strRep)mkString("[", ",", "]")
+    def contents(col: Seq[A]): String = if (col.isEmpty) "-" else col.map(StringRep[A].strRep).mkString("[", ",", "]")
 
     val both    = colL.filter(colR.contains(_))
     val left    = colL.filter(!colR.contains(_))
