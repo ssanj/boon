@@ -1,6 +1,6 @@
 package boon.result
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 
 final case class Trace(className: String, fileName: Option[String], methodName: String, lineNumber: Option[Int])
 
