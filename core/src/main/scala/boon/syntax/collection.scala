@@ -15,7 +15,7 @@ object collection {
       s"length of $prefix is different to assertions",
       s"$prefix length: ${values.length}",
       s"assertions length: ${assertions.length}"
-    ), Replace).| (s"${prefix} has length of ${assertions.length}", ("values" -> toStringKVP[A](prefix).strRep(values))) and
+    ))(Replace) || s"${prefix} has length of ${assertions.length}" |> one("values" -> toStringKVP[A](prefix).strRep(values)) and
     %@(values.zipWithIndex.zip(assertions)) { zipped => //handle inputs safely
       zipped.map {
         case ((v, index), af) =>
@@ -33,16 +33,16 @@ object collection {
   }
 
   def positionalSeq[A: StringRep](values: Seq[A], prefix: => String)(assertions: NonEmptySeq[A => AssertionData]): AssertionData = {
-    NonEmptySeq.fromVector(values.toVector).fold({
-      invalid(s"$prefix is empty") | s"${prefix} has length of ${assertions.length}"
+    NonEmptySeq.fromVector(values.toVector).fold[AssertionData]({
+      invalid(s"$prefix is empty") || s"${prefix} has length of ${assertions.length}"
     }){ elements =>
       positional[A](elements, prefix)(assertions)
     }
   }
 
   def positionalMap[A: Ordering : StringRep, B: StringRep](valuesMap: Map[A, B], prefix: => String)(assertions: NonEmptySeq[(A, B) => AssertionData]): AssertionData = {
-    NonEmptySeq.fromVector(SortedMap(valuesMap.toSeq:_*).toVector).fold({
-      invalid(s"$prefix is empty") | s"${prefix} has length of ${assertions.length}"
+    NonEmptySeq.fromVector(SortedMap(valuesMap.toSeq:_*).toVector).fold[AssertionData]({
+      invalid(s"$prefix is empty") || s"${prefix} has length of ${assertions.length}"
     }){ elements =>
       positional[(A, B)](elements, prefix)(assertions.map(f => Function.tupled(f)))
     }

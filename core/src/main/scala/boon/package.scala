@@ -55,17 +55,20 @@ import scala.collection.Iterable
 
   type PredicateSyntax = syntax.PredicateSyntax
 
-  //implicits
-  implicit def aToEqSyntax[A](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
+  implicit def contextAwareToAssertionData[A](ca: ContextAware[A])(implicit loc: SourceLocation): AssertionData =
+    ca.toAssertionData()
 
-  implicit def deferAToEqSyntax[A](dValue: Defer[A]): EqSyntax[A] =
+  //implicits
+  implicit def aToEqSyntax[A : Equality : Difference](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
+
+  implicit def deferAToEqSyntax[A : Equality : Difference](dValue: Defer[A]): EqSyntax[A] =
     new EqSyntax[A](dValue.run()) //this is safe because EqSyntax is lazy
 
   implicit def toAssertionDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): AssertionData =
     assertionDatas.tail.foldLeft(assertionDatas.head)(_ and _)
 
   implicit def toAssertionDataFromIterableOfAssertionData(assertionDatas: Iterable[AssertionData]): AssertionData = {
-    NonEmptySeq.fromVector(assertionDatas.toVector).fold(fail("Empty collection of AssertionData") |("have assertions"))(identity)
+    NonEmptySeq.fromVector(assertionDatas.toVector).fold[AssertionData](fail("Empty collection of AssertionData") || "have assertions")(identity)
   }
 
   implicit def toTestDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): TestData =
@@ -89,18 +92,17 @@ import scala.collection.Iterable
       Function.tupled(f)(valueAB).context(Map("values" -> (ABS.strRep(valueAB))))
   }
 
-  def fail(reason: String): PredicateSyntax = invalid(s"explicit fail: $reason")
+  def fail(reason: String): Predicate[Boolean] = invalid(s"explicit fail: $reason")
 
-  def invalid(first: String, rest: String*): PredicateSyntax = new PredicateSyntax {
-    override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData =
-      false.>> (oneOrMore(first, rest:_*), Replace).| (name, ctx:_*)
-  }
+  def invalid(first: String, rest: String*): Predicate[Boolean] =
+      false.>>(oneOrMore(first, rest:_*))(Replace)
 
   def sequentially(ad: AssertionData): TestData = ad.sequentially()
 
   def individually(ad: AssertionData): TestData = ad.individually()
 
   def pass: Predicate[Boolean] = true
+
 
   def %@[A](provide: => A)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
     assertionBlock(cs(provide), None)(loc)
@@ -119,7 +121,7 @@ import scala.collection.Iterable
     val namePath = prefixOp.fold("")(_ + " ")
     val name = nameOp.fold(s"assertion @ ${namePath}(-:${loc.line})")(identity _)
     Try(cs).fold[AssertionData](ex => {
-      defer[Boolean](throw ex) | s"${name} !!threw an Exception!!" //safe because it is deferred
+      defer[Boolean](throw ex) || (s"${name} !!threw an Exception!!") //safe because it is deferred
     }, { ad =>
         val path  = prefixOp.fold("")(p => s"${p}.")
         val assertionWithPath = ad.assertions.map(assertion => assertion.copy(name = AssertionName(s"${path}${assertion.name.value}")))

@@ -22,6 +22,8 @@ final case class AssertionData(assertions: NonEmptySeq[Assertion]) {
     AssertionData(assertionsWithContext)
   }
 
+  def ctx(firstCtx: (String, String), rest: (String, String)*): AssertionData = context(Map.from(firstCtx +: rest))
+
   /** Updates the label of all Assertions in this object */
   def label(f: AssertionName => AssertionName): AssertionData = {
     this.copy(assertions = assertions.map(a => a.copy(name = f(a.name))))
@@ -30,13 +32,14 @@ final case class AssertionData(assertions: NonEmptySeq[Assertion]) {
   /** Combines the Assertions in this object sequentially
    * so they fail on the first Assertion error.
    */
+  //TODO: rename to stopOnFailure
   def sequentially(): TestData = TestData(assertions, Sequential)
 
   /** Combines the Assertions in this object independently
    * so they continue to run irrespective of previous
    * Assertion failures.
    */
-
+   //TODO: rename to continueOnFailure
   def individually(): TestData = TestData(assertions, Independent)
 }
 

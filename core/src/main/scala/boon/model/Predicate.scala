@@ -4,9 +4,26 @@ package model
 import boon.data.NonEmptySeq
 import Boon.defineAssertion
 
-final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: EqualityType) {
+final class ContextAware[A](val pred: Predicate[A], name: => String) {
+  def |>(ctx: NonEmptySeq[(String, String)])(implicit loc: SourceLocation): AssertionData =
+    new AssertionData(
+      NonEmptySeq.nes(
+        defineAssertion[A](name, (pred.pair), pred.equalityType, Map(ctx.toSeq:_*))(pred.E, pred.D, loc)
+      )
+    )
 
-  def |(name: => String, ctx: (String, String)*)(implicit E: Equality[A], D: Difference[A], loc: SourceLocation): AssertionData = {
+  def toAssertionData()(implicit loc: SourceLocation): AssertionData =
+    new AssertionData(
+      NonEmptySeq.nes(
+        defineAssertion[A](name, (pred.pair), pred.equalityType, Map.empty)(pred.E, pred.D, loc)
+      )
+    )
+
+}
+
+final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: EqualityType)(implicit val E: Equality[A], val D: Difference[A]) {
+
+  def |(name: => String)(ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData = {
     new AssertionData(
       NonEmptySeq.nes(
         defineAssertion[A](name, (pair), equalityType, Map(ctx:_*))
@@ -14,26 +31,28 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
     )
   }
 
+  def ||(name: => String): ContextAware[A] = new ContextAware[A](this, name)
+
+
   def |?(name: => String, difference: Difference[A], equality: Equality[A], ctx: Map[String, String])(implicit loc: SourceLocation): AssertionData = {
     new AssertionData(
       NonEmptySeq.nes(
         defineAssertion[A](name, (pair), equalityType, ctx)(equality, difference, loc)))
   }
 
-  def >>(diffContent: => NonEmptySeq[String], mod: DifferenceMod)(implicit E: Equality[A], D: Difference[A]): PredicateSyntax =
+  def >>(diffContent: => NonEmptySeq[String])(mod: DifferenceMod): Predicate[A] =
     >** { case (equality, difference) =>
-        (equality,
-          mod match {
-            case Replace => Difference.fromResult[A](diffContent)
-            case Append  => Difference.appendResult(difference, diffContent)
-          }
-        )
-    }
+            (
+              equality
+              , mod match {
+                  case Replace => Difference.fromResult[A](diffContent)
+                  case Append  => Difference.appendResult(difference, diffContent)
+                }
+           )
+        }
 
-  private def >**(modify: (Equality[A], Difference[A]) => (Equality[A], Difference[A]))(implicit E: Equality[A], D: Difference[A]): PredicateSyntax = new PredicateSyntax {
-    override def |(name: => String, ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData = {
-      val (equality, difference) = modify(E, D)
-      Predicate.this.|(name, ctx:_*)(equality, difference, loc)
-    }
+  private def >**(modify: (Equality[A], Difference[A]) => (Equality[A], Difference[A])): Predicate[A] = {
+    val (equality, difference) = modify(E, D)
+    new Predicate[A](pair, equalityType)(equality, difference)
   }
 }

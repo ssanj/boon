@@ -30,7 +30,7 @@ object exception {
       val expectedClassName = expectedClass.getName
       Try(value).fold[AssertionData](e =>
         assertException[T](e, assertMessage, loc),
-        s => fail(s"expected ${expectedClassName} but got class:${s.getClass.getName} value:${SR.strRep(s)}") | s"exception class ${expectedClassName}"
+        s => fail(s"expected ${expectedClassName} but got class:${s.getClass.getName} value:${SR.strRep(s)}") || s"exception class ${expectedClassName}"
       )
     }
   }

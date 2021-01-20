@@ -16,7 +16,7 @@ package model
 // (all letters)
 //
 
-final class EqSyntax[A](value1: => A) {
+final class EqSyntax[A : Equality : Difference](value1: => A) {
   def =?=(value2: => A): Predicate[A] = new Predicate[A]((defer(value1), defer(value2)), IsEqual)
 
   def =/=(value2: => A): Predicate[A] = new Predicate[A]((defer(value1), defer(value2)), IsNotEqual)
