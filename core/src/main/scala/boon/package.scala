@@ -56,7 +56,7 @@ import scala.collection.Iterable
   type PredicateSyntax = syntax.PredicateSyntax
 
   implicit def contextAwareToAssertionData[A](ca: ContextAware[A])(implicit loc: SourceLocation): AssertionData =
-    ca.toAssertionData()
+    ca.toAssertionData
 
   //implicits
   implicit def aToEqSyntax[A : Equality : Difference](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
@@ -68,7 +68,7 @@ import scala.collection.Iterable
     assertionDatas.tail.foldLeft(assertionDatas.head)(_ and _)
 
   implicit def toAssertionDataFromIterableOfAssertionData(assertionDatas: Iterable[AssertionData]): AssertionData = {
-    NonEmptySeq.fromVector(assertionDatas.toVector).fold[AssertionData](fail("Empty collection of AssertionData") || "have assertions")(identity)
+    NonEmptySeq.fromVector(assertionDatas.toVector).fold[AssertionData](fail("Empty collection of AssertionData") | "have assertions")(identity)
   }
 
   implicit def toTestDataFromSeqOfAssertionData(assertionDatas: NonEmptySeq[AssertionData]): TestData =
@@ -121,7 +121,7 @@ import scala.collection.Iterable
     val namePath = prefixOp.fold("")(_ + " ")
     val name = nameOp.fold(s"assertion @ ${namePath}(-:${loc.line})")(identity _)
     Try(cs).fold[AssertionData](ex => {
-      defer[Boolean](throw ex) || (s"${name} !!threw an Exception!!") //safe because it is deferred
+      defer[Boolean](throw ex) | (s"${name} !!threw an Exception!!")//safe because it is deferred
     }, { ad =>
         val path  = prefixOp.fold("")(p => s"${p}.")
         val assertionWithPath = ad.assertions.map(assertion => assertion.copy(name = AssertionName(s"${path}${assertion.name.value}")))

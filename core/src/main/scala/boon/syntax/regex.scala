@@ -17,7 +17,7 @@ object regex {
           val result: Predicate[Boolean] = reg.findFirstIn(value).fold(false)(_ => true)
           val diff = one(s"'${value}' did not match regex: /${reg}/")
 
-          result.>> (diff)(Replace) || (name)
+          result.>> (diff)(Replace) | (name)
         }
       }
 
@@ -27,10 +27,10 @@ object regex {
         if (it.hasNext) {
           NonEmptySeq.fromVector(it.next().subgroups.toVector).
           fold[AssertionData](
-            invalid(s"regex: /${reg}/ did not have any subgroups for '${value}'") || name) {
+            invalid(s"regex: /${reg}/ did not have any subgroups for '${value}'") | name) {
             positional[String](_, name)(NonEmptySeq(first, rest.toVector))
           }
-        } else invalid(s"'${value}' did not match regex: /${reg}/") || name
+        } else invalid(s"'${value}' did not match regex: /${reg}/") | name
       }
     }
   }

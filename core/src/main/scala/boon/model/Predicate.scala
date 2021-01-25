@@ -12,7 +12,7 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
       )
     )
 
-  def toAssertionData()(implicit loc: SourceLocation): AssertionData =
+  def toAssertionData(implicit loc: SourceLocation): AssertionData =
     new AssertionData(
       NonEmptySeq.nes(
         defineAssertion[A](name, (pred.pair), pred.equalityType, Map.empty)(pred.E, pred.D, loc)
@@ -21,17 +21,15 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
 
 }
 
+
 final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: EqualityType)(implicit val E: Equality[A], val D: Difference[A]) {
 
-  def |(name: => String)(ctx: (String, String)*)(implicit loc: SourceLocation): AssertionData = {
-    new AssertionData(
-      NonEmptySeq.nes(
-        defineAssertion[A](name, (pair), equalityType, Map(ctx:_*))
-      )
-    )
-  }
 
-  def ||(name: => String): ContextAware[A] = new ContextAware[A](this, name)
+  /**
+   * Add a name to a given predicate
+   * @param name The name associated with this predicate
+   */
+  def |(name: => String): ContextAware[A] = new ContextAware[A](this, name)
 
 
   def |?(name: => String, difference: Difference[A], equality: Equality[A], ctx: Map[String, String])(implicit loc: SourceLocation): AssertionData = {
