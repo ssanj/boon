@@ -50,6 +50,13 @@ import scala.collection.Iterable
 
   def one[A](head: A): NonEmptySeq[A] = NonEmptySeq.one[A](head)
 
+//final class AssertDataParameter[A](val difference: Difference[A], val equality: Equality[A], val ctx: Map[String, String], val loc: SourceLocation)
+  def params[A](difference: Difference[A], equality: Equality[A], loc: SourceLocation): AssertDataParameter[A] =
+    new AssertDataParameter[A](difference, equality, Map.empty, loc)
+
+  def paramsWithContextr[A](difference: Difference[A], equality: Equality[A], ctx: NonEmptySeq[(String, String)], loc: SourceLocation): AssertDataParameter[A] =
+    new AssertDataParameter[A](difference, equality, ctx.toSeq.toMap, loc)
+
   val Replace = DiffReplace
   val Append  = DiffAppend
 

@@ -12,6 +12,14 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
       )
     )
 
+  def |?(params: AssertDataParameter[A]): AssertionData = {
+    new AssertionData(
+      NonEmptySeq.nes(
+        defineAssertion[A](name, pred.pair, pred.equalityType, params.ctx.toSeq.toMap)(params.equality, params.difference, params.loc)
+      )
+    )
+  }
+
   def toAssertionData(implicit loc: SourceLocation): AssertionData =
     new AssertionData(
       NonEmptySeq.nes(
@@ -21,6 +29,7 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
 
 }
 
+final class AssertDataParameter[A](val difference: Difference[A], val equality: Equality[A], val ctx: Map[String, String], val loc: SourceLocation)
 
 final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: EqualityType)(implicit val E: Equality[A], val D: Difference[A]) {
 
@@ -31,12 +40,6 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
    */
   def |(name: => String): ContextAware[A] = new ContextAware[A](this, name)
 
-
-  def |?(name: => String, difference: Difference[A], equality: Equality[A], ctx: Map[String, String])(implicit loc: SourceLocation): AssertionData = {
-    new AssertionData(
-      NonEmptySeq.nes(
-        defineAssertion[A](name, (pair), equalityType, ctx)(equality, difference, loc)))
-  }
 
   def >>(diffContent: => NonEmptySeq[String])(mod: DifferenceMod): Predicate[A] =
     >** { case (equality, difference) =>

@@ -19,7 +19,7 @@ object exception {
 
       //supply the location of the invocation here,
       //otherwise the error will point to the line below
-      expectedClass.isAssignableFrom(e.getClass).|?("exception class", diff, genEq, noContext)(loc) and
+      expectedClass.isAssignableFrom(e.getClass) | "exception class" |? params(diff, genEq, loc) and
       assertMessage(e.getMessage)
   }
 
@@ -46,7 +46,7 @@ object exception {
       val expectedClass = classTag.runtimeClass
       val expectedClassName = expectedClass.getName
       val diff = Difference.fromResult[Boolean](one(s"expected: $expectedClassName got: ${e.getClass.getName}"))
-      expectedClass.isAssignableFrom(e.getClass).|?("exception class", diff, genEq, noContext)(loc)
+      expectedClass.isAssignableFrom(e.getClass) | "exception class" |? params(diff, genEq, loc)
   }
 
   implicit def toExceptionSyntax[A](value: => A): ExceptionSyntax[A] = new ExceptionSyntax[A](value)
