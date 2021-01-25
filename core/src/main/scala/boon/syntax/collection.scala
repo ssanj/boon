@@ -33,7 +33,7 @@ object collection {
   }
 
   def positionalSeq[A: StringRep](values: Seq[A], prefix: => String)(assertions: NonEmptySeq[A => AssertionData]): AssertionData = {
-    NonEmptySeq.fromVector(values.toVector).fold[AssertionData]({
+    NonEmptySeq.fromVector(values.toVector).fold({
       invalid(s"$prefix is empty") | s"${prefix} has length of ${assertions.length}"
     }){ elements =>
       positional[A](elements, prefix)(assertions)
@@ -41,7 +41,7 @@ object collection {
   }
 
   def positionalMap[A: Ordering : StringRep, B: StringRep](valuesMap: Map[A, B], prefix: => String)(assertions: NonEmptySeq[(A, B) => AssertionData]): AssertionData = {
-    NonEmptySeq.fromVector(SortedMap(valuesMap.toSeq:_*).toVector).fold[AssertionData]({
+    NonEmptySeq.fromVector(SortedMap(valuesMap.toSeq:_*).toVector).fold({
       invalid(s"$prefix is empty") | s"${prefix} has length of ${assertions.length}"
     }){ elements =>
       positional[(A, B)](elements, prefix)(assertions.map(f => Function.tupled(f)))
