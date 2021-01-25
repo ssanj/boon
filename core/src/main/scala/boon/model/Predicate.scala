@@ -5,6 +5,10 @@ import boon.data.NonEmptySeq
 import Boon.defineAssertion
 
 final class ContextAware[A](val pred: Predicate[A], name: => String) {
+
+  /**
+   * Add contextual data to the [[boon.model.Predicate]]
+   */
   def |>(ctx: NonEmptySeq[(String, String)])(implicit loc: SourceLocation): AssertionData =
     new AssertionData(
       NonEmptySeq.nes(
@@ -12,6 +16,10 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
       )
     )
 
+  /**
+   * customize all parameters  when constructing an AssertionData
+   * @see [[boon.model.AssertDataParameter]]
+   */
   def |?(params: AssertDataParameter[A]): AssertionData = {
     new AssertionData(
       NonEmptySeq.nes(
@@ -29,6 +37,14 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
 
 }
 
+/**
+ * Container for all customizable parameters to a [[boon.model.AssertionData]] instance.
+ * @type A types compared when creating a Predicate
+ * @param difference How to display the differences between two instances of type `A`
+ * @param equality How to equate two instances of type `A`
+ * @param ctx Any contextual data to display on assertion failure
+ * @param loc Source location where the assertion error should occur (if any)
+ */
 final class AssertDataParameter[A](val difference: Difference[A], val equality: Equality[A], val ctx: Map[String, String], val loc: SourceLocation)
 
 final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: EqualityType)(implicit val E: Equality[A], val D: Difference[A]) {
