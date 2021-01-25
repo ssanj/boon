@@ -60,11 +60,6 @@ import scala.collection.Iterable
   val Replace = DiffReplace
   val Append  = DiffAppend
 
-  type PredicateSyntax = syntax.PredicateSyntax
-
-  implicit def contextAwareToAssertionData[A](ca: ContextAware[A])(implicit loc: SourceLocation): AssertionData =
-    ca.toAssertionData
-
   //implicits
   implicit def aToEqSyntax[A : Equality : Difference](value1: => A): EqSyntax[A] = new EqSyntax[A](value1)
 

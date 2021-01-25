@@ -38,7 +38,7 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
 }
 
 /**
- * Container for all customizable parameters to a [[boon.model.AssertionData]] instance.
+ * Container for all customisable parameters to a [[boon.model.AssertionData]] instance.
  * @type A types compared when creating a Predicate
  * @param difference How to display the differences between two instances of type `A`
  * @param equality How to equate two instances of type `A`
@@ -51,11 +51,17 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
 
 
   /**
-   * Add a name to a given predicate
+   * Add a name to a given predicate and create an [[boon.model.AssertionData]]
    * @param name The name associated with this predicate
    */
-  def |(name: => String): ContextAware[A] = new ContextAware[A](this, name)
+  def |(name: => String): AssertionData = new ContextAware[A](this, name).toAssertionData
 
+  /**
+   * Add a name to a given predicate and customise how to create an [[boon.model.AssertionData]]
+   * @param name The name associated with this predicate
+   */
+
+  def ||(name: => String): ContextAware[A] = new ContextAware[A](this, name)
 
   def >>(diffContent: => NonEmptySeq[String])(mod: DifferenceMod): Predicate[A] =
     >** { case (equality, difference) =>

@@ -15,7 +15,7 @@ object collection {
       s"length of $prefix is different to assertions",
       s"$prefix length: ${values.length}",
       s"assertions length: ${assertions.length}"
-    ))(Replace) | s"${prefix} has length of ${assertions.length}" |> one("values" -> toStringKVP[A](prefix).strRep(values)) and
+    ))(Replace) || s"${prefix} has length of ${assertions.length}" |> one("values" -> toStringKVP[A](prefix).strRep(values)) and
     %@(values.zipWithIndex.zip(assertions)) { zipped => //handle inputs safely
       zipped.map {
         case ((v, index), af) =>
