@@ -38,13 +38,13 @@ object BoonProps extends Properties("BoonProps") {
   }
 
   private def testableProp[A: BoonType](v1: A, v2: A, eqt: EqualityType): Prop = {
-    val testable = Boon.testable[A](defer(v1), defer(v2), eqt).run
+    val testable = Boon.testable[A](defer(v1), defer(v2), eqt).run()
     assertTestable(testable, v1, v2, eqt)
   }
 
   private def assertTestable[A: BoonType](testable: Testable, v1: A, v2: A, eqt: EqualityType): Prop = {
-    val value1 = testable.value1.run
-    val value2 = testable.value2.run
+    val value1 = testable.value1.run()
+    val value2 = testable.value2.run()
     val rep = StringRep[A].strRep _
 
     (value1.asInstanceOf[A] == v1)   :| "value1"                          &&
@@ -57,9 +57,9 @@ object BoonProps extends Properties("BoonProps") {
   private def assertionProp[A: BoonType](name: String, v1: A, v2: A, eqt: EqualityType, context: Map[String, String]): Prop = {
     val assertion = Boon.defineAssertion[A](name, (defer(v1), defer(v2)), eqt, context)
 
-    (assertion.name.value == name)                      :| "name"     &&
-    (assertion.context == context)                      :| "context"  &&
-    assertTestable(assertion.testable.run, v1, v2, eqt) :| "testable" &&
-    (assertion.location.line == 58)                     :| "location"
+    (assertion.name.value == name)                        :| "name"     &&
+    (assertion.context == context)                        :| "context"  &&
+    assertTestable(assertion.testable.run(), v1, v2, eqt) :| "testable" &&
+    (assertion.location.line == 58)                       :| "location"
   }
 }

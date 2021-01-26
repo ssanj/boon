@@ -24,9 +24,9 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
       assertions.length =?= 1 | "no of assertions" and
       %@(assertions.head, "assertion"){ a1 =>
         a1.name.value =?= "Int predicate" | "name" and
-        a1.context =?= noContext | "context" and %@(a1.testable.run, "testable") { testable =>
-          val value1 = testable.value1.run
-          val value2 = testable.value2.run
+        a1.context =?= noContext | "context" and %@(a1.testable.run(), "testable") { testable =>
+          val value1 = testable.value1.run()
+          val value2 = testable.value2.run()
 
           value1.asInstanceOf[Int] =?= 10                                       | "value1"     and
           value2.asInstanceOf[Int] =?= 20                                       | "value2"     and
@@ -46,7 +46,7 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
     val errors = oneOrMore("one", "two", "three", "a one-two-three")
     val diff = Difference.fromResult[String](errors)
     val testPredicate = test("test predicate override diffs") {
-      "Hello" =?= "Yellow" |? ("greeting", diff, genEq, noContext)
+      "Hello" =?= "Yellow" || "greeting" |? params(diff, genEq, sourceLocation)
     }
 
     Boon.runTest(testPredicate) match {
@@ -60,7 +60,7 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
   private val t3 = test("overriding error messages") {
     val errors = oneOrMore("four", "five", "six")
     val testPredicate = test("test predicate override error messages") {
-      ("blue" =?= "Red") >> (errors, Replace) | "Colours"
+      ("blue" =?= "Red") >> differentMessage(errors, Replace) | "Colours"
     }
 
     Boon.runTest(testPredicate) match {
@@ -74,7 +74,7 @@ object PredicateSuite extends SuiteLike("Predicate Suite") {
   private val t4 = test("append additional error messages") {
     val additional = oneOrMore("AA", "BB")
     val testPredicate = test("test predicate add error messages") {
-      ("deep space 9" =?= "deep space 8") >> (additional, Append) | "Space stations"
+      ("deep space 9" =?= "deep space 8") >> differentMessage(additional, Append) | "Space stations"
     }
 
     val expectedErrors = oneOrMore("\"deep space 9\" != \"deep space 8\"").concat(additional)

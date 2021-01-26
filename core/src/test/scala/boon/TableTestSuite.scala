@@ -44,8 +44,7 @@ object TableTestSuite extends SuiteLike("Table Test Suite") {
         assertionResults.toSeq.forall {
           case SingleAssertionResult(AssertionResultPassed(_)) =>  true
           case _ => false
-        } | ("all passed",
-             "results" -> assertionResults.map(ar => AssertionResult.assertionNameFromResult(ar).value).mkString(","))
+        } || "all passed" |> one("results" -> assertionResults.map(ar => AssertionResult.assertionNameFromResult(ar).value).mkString(","))
 
       case other => failWith(Expected("SingleTestResult"), Got(other), Desc("test type"))
     }

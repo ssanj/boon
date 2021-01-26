@@ -67,9 +67,10 @@ object ContextOnErrorFixture {
   private val withContextSuite = new SuiteLike("WithContextSuite") {
     val frodoTest = test("LOTR") {
       val hobbits = List("Bilbo", "Sam", "Bingo", "Merimas")
-      hobbits.contains("Frodo") | ("Frodo is a hobbit",
-                                   "allHobbits" -> hobbits.mkString(","),
-                                   "missing"    -> "Frodo")
+      hobbits.contains("Frodo") || "Frodo is a hobbit" |>  oneOrMore(
+                                                            "allHobbits" -> hobbits.mkString(","),
+                                                            "missing"    -> "Frodo"
+                                                           )
     }
 
     override val tests = one(frodoTest)

@@ -44,6 +44,8 @@ import scala.collection.Iterable
 
   def noContext: Map[String, String] = Map.empty[String, String]
 
+  def sourceLocation: SourceLocation = implicitly[SourceLocation]
+
   def noErrorOverrides: Option[NonEmptySeq[String]] = None
 
   def oneOrMore[A](head: A, tail: A*): NonEmptySeq[A] = NonEmptySeq[A](head, tail.toSeq)

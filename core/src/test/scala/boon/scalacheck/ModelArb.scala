@@ -30,7 +30,6 @@ import boon.model.Independent
 import boon.model.AssertionCombinator
 import boon.model.SingleAssertionResult
 import boon.model.AssertionResultThrew
-import boon.model.AssertionResultFailed
 import boon.model.AssertionResultState
 import boon.model.AssertionResultFailed
 import boon.model.AssertionResultPassed

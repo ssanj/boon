@@ -5,7 +5,7 @@ import boon.data.NonEmptySeq
 import scalacheck.DataArb._
 import scalacheck.GeneralArb._
 import org.scalacheck.Properties
-import scala.reflect.runtime.universe._
+// import scala.reflect.runtime.universe._
 import scala.util.Try
 
 object StringRepProps extends Properties("StringRep") with StringRepLawDefinition {
@@ -74,7 +74,7 @@ object StringRepProps extends Properties("StringRep") with StringRepLawDefinitio
   strRepLaws[Map[Int, String]]
   strRepLaws[Map[String, String]]
   strRepLaws[Map[Long, Char]]
-  
+
   strRepLaws[Throwable]
   strRepLaws[Null.type]
   strRepLaws[Plain]

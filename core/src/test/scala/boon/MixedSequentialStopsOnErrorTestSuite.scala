@@ -1,7 +1,6 @@
 package boon
 
 import scala.NotImplementedError
-import boon.model.AssertionName
 import boon.model.AssertionThrow
 import boon.model.SequentialThrew
 import boon.model.AssertionName

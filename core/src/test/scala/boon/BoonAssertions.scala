@@ -2,7 +2,6 @@ package boon
 
 import boon.model.AssertionResultThrew
 import boon.model.AssertionThrow
-import boon.model.AssertionName
 import boon.model.Assertion
 import boon.model.AssertionError
 import boon.model.AssertionResultFailed

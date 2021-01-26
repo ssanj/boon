@@ -35,7 +35,7 @@ object SuccessfulSequentialTestSuite extends SuiteLike("BoonSuite") {
         saturdayMenu.length =?= 10                                                                     | "length"   and
         saturdayMenu.head   =?= "Chocolate cake"                                                       | "head"     and
         saturdayMenu.last   =?= "Slice of watermelon"                                                  | "last"     and
-        saturdayMenu.contains("Pickle") >> (one(s"Could not find 'Pickle' in $saturdayMenu"), Replace) | "contains"
+        saturdayMenu.contains("Pickle") >> differentMessage(one(s"Could not find 'Pickle' in $saturdayMenu"), Replace) | "contains"
       )
     }
 

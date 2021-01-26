@@ -3,7 +3,6 @@ package boon
 import data.NonEmptySeq
 import model.TestData
 import model.TestState
-import internal.instances._
 import result.SuiteOutput
 import result.AssertionOutput
 import result.TestPassedOutput
