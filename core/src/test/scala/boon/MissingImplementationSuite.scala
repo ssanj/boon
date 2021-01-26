@@ -63,7 +63,7 @@ object MissingImplementationSuite extends SuiteLike("Missing Implementation Suit
   }
 
   private def assertionPassed(name: String): AssertionData = {
-    fail(s"passed: $name") | "assertionOutput type",
+    fail(s"passed: $name") | "assertionOutput type"
   }
 
   private def sequentialAssertionPassed(name: String, passed: NonEmptySeq[SequentialPassData]): AssertionData = {

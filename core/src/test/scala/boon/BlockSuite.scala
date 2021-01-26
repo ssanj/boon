@@ -30,13 +30,12 @@ object BlockSuite extends SuiteLike("Block Test Suite") {
       case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
         name =?= "my block test" | "test name" and
         positional(assertions, "assertions"){
-          oneOrMore(_.name.value =?= "length"  | "assertion", 
+          oneOrMore(_.name.value =?= "length"  | "assertion",
                     _.name.value =?= "reverse" | "assertion")
         } and assertionResults.toSeq.forall {
           case SingleAssertionResult(AssertionResultPassed(_)) =>  true
           case _ => false
-        } | ("all passed",
-             "results" -> assertionResults.map(ar => AssertionResult.assertionNameFromResult(ar).value).mkString(","))
+        } || "all passed" |> (one("results" -> assertionResults.map(ar => AssertionResult.assertionNameFromResult(ar).value).mkString(",")))
 
       case other => failWith(Expected("SingleTestResult"),  Got(other), Desc("test type"))
     }
