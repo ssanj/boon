@@ -54,8 +54,11 @@ import scala.collection.Iterable
   def params[A](difference: Difference[A], equality: Equality[A], loc: SourceLocation): AssertDataParameter[A] =
     new AssertDataParameter[A](difference, equality, Map.empty, loc)
 
-  def paramsWithContextr[A](difference: Difference[A], equality: Equality[A], ctx: NonEmptySeq[(String, String)], loc: SourceLocation): AssertDataParameter[A] =
+  def paramsWithContext[A](difference: Difference[A], equality: Equality[A], ctx: NonEmptySeq[(String, String)], loc: SourceLocation): AssertDataParameter[A] =
     new AssertDataParameter[A](difference, equality, ctx.toSeq.toMap, loc)
+
+  def differentMessage[A](diffContent: => NonEmptySeq[String], mod: DifferenceMod): DiffContentParameter[A] =
+    new DiffContentParameter[A](diffContent, mod)
 
   val Replace = DiffReplace
   val Append  = DiffAppend
@@ -97,7 +100,7 @@ import scala.collection.Iterable
   def fail(reason: String): Predicate[Boolean] = invalid(s"explicit fail: $reason")
 
   def invalid(first: String, rest: String*): Predicate[Boolean] =
-      false.>>(oneOrMore(first, rest:_*))(Replace)
+      false >> differentMessage(oneOrMore(first, rest:_*), Replace)
 
   def sequentially(ad: AssertionData): TestData = ad.sequentially()
 

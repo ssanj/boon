@@ -17,6 +17,12 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
     )
 
   /**
+   * Add contextual data to the [[boon.model.Predicate]]
+   * Same as `|>`
+   */
+  def ctx(ctx: NonEmptySeq[(String, String)])(implicit loc: SourceLocation): AssertionData = |>(ctx)
+
+  /**
    * customize all parameters  when constructing an AssertionData
    * @see [[boon.model.AssertDataParameter]]
    */
@@ -47,6 +53,11 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
  */
 final class AssertDataParameter[A](val difference: Difference[A], val equality: Equality[A], val ctx: Map[String, String], val loc: SourceLocation)
 
+final class DiffContentParameter[A](diffContentInternal: => NonEmptySeq[String], val mod: DifferenceMod) {
+  //TODO: Do we need a `def` here?
+  def diffContent: NonEmptySeq[String] = diffContentInternal
+}
+
 final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: EqualityType)(implicit val E: Equality[A], val D: Difference[A]) {
 
 
@@ -54,7 +65,7 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
    * Add a name to a given predicate and create an [[boon.model.AssertionData]]
    * @param name The name associated with this predicate
    */
-  def |(name: => String): AssertionData = new ContextAware[A](this, name).toAssertionData
+  def |(name: => String)(implicit loc: SourceLocation): AssertionData = new ContextAware[A](this, name).toAssertionData
 
   /**
    * Add a name to a given predicate and customise how to create an [[boon.model.AssertionData]]
@@ -63,13 +74,14 @@ final class Predicate[A](val pair: (Defer[A], Defer[A]), val equalityType: Equal
 
   def ||(name: => String): ContextAware[A] = new ContextAware[A](this, name)
 
-  def >>(diffContent: => NonEmptySeq[String])(mod: DifferenceMod): Predicate[A] =
+  //TODO: Change this to use a parameter class
+  def >>(param: DiffContentParameter[A]): Predicate[A] =
     >** { case (equality, difference) =>
             (
               equality
-              , mod match {
-                  case Replace => Difference.fromResult[A](diffContent)
-                  case Append  => Difference.appendResult(difference, diffContent)
+              , param.mod match {
+                  case Replace => Difference.fromResult[A](param.diffContent)
+                  case Append  => Difference.appendResult(difference, param.diffContent)
                 }
            )
         }

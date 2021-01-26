@@ -20,7 +20,7 @@ object either {
   }
 
   def isLeft[A: StringRep, B: StringRep](either: Either[A, B]): AssertionData = {
-    either.isLeft.>> (one(errorTemplate(plain("Left"), either)))(Replace) || ("is Left") |> (one("value" -> either.strRep))
+    either.isLeft>> differentMessage(one(errorTemplate(plain("Left"), either)), Replace) || ("is Left") |> (one("value" -> either.strRep))
   }
 
   def right_?[A: StringRep, B: StringRep](either: Either[A, B])(f: B => AssertionData): AssertionData = {
@@ -29,7 +29,7 @@ object either {
   }
 
   def isRight[A: StringRep, B: StringRep](either: Either[A, B]): AssertionData = {
-    either.isRight.>> (one(errorTemplate(plain("Right"), either)))(Replace) || "is Right" |> one("value" -> either.strRep)
+    either.isRight>> differentMessage(one(errorTemplate(plain("Right"), either)), Replace) || "is Right" |> one("value" -> either.strRep)
   }
 }
 
