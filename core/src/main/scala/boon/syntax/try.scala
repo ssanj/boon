@@ -16,7 +16,7 @@ object `try` {
                 _ => invalid(errorTemplate(plain("Failure"), tryVal)) || "is Failure" |> one(input(tryVal)))
   }
 
-  def success_?[A: StringRep](tryVal: Try[A])(f: A => AssertionData): AssertionData = {
+  def success_?[A: StringRep](tryVal: Try[A])(f: A => AssertionData)(implicit loc: SourceLocation): AssertionData = {
     tryVal.fold(_ => invalid(errorTemplate(plain("Success"), tryVal)) || "expected Success" |> one(input(tryVal)), f(_).ctx(input(tryVal)))
   }
 

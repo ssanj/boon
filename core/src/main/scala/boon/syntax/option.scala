@@ -15,10 +15,10 @@ object option {
   def isSome[A: StringRep](option: Option[A])(implicit loc: SourceLocation): AssertionData =
     option.isDefined >> differentMessage(one(errorTemplate(plain("Some"), plain("None"))), Replace) || "is Some" |> one(input(option))
 
-  def some_?[A: StringRep](option: Option[A])(f: A => AssertionData): AssertionData =
+  def some_?[A: StringRep](option: Option[A])(f: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
     option.fold[AssertionData](invalid(errorTemplate(plain("Some"), plain("None"))) | "expect Some")(f(_).context(inputM(option)))
 
-  def none_?[A: StringRep](option: Option[A])(f: => AssertionData): AssertionData =
+  def none_?[A: StringRep](option: Option[A])(f: => AssertionData)(implicit loc: SourceLocation): AssertionData =
     option.fold(f)(_ => invalid(errorTemplate(plain("None"), option)) || "expect None" |> one(input(option)))
 
   def isNone[A: StringRep](option: Option[A])(implicit loc: SourceLocation): AssertionData =
