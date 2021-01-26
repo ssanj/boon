@@ -1,14 +1,16 @@
-// lazy val scala212 = "2.12.12"
+lazy val scala212 = "2.12.13"
 
 lazy val scala213 = "2.13.4"
 
-lazy val supportedScalaVersions = List(scala213)
+lazy val supportedScalaVersions = List(scala213, scala212)
+
+crossScalaVersions := supportedScalaVersions
 
 ThisBuild / scalaVersion := scala213
 
 lazy val commonSettings = Seq(
   organization := "net.ssanj",
-  version := "0.1.0",
+  version := "1.0.0",
   licenses ++= Seq(("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))),
   scalacOptions ++= Seq(
                       "-encoding", "utf-8",
@@ -23,17 +25,17 @@ lazy val commonSettings = Seq(
                       "-language:higherKinds"
                     ),
 
-  // scalacOptions in (Compile, console) := Seq(
-  //                     "-encoding", "utf-8",
-  //                     "-unchecked",
-  //                     "-deprecation",
-  //                     "-explaintypes",
-  //                     "-feature",
-  //                     "-language:implicitConversions",
-  //                     "-language:higherKinds"
-  // ),
+  scalacOptions in (Compile, console) := Seq(
+                      "-encoding", "utf-8",
+                      "-unchecked",
+                      "-deprecation",
+                      "-explaintypes",
+                      "-feature",
+                      "-language:implicitConversions",
+                      "-language:higherKinds"
+  ),
 
-  // scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
+  scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 )
 
 lazy val scalaReflect = Def.setting { "org.scala-lang" % "scala-reflect" % scalaVersion.value }
