@@ -1,6 +1,7 @@
 package boon
 
 import boon.model.AssertionData
+import boon.model.Predicate
 import boon.model.Test
 import result.SuiteOutput
 import printers.SimplePrinter
@@ -16,10 +17,10 @@ object ReplConfig {
 
 package object REPL {
   //load this in from a file
-  val suiteNames =
+  private val suiteNames =
     oneOrMore(
       "Conan O'Brien"  -> "When all else fails there's always delusion",
-      "Conan O'Brien"  -> "What is wrong with your right now?",
+      "Conan O'Brien"  -> "What is wrong with you right now?",
       "Pete Holmes"    -> "I refer to myself as ‘Old Petey Pants`",
       "Pete Holmes"    -> "Everybody sleeps",
       "Tig Notaro"     -> "My little Suitecase",
@@ -27,6 +28,24 @@ package object REPL {
       "Dave Chappelle" -> "Grape Drink!",
       "Dave Chappelle" -> "I plead the fif!",
     )
+
+  private val assertionNames =
+    oneOrMore(
+      "Like a diamond in the sky",
+      "Don’t forget to squeak!",
+      "The wipers on the bus go swish, swish, swish",
+      "And on his farm he had a cow",
+      "Which finger did it bite?",
+      "They were neither up nor down",
+      "No more monkeys jumping on the bed!",
+      "the lamb was sure to go",
+      "One for the dame",
+      "The clock struck one"
+    )
+
+  def runPredicates(predicate: Predicate[_], morePredicates: Predicate[_]*)(implicit config: ReplConfig): Unit = {
+    runAssertions(predicate | randomAssertionName, morePredicates.map(p => p | randomAssertionName):_*)
+  }
 
   def runAssertions(assertion: AssertionData, moreAssertion: AssertionData*)(implicit config: ReplConfig): Unit = {
     val (suiteName, testName) = randomSuiteAndTestName
@@ -60,5 +79,7 @@ package object REPL {
   private def randomSuiteAndTestName: (String, String) = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)
 
   private def randomSuiteName: String = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)._1
+
+  private def randomAssertionName: String = assertionNames.get(Random.nextInt(assertionNames.length)).getOrElse(assertionNames.head)
 }
 
