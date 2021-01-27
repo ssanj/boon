@@ -3,6 +3,7 @@ package boon
 import boon.model.AssertionData
 import boon.model.Predicate
 import boon.model.Test
+import boon.data.NonEmptySeq
 import result.SuiteOutput
 import printers.SimplePrinter
 import printers.BoonPrinter
@@ -76,10 +77,12 @@ package object REPL {
     config.printer.print(ColourOutput.fromBoolean(true), println, outputFormat)
   }
 
-  private def randomSuiteAndTestName: (String, String) = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)
+  private def randomSuiteAndTestName: (String, String) = randomItem(suiteNames)
 
-  private def randomSuiteName: String = suiteNames.get(Random.nextInt(suiteNames.length)).getOrElse(suiteNames.head)._1
+  private def randomSuiteName: String = randomSuiteAndTestName._1
 
-  private def randomAssertionName: String = assertionNames.get(Random.nextInt(assertionNames.length)).getOrElse(assertionNames.head)
+  private def randomAssertionName: String = randomItem(assertionNames)
+
+  private def randomItem[A](items: NonEmptySeq[A]): A = items.get(Random.nextInt(items.length)).getOrElse(items.head)
 }
 

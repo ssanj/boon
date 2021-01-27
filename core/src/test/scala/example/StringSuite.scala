@@ -10,7 +10,7 @@ object StringSuite extends SuiteLike("StringSuite") {
     "hello".toUpperCase          =?= "HELLO"          | "UPPER"      and
     "DollHouse".startsWith("Doll")                    | "startsWith" and
     "Battlestar".endsWith("star")                     | "endsWith"   and
-    "Bilbo".contains("bobo") || "contains" |>
+    "Bilbo".contains("lbo") || "contains" |>
       oneOrMore(
        "subject"   -> """"Bilbo"""",
        "predicate" -> "contains",
