@@ -10,11 +10,12 @@ object StringSuite extends SuiteLike("StringSuite") {
     "hello".toUpperCase          =?= "HELLO"          | "UPPER"      and
     "DollHouse".startsWith("Doll")                    | "startsWith" and
     "Battlestar".endsWith("star")                     | "endsWith"   and
-    "Bilbo".contains("lbo") || "contains" |> oneOrMore(
-                                                        "subject"   -> """"Bilbo"""",
-                                                        "predicate" -> "contains",
-                                                        "value"     -> """"ob""""
-                                             ) and
+    "Bilbo".contains("bobo") || "contains" |>
+      oneOrMore(
+       "subject"   -> """"Bilbo"""",
+       "predicate" -> "contains",
+       "value"     -> """"ob""""
+      ) and
     """HTTP/1.1 400: {"message":"body cannot be converted to Test: CNil: El(DownField(myValue)"}""" =^=
          """HTTP/1\.1 400.*DownField\(myValue\)""".r | "expect decode error"
   }

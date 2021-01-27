@@ -19,7 +19,7 @@ Some things that are unique to boon:
 1. Purity - test failures don't throw Exceptions
 1. First Class Assertions - Assertions can be named and combined
 1. Failure context - Failures can have write out a context of all useful information
-1. Two failure modes - Assertions can either fail on the first error (**Seq**uential) or continue running other Assertions (**Ind**ependent)
+1. Two failure modes - Assertions can either fail on the first error or continue running the remaining Assertions
 
 ## Usage in SBT ##
 

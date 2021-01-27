@@ -168,11 +168,12 @@ _When nesting blocks with prefixes, lower blocks will have the prefix of each up
 Sometimes when a test fails you want more information about the values of certain variables used to calculate the result. You can specify these values when creating an Assertion:
 
 ```scala
-"Bilbo".contains("lbo") | (
-  "contains",
-  "subject"   -> """"Bilbo"""",
-  "predicate" -> "contains",
-  "value"     -> """"ob"""")
+"Bilbo".contains("lbo") || "contains" |>
+  oneOrMore(
+   "subject"   -> """"Bilbo"""",
+   "predicate" -> "contains",
+   "value"     -> """"ob""""
+  ) and
 ```
 
 When the above Assertion fails, the contextual values supplied will be displayed:
@@ -185,7 +186,9 @@ When the above Assertion fails, the contextual values supplied will be displayed
 [info]           value -> "ob"
 ```
 
-## Independent Assertions
+Notice the use of the double pipes (`||`) when adding a context (`|>`). The double pipes imply you have more information to supply in addition to a description.
+
+## Continue-On-Failure Assertions
 
 By default, all Assertions are executed independently of each other. What this means is that a prior failing Assertion, will not prevent a subsequent Assertion from running:
 
@@ -210,27 +213,31 @@ Results in:
 
 Notice that although, the **Int equality** Assertion failed, the other Assertions completed successfully.
 
-Independent Assertions are shown with a '-' in the output.
+Continue-On-Failure Assertions are shown with a '-' in the output.
 
-Although unnecessary, you could explicitly define a Test as Independent with the `ind()` method:
+Although unnecessary, you could explicitly define a Test as Continue-On-Failure with the `continueOnFailure` method:
 
 ```scala
 val t1 = test("equality of things") {
-  1 =?= 2             | "Int equality"    and
-  "Hello" =?= "Hello" | "String equality" and
-  true =?= true       | "Boolean equality" ind()
+  continueOnFailure(
+    1 =?= 2             | "Int equality"    and
+    "Hello" =?= "Hello" | "String equality" and
+    true =?= true       | "Boolean equality"
+  )
 }
 ```
 
-## Sequential Assertions
+## Stop-On-Failure Assertions
 
-What if we didn't want to run any of the other Assertions after a failing Assertion? We could specify that by using the `seq()` method:
+What if we didn't want to run any of the other Assertions after a failing Assertion? We could specify that by using the `stopOnFailuire` method:
 
 ```scala
 val t1 = test("equality of things") {
-  1 =?= 2             | "Int equality"    and
-  "Hello" =?= "Hello" | "String equality" and
-  true =?= true       | "Boolean equality" seq()
+  stopOnFailure(
+    1 =?= 2             | "Int equality"    and
+    "Hello" =?= "Hello" | "String equality" and
+    true =?= true       | "Boolean equality"
+  )
 }
 ```
 
@@ -247,7 +254,7 @@ If we ran the above, it would fail with:
 
 Notice that the **String equality** and **Boolean equality** Assertions did not run after the **Int equality** Assertion failed.
 
-Sequential Assertions are shown with a '↓' symbol in the output.
+Stop-On-Failure Assertions are shown with a '↓' symbol in the output.
 
 ## Tabulated Tests
 
@@ -325,7 +332,7 @@ For example to run an Assertion on a `String` and an `Int`, you just need to pro
 For example to Assert that the length of "Hello World" is 11:
 
 ```
-("Hello World", 11) =>= ((a, b) => a.length =?= b | "greet length") 
+("Hello World", 11) =>= ((a, b) => a.length =?= b | "greet length")
 ```
 
 When we run the above we get:
