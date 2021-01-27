@@ -1,7 +1,7 @@
 package boon
 
 import scala.NotImplementedError
-import boon.model.Independent
+import boon.model.ContinueOnFailure
 import boon.model.TestName
 import boon.model.DeferredTest
 import boon.model.SingleTestResult
@@ -27,7 +27,7 @@ object MixedIndependentTestSuite extends SuiteLike("BoonSuite") {
     }
 
     Boon.runTest(tx) match {
-      case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults) =>
+      case SingleTestResult(DeferredTest(TestName(name), _, ContinueOnFailure), assertionResults) =>
         name =?= "success + fails + errors" | "test name"   and
         positional(assertionResults, "results"){
           oneOrMore(

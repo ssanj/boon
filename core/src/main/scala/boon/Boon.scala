@@ -49,8 +49,8 @@ object Boon {
 
     case SuccessfulTest(dTest: DeferredTest) =>
         dTest.combinator match {
-          case Independent => SingleTestResult(dTest, dTest.assertions.map(runAssertion))
-          case Sequential =>
+          case ContinueOnFailure => SingleTestResult(dTest, dTest.assertions.map(runAssertion))
+          case StopOnFailure =>
             val zero = ResultCollector(pass = Vector.empty[AssertionResult], fail = None, notRun = Vector.empty[Assertion])
 
             val results = dTest.assertions.foldLeft(zero){ (acc, a1) =>

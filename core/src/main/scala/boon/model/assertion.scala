@@ -67,8 +67,8 @@ final case class AssertionResultThrew(value: AssertionThrow) extends AssertionRe
 final case class SingleAssertionResult(value: AssertionResultState) extends AssertionResult
 
 sealed trait AssertionCombinator
-case object Independent extends AssertionCombinator
-case object Sequential extends AssertionCombinator
+case object ContinueOnFailure extends AssertionCombinator
+case object StopOnFailure extends AssertionCombinator
 
 sealed trait DifferenceMod
 case object DiffReplace extends DifferenceMod

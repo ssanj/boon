@@ -7,16 +7,16 @@ object AssertionDataSuite extends SuiteLike("AssertionData Suite") {
 
   private val assertionData = true | "truism"
 
-  private val t1 = test("Create Sequential TestData") {
-    val testData = assertionData.sequentially()
+  private val t1 = test("Create StopOnFailure TestData") {
+    val testData = assertionData.stopOnFailure()
     testData.assertions =?= assertionData.assertions | "assertions" and
-    testData.combinator =?= Sequential | "combinator"
+    testData.combinator =?= StopOnFailure | "combinator"
   }
 
-  private val t2 = test("Create Independent TestData") {
-    val testData = assertionData.individually()
+  private val t2 = test("Create ContinueOnFailure TestData") {
+    val testData = assertionData.continueOnFailure()
     testData.assertions =?= assertionData.assertions | "assertions" and
-    testData.combinator =?= Independent | "combinator"
+    testData.combinator =?= ContinueOnFailure | "combinator"
   }
 
   private val t3 = test("append Assertions") {

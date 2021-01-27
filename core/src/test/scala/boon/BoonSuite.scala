@@ -2,7 +2,7 @@ package boon
 
 import boon.model.TestName
 import boon.model.Test
-import boon.model.Independent
+import boon.model.ContinueOnFailure
 import boon.model.SingleTestResult
 import boon.model.DeferredTest
 import boon.model.AssertionData
@@ -44,7 +44,7 @@ object BoonSuite extends SuiteLike("BoonSuite") {
   }
 
   private def assertSingleTestResult(testName: String, assertionName: String)(tr: TestResult): AssertionData = tr match {
-    case SingleTestResult(DeferredTest(TestName(tName), _, Independent), assertionResults) =>
+    case SingleTestResult(DeferredTest(TestName(tName), _, ContinueOnFailure), assertionResults) =>
       tName =?= testName             | "test name"           and
       assertionResults.length =?= 1  | "no of assertions"    and
       assertAssertionResultPassed(assertionName)(assertionResults.toSeq(0))

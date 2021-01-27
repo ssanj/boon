@@ -10,7 +10,7 @@ import syntax.collection.positional
 import boon.model.AssertionResult
 import boon.model.SingleAssertionResult
 import boon.model.AssertionResultPassed
-import boon.model.Independent
+import boon.model.ContinueOnFailure
 import boon.model.TestName
 import boon.model.DeferredTest
 import boon.model.SingleTestResult
@@ -27,7 +27,7 @@ object BlockSuite extends SuiteLike("Block Test Suite") {
     }
 
     Boon.runTest(tx) match {
-      case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
+      case SingleTestResult(DeferredTest(TestName(name), assertions, ContinueOnFailure), assertionResults) =>
         name =?= "my block test" | "test name" and
         positional(assertions, "assertions"){
           oneOrMore(_.name.value =?= "length"  | "assertion",
@@ -67,7 +67,7 @@ object BlockSuite extends SuiteLike("Block Test Suite") {
 
   private def assertSuccess(test: Test, testName: String, assertionName: String): AssertionData = {
     Boon.runTest(test) match {
-      case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), _) =>
+      case SingleTestResult(DeferredTest(TestName(name), assertions, ContinueOnFailure), _) =>
         name =?= testName | "test name" and
         positional(assertions, "block")(one(_.name.value =?= assertionName  | "assertion"))
       case other => failWith(Expected("SingleTestResult"),  Got(other), Desc("test type"))

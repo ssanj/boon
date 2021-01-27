@@ -16,7 +16,7 @@ object ContextOnErrorSuite extends SuiteLike("ContextOnErrorSuite") {
   private val so = ContextOnErrorFixture.run
 
   private val t1 = test("show context on error") {
-    sequentially(
+    stopOnFailure(
       so.tests.length =?= 1 | "have 1 test" and
       %@(so.tests.head) {
         _.fold(testRan, testThrew, testIgnored)

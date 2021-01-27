@@ -1,6 +1,6 @@
 package boon
 
-import boon.model.Independent
+import boon.model.ContinueOnFailure
 import boon.model.TestName
 import boon.model.DeferredTest
 import boon.model.SingleTestResult
@@ -22,8 +22,8 @@ object SuccessfulIndependentTestSuite extends SuiteLike("BoonSuite") {
     }
 
     Boon.runTest(tx) match {
-      case SingleTestResult(DeferredTest(TestName(name), _, Independent), assertionResults) =>
-        sequentially(
+      case SingleTestResult(DeferredTest(TestName(name), _, ContinueOnFailure), assertionResults) =>
+        stopOnFailure(
           name =?= "String test" | "test name" and
           positional(assertionResults, "results"){
             oneOrMore(

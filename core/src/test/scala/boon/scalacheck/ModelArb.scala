@@ -25,8 +25,8 @@ import boon.model.TestName
 import boon.model.FirstFailed
 import boon.model.TestData
 import boon.model.AssertionState
-import boon.model.Sequential
-import boon.model.Independent
+import boon.model.StopOnFailure
+import boon.model.ContinueOnFailure
 import boon.model.AssertionCombinator
 import boon.model.SingleAssertionResult
 import boon.model.AssertionResultThrew
@@ -187,7 +187,7 @@ object ModelArb {
   }
 
   implicit val assertionCombinatorArbitrary: Arbitrary[AssertionCombinator] = Arbitrary {
-    Gen.oneOf(Independent, Sequential)
+    Gen.oneOf(ContinueOnFailure, StopOnFailure)
   }
 
   implicit val assertionStateArbitrary: Arbitrary[AssertionState] = Arbitrary {

@@ -21,7 +21,7 @@ object MixedSequentialStopsOnFailureTestSuite extends SuiteLike("BoonSuite") {
   private val t1 = test("mixed sequential test - stops on failure") {
 
     val tx = test("success + fails + stops") {
-      sequentially(
+      stopOnFailure(
         true =?= true  | "truism"  and
         false =?= true | "falsism" and
         true =?= ???   | "error"

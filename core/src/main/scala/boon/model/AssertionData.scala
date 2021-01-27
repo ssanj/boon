@@ -33,13 +33,13 @@ final case class AssertionData(assertions: NonEmptySeq[Assertion]) {
    * so they fail on the first Assertion error.
    */
   //TODO: rename to stopOnFailure
-  def sequentially(): TestData = TestData(assertions, Sequential)
+  def stopOnFailure(): TestData = TestData(assertions, StopOnFailure)
 
   /** Combines the Assertions in this object independently
    * so they continue to run irrespective of previous
    * Assertion failures.
    */
    //TODO: rename to continueOnFailure
-  def individually(): TestData = TestData(assertions, Independent)
+  def continueOnFailure(): TestData = TestData(assertions, ContinueOnFailure)
 }
 

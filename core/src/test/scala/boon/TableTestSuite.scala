@@ -10,7 +10,7 @@ import boon.BoonAssertions.Desc
 import boon.BoonAssertions.Got
 import boon.BoonAssertions.Expected
 import boon.BoonAssertions.failWith
-import boon.model.Independent
+import boon.model.ContinueOnFailure
 import boon.model.TestName
 import boon.model.DeferredTest
 import boon.model.SingleTestResult
@@ -31,7 +31,7 @@ object TableTestSuite extends SuiteLike("Table Test Suite") {
     val tx = table[(Int, Int), Int]("addition table", additionTable)(x => x._1 + x._2)
 
     Boon.runTest(tx) match {
-      case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
+      case SingleTestResult(DeferredTest(TestName(name), assertions, ContinueOnFailure), assertionResults) =>
         name =?= "addition table" | "test name" and
         positional(assertions, "truthTable"){
           oneOrMore(
@@ -62,7 +62,7 @@ object TableTestSuite extends SuiteLike("Table Test Suite") {
     val tx = table[(Int, Int), Int]("addition table", additionTable)(x => x._1 + x._2)
 
     Boon.runTest(tx) match {
-      case SingleTestResult(DeferredTest(TestName(name), assertions, Independent), assertionResults) =>
+      case SingleTestResult(DeferredTest(TestName(name), assertions, ContinueOnFailure), assertionResults) =>
         name =?= "addition table" | "test name" and
         positional(assertions, "truthTable"){
           oneOrMore(

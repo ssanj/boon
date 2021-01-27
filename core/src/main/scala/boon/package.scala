@@ -23,7 +23,7 @@ import scala.collection.Iterable
             implicit val sl: SourceLocation = loc
             Boon.defineAssertion[U](s"with ${StringRep[T].strRep(t)} is ${StringRep[U].strRep(u)}", (Defer(() => f(t)), Defer(() => u)), IsEqual, noContext)
         },
-        Independent
+        ContinueOnFailure
       )
     )
   }
@@ -82,7 +82,7 @@ import scala.collection.Iterable
     toTestData(toAssertionDataFromSeqOfAssertionData(assertionDatas))
 
   implicit def toTestData(AssertionData: AssertionData): TestData =
-    TestData(AssertionData.assertions, Independent)
+    TestData(AssertionData.assertions, ContinueOnFailure)
 
   implicit def booleanToPredicate(value1: => Boolean): Predicate[Boolean] =
     new Predicate[Boolean]((defer(value1), defer(true)), IsEqual)
@@ -104,9 +104,9 @@ import scala.collection.Iterable
   def invalid(first: String, rest: String*): Predicate[Boolean] =
       false >> differentMessage(oneOrMore(first, rest:_*), Replace)
 
-  def sequentially(ad: AssertionData): TestData = ad.sequentially()
+  def stopOnFailure(ad: AssertionData): TestData = ad.stopOnFailure()
 
-  def individually(ad: AssertionData): TestData = ad.individually()
+  def continueOnFailure(ad: AssertionData): TestData = ad.continueOnFailure()
 
   def pass: Predicate[Boolean] = new Predicate[Boolean]((defer(true), defer(true)), IsEqual)
 

@@ -18,7 +18,7 @@ object MissingImplementationSuite extends SuiteLike("Missing Implementation Suit
       val so    = MissingImplFixtures.run
       val tests = so.tests
 
-      sequentially(
+      stopOnFailure(
         tests.length =?= 1 | "no of tests" and
         %@(tests.head) {
           _.fold(testRan, testThrew, testIgnored)

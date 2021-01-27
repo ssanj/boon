@@ -31,7 +31,7 @@ object SuccessfulSequentialTestSuite extends SuiteLike("BoonSuite") {
           "Slice of watermelon"
         )
 
-      sequentially(
+      stopOnFailure(
         saturdayMenu.length =?= 10                                                                     | "length"   and
         saturdayMenu.head   =?= "Chocolate cake"                                                       | "head"     and
         saturdayMenu.last   =?= "Slice of watermelon"                                                  | "last"     and
