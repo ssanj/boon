@@ -12,7 +12,7 @@ object regex {
 
   final class RegexNameAware(reg: Regex, value: => String) {
     def |(name: => String)(implicit loc: SourceLocation): AssertionData = {
-      val pred: Predicate[Boolean] = reg.findFirstIn(value).fold(false)(_ => true)
+      val pred: Predicate[Boolean] = reg.findFirstIn(value).fold(fail("this will be replaced"))(_ => pass)
       val diff = one(s"'${value}' did not match regex: /${reg}/")
 
       pred >> differentMessage(diff, Replace) | (name)

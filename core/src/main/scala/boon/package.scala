@@ -108,8 +108,7 @@ import scala.collection.Iterable
 
   def individually(ad: AssertionData): TestData = ad.individually()
 
-  def pass: Predicate[Boolean] = true
-
+  def pass: Predicate[Boolean] = new Predicate[Boolean]((defer(true), defer(true)), IsEqual)
 
   def %@[A](provide: => A)(cs: A => AssertionData)(implicit loc: SourceLocation): AssertionData =
     assertionBlock(cs(provide), None)(loc)
