@@ -319,6 +319,22 @@ When we run the above Test we get:
 
 *note*: This works with `NonEmptySeq` and any `scala.collection.Iterable`
 
+As you can see the default way of combining Assertions is by the Continue-On-Failure model. The above is just a short-hand for:
+
+```
+val t1 = test("less than 10") {
+  continueOnFailure(oneOrMore(1, (2 to 9):_*).map(n => n < 10 | s"$n < 10"))
+}
+```
+
+Similarly we can use the Stop-On-Failure:
+
+```
+val t1 = test("less than 10") {
+  stopOnFailure(oneOrMore(1, (2 to 9):_*).map(n => n < 10 | s"$n < 10"))
+}
+```
+
 ## Assertions on Differing Types
 
 Sometimes you want to run an Assertion on a couple of different types.  You can't use the type safe equal operator (`=?=`) as it expects the same types.
