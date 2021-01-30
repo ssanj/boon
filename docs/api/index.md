@@ -319,7 +319,7 @@ When we run the above Test we get:
 
 *note*: This works with `NonEmptySeq` and any `scala.collection.Iterable`
 
-As you can see the default way of combining Assertions is by the Continue-On-Failure model. The above is just a short-hand for:
+The default way of combining Assertions is by the Continue-On-Failure model. The above is just a short-hand for:
 
 ```
 val t1 = test("less than 10") {
@@ -327,7 +327,7 @@ val t1 = test("less than 10") {
 }
 ```
 
-Similarly we can use the Stop-On-Failure:
+Similarly we can combine Assertions with Stop-On-Failure:
 
 ```
 val t1 = test("less than 10") {
