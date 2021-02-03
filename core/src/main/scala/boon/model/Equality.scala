@@ -55,4 +55,10 @@ object Equality {
   implicit def genericEquality[A] = genEq[A]
 
   implicit val throwableEquality = from[Throwable]((t1, t2) => t1.getClass == t2.getClass && t1.getMessage == t2.getMessage)
+
+  implicit def arrayEquality[A: Equality]: Equality[Array[A]] =
+    Equality.from[Array[A]]((t1, t2) =>  {
+      val equality = implicitly[Equality[A]]
+      t1.zip(t2).forall{ case (s1, s2) => equality.eql(s1, s2) }
+    })
 }

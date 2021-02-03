@@ -51,6 +51,9 @@ object Difference {
   implicit def seqDifference[A: StringRep]                  = colDifference[A, Seq](identity _)
   implicit def mapDifference[A: StringRep, B: StringRep]    = mapLikeDifference[A, B, Map](_.toSeq)
 
+  implicit def arrayDifference[A](implicit S: StringRep[A]) = colDifference[A, Array](_.toSeq)
+
+
   //Tuple
   implicit def pairDifference[A: StringRep, B: StringRep]                               = genericDifference[(A, B)]
   implicit def tripleDifference[A: StringRep, B: StringRep, C: StringRep]               = genericDifference[(A, B, C)]

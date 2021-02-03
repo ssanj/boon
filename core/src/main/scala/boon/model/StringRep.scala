@@ -57,6 +57,9 @@ object StringRep {
   private def colStringRep[A: StringRep, F[A] <: IterableOnce[A]](prefix: String, open: String, close: String) =
     from[F[A]](_.iterator.map(StringRep[A].strRep).mkString(s"${prefix}${open}", ", ", s"${close}"))
 
+  implicit def arrayStringRep[A: StringRep]: StringRep[Array[A]] =
+    from[Array[A]](ar => ar.mkString("Array[", ",", "]"))
+
   implicit def listStringRep[A: StringRep] = colStringRep[A, List]("List", "(", ")")
 
   implicit def vectorStringRep[A: StringRep] = colStringRep[A, Vector]("Vector", "(", ")")
