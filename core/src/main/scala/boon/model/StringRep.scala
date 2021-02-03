@@ -2,7 +2,6 @@ package boon
 package model
 
 import scala.util.Try
-import scala.collection.IterableOnce
 import boon.data.NonEmptySeq
 
 trait StringRep[A] {
@@ -54,19 +53,19 @@ object StringRep {
 
   implicit val charStringRep = from[Char](c => s"'$c'")
 
-  private def colStringRep[A: StringRep, F[A] <: IterableOnce[A]](prefix: String, open: String, close: String) =
-    from[F[A]](_.iterator.map(StringRep[A].strRep).mkString(s"${prefix}${open}", ", ", s"${close}"))
+  private def colStringRep[A: StringRep, F[_]](toIt: F[A] => Iterable[A])(prefix: String, open: String, close: String) =
+    from[F[A]](fa => toIt(fa).map(StringRep[A].strRep).mkString(s"${prefix}${open}", ", ", s"${close}"))
 
-  implicit def arrayStringRep[A: StringRep]: StringRep[Array[A]] =
-    from[Array[A]](ar => ar.mkString("Array[", ",", "]"))
+  implicit def arrayStringRep[A](implicit S: StringRep[A]): StringRep[Array[A]] =
+    colStringRep[A, Array](_.toSeq)("Array", "[", "]")
 
-  implicit def listStringRep[A: StringRep] = colStringRep[A, List]("List", "(", ")")
+  implicit def listStringRep[A: StringRep] = colStringRep[A, List](_.toSeq)("List", "(", ")")
 
-  implicit def vectorStringRep[A: StringRep] = colStringRep[A, Vector]("Vector", "(", ")")
+  implicit def vectorStringRep[A: StringRep] = colStringRep[A, Vector](_.toSeq)("Vector", "(", ")")
 
-  implicit def setStringRep[A: StringRep] = colStringRep[A, Set]("Set", "(", ")")
+  implicit def setStringRep[A: StringRep] = colStringRep[A, Set](_.toSeq)("Set", "(", ")")
 
-  implicit def seqStringRep[A: StringRep] = colStringRep[A, Seq]("Seq", "(", ")")
+  implicit def seqStringRep[A: StringRep] = colStringRep[A, Seq](_.toSeq)("Seq", "(", ")")
 
   implicit def nonEmptySeqStringRep[A: StringRep] = from[NonEmptySeq[A]](_.map(StringRep[A].strRep).mkString("NES(", ",", ")"))
 

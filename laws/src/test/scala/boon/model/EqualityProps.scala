@@ -24,6 +24,14 @@ object EqualityProps extends Properties("Equality") with EqualityLawDefinition {
   equalityLaws[List[Double]]
   equalityLaws[List[Char]]
 
+  equalityLaws[Array[Int]]
+  equalityLaws[Array[Long]]
+  equalityLaws[Array[String]]
+  equalityLaws[Array[Boolean]]
+  equalityLaws[Array[Float]]
+  equalityLaws[Array[Double]]
+  equalityLaws[Array[Char]]
+
   equalityLaws[NonEmptySeq[Int]]
   equalityLaws[NonEmptySeq[Long]]
   equalityLaws[NonEmptySeq[String]]

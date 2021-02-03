@@ -40,5 +40,5 @@ trait EqualityLawDefinition { self: Properties =>
 
   // private def substitutivityLaw[A: Equality, B: Equality](value1: A, value2: A, f: A => B): Boolean = {
   //   Equality[A].laws.substitutivity(value1, value2, f)
-  // }  
+  // }
 }

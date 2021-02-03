@@ -26,6 +26,14 @@ object StringRepProps extends Properties("StringRep") with StringRepLawDefinitio
   strRepLaws[List[Double]]
   strRepLaws[List[Char]]
 
+  strRepLaws[Array[Int]]
+  strRepLaws[Array[Long]]
+  strRepLaws[Array[String]]
+  strRepLaws[Array[Boolean]]
+  strRepLaws[Array[Float]]
+  strRepLaws[Array[Double]]
+  strRepLaws[Array[Char]]
+
   strRepLaws[NonEmptySeq[Int]]
   strRepLaws[NonEmptySeq[Long]]
   strRepLaws[NonEmptySeq[String]]

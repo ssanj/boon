@@ -59,6 +59,7 @@ object Equality {
   implicit def arrayEquality[A: Equality]: Equality[Array[A]] =
     Equality.from[Array[A]]((t1, t2) =>  {
       val equality = implicitly[Equality[A]]
-      t1.zip(t2).forall{ case (s1, s2) => equality.eql(s1, s2) }
+      //An empty Array will yield true with `forall`
+      (t1.length == t2.length) && t1.zip(t2).forall{ case (s1, s2) => equality.eql(s1, s2) }
     })
 }
