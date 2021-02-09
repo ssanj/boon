@@ -10,7 +10,7 @@ ThisBuild / scalaVersion := scala213
 
 lazy val commonSettings = Seq(
   organization := "net.ssanj",
-  version := "1.0.2",
+  version := "1.0.3",
   licenses ++= Seq(("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))),
   scalacOptions ++= Seq(
                       "-encoding", "utf-8",
@@ -82,6 +82,5 @@ lazy val boonProj = (project in file(".")).
   settings(
     commonSettings,
     name := "boon-project",
-    publish  / skip := true,
-    publishLocal  / skip := true
+    crossScalaVersions := supportedScalaVersions
   ).aggregate(boonMacro, boon, boonLaws)
