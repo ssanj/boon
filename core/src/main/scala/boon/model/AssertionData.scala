@@ -22,7 +22,7 @@ final case class AssertionData(assertions: NonEmptySeq[Assertion]) {
     AssertionData(assertionsWithContext)
   }
 
-  def ctx(firstCtx: (String, String), rest: (String, String)*): AssertionData = context(Map.from(firstCtx +: rest))
+  def ctx(firstCtx: (String, String), rest: (String, String)*): AssertionData = context(Map((firstCtx +: rest):_*))
 
   /** Updates the label of all Assertions in this object */
   def label(f: AssertionName => AssertionName): AssertionData = {

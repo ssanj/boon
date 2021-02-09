@@ -45,7 +45,7 @@ final class ContextAware[A](val pred: Predicate[A], name: => String) {
 
 /**
  * Container for all customisable parameters to a [[boon.model.AssertionData]] instance.
- * @type A types compared when creating a Predicate
+ * @tparam A types compared when creating a Predicate
  * @param difference How to display the differences between two instances of type `A`
  * @param equality How to equate two instances of type `A`
  * @param ctx Any contextual data to display on assertion failure

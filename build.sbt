@@ -10,7 +10,7 @@ ThisBuild / scalaVersion := scala213
 
 lazy val commonSettings = Seq(
   organization := "net.ssanj",
-  version := "1.0.0",
+  version := "1.0.2",
   licenses ++= Seq(("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))),
   scalacOptions ++= Seq(
                       "-encoding", "utf-8",
@@ -51,7 +51,8 @@ lazy val boon = (project in file("core"))
     libraryDependencies ++= Seq(
         "org.scala-sbt"  % "test-interface" % "1.0",
         "org.scalacheck" %% "scalacheck"    % scalaCheckVersion % Test
-    )
+    ),
+    crossScalaVersions := supportedScalaVersions
   )
 
 
@@ -63,7 +64,8 @@ lazy val boonLaws = (project in file("laws"))
     testFrameworks := Seq(sbt.TestFrameworks.ScalaCheck),
     libraryDependencies ++= Seq(
         "org.scalacheck" %% "scalacheck" % scalaCheckVersion
-    )
+    ),
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val boonMacro = (project in file("macro"))
@@ -71,12 +73,15 @@ lazy val boonMacro = (project in file("macro"))
     commonSettings,
     name := "boon-macro",
     libraryDependencies ++= Seq(
-    scalaReflect.value
-  )
+      scalaReflect.value
+    ),
+    crossScalaVersions := supportedScalaVersions
 )
 
 lazy val boonProj = (project in file(".")).
   settings(
     commonSettings,
     name := "boon-project",
+    publish  / skip := true,
+    publishLocal  / skip := true
   ).aggregate(boonMacro, boon, boonLaws)
