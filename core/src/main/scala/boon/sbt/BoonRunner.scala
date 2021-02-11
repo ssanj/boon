@@ -36,14 +36,24 @@ final class BoonRunner(
       case _ => createDefaultPrinter
     }
 
-    list.map(
-      new BoonTask(
-        _,
-        classLoader,
-        printer.print,
-        new BoonTestStatusListener(statsVecAtomic)
-      )
-    )
+    println(s"===========================================> I got these tasks:${list.map(_.fullyQualifiedName).mkString(",")}")
+
+    //Run the tests in parallel and collect the results
+    //Sequentially write out the results
+
+    list
+      .headOption
+      .map(new BoonAllTasks(_, list, classLoader, printer.print, new BoonTestStatusListener(statsVecAtomic)))
+      .toArray
+
+    // list.map(
+    //   new BoonTask(
+    //     _,
+    //     classLoader,
+    //     printer.print,
+    //     new BoonTestStatusListener(statsVecAtomic)
+    //   )
+    // )
   }
 
   override def done(): String = {
