@@ -36,8 +36,6 @@ final class BoonRunner(
       case _ => createDefaultPrinter
     }
 
-    println(s"===========================================> I got these tasks:${list.map(_.fullyQualifiedName).mkString(",")}")
-
     //Run the tests in parallel and collect the results
     //Sequentially write out the results
 

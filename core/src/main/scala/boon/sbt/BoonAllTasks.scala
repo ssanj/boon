@@ -21,7 +21,11 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-final class ExecutionResult(val taskDef: TaskDef, val suiteResultTry: Try[SuiteResult], val timeTaken: Long)
+import scala.concurrent.Future
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+
+final class ExecutionResult(val task: TaskDef, val suiteResultTry: Try[SuiteResult], val timeTaken: Long)
 
 final class BoonAllTasks(val taskDef: TaskDef,
                          taskDefs: Array[TaskDef],
@@ -31,32 +35,34 @@ final class BoonAllTasks(val taskDef: TaskDef,
 
   def tags(): Array[String] = Array.empty
 
-  private def executeSuite(taskDef: TaskDef): ExecutionResult = {
-    val suiteTry = loadSuite(taskDef.fullyQualifiedName, cl)
+  private def executeSuite(td: TaskDef): ExecutionResult = {
+    val suiteTry = loadSuite(td.fullyQualifiedName, cl)
     val startTime = System.currentTimeMillis()
     val suiteResultTry = suiteTry.flatMap[SuiteResult](suite => Try(Boon.runSuiteLike(suite)))
     val endTime = System.currentTimeMillis()
     val timeTaken = endTime - startTime
-    new ExecutionResult(taskDef, suiteResultTry, timeTaken)
+    new ExecutionResult(td, suiteResultTry, timeTaken)
   }
 
   private def processExecutionResult(eventHandler: EventHandler, loggers: Array[Logger])(er: ExecutionResult): Unit = {
 
     er.suiteResultTry match {
       case Failure(error) =>
-        handleEvent(createErrorEvent(er.taskDef, error, er.timeTaken), eventHandler)
+        handleEvent(createErrorEvent(er.task, error, er.timeTaken), eventHandler)
         statusLister.suiteFailed(error.getMessage)
         logError(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
       case Success(suiteResult) =>
         handleEvent(
-          createEvent[SuiteResult](er.taskDef, suiteResultToStatus, suiteResult, er.timeTaken), eventHandler)
+          createEvent[SuiteResult](er.task, suiteResultToStatus, suiteResult, er.timeTaken), eventHandler)
         statusLister.suiteResult(suiteResult)
         logResult(SuiteOutput.toSuiteOutput(suiteResult), loggers)
     }
   }
 
   def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
-      val execResults = taskDefs.map(executeSuite)
+      implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+      val execResultsF = Future.traverse(taskDefs.toSeq)(td => Future { executeSuite(td) })
+      val execResults = Await.result(execResultsF, Duration.Inf)
       execResults.foreach(processExecutionResult(eventHandler, loggers))
       Array.empty
   }
