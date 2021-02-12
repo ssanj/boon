@@ -38,11 +38,11 @@ final class BoonTask(val taskDef: TaskDef,
       suiteResultTry match {
         case Failure(error) =>
           handleEvent(createErrorEvent(taskDef, error, timeTaken), eventHandler)
-          statusLister.suiteFailed(s"could not load class: ${taskDef.fullyQualifiedName}", error)
+          statusLister.suiteFailed(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
         case Success(suiteResult) =>
           handleEvent(
             createEvent[SuiteResult](taskDef, suiteResultToStatus, suiteResult, timeTaken), eventHandler)
-          statusLister.suiteResult(suiteResult)
+          statusLister.suiteResult(suiteResult, loggers)
       }
 
       Array.empty

@@ -7,20 +7,25 @@ import boon.model.SuiteState
 import boon.model.TestState
 import boon.Monoid
 
+import sbt.testing.Logger
+
 import boon.model.stats.AssertionCount
 import boon.model.stats.StatusCount
 
 import java.util.concurrent.atomic.AtomicReference
 
 trait TestStatusListener {
-  def suiteResult(result: SuiteResult): Unit
-  def suiteFailed(reason: String, error: Throwable): Unit
+  def suiteResult(result: SuiteResult, loggers: Array[Logger]): Unit
+  def suiteFailed(reason: String, error: Throwable, loggers: Array[Logger]): Unit
 }
 
-final class BoonTestStatusListener(atomicStats: AtomicReference[List[SuiteStats]], atomicResults: AtomicReference[List[TaskResult]]) extends TestStatusListener {
+final class BoonTestStatusListener(
+  atomicStats: AtomicReference[List[SuiteStats]],
+  atomicResults: AtomicReference[List[TaskResult]]
+) extends TestStatusListener {
 
-  override def suiteResult(result: SuiteResult): Unit = {
-    atomicResults.updateAndGet(SuiteResultTask(result) +: _)
+  override def suiteResult(result: SuiteResult, loggers: Array[Logger]): Unit = {
+    atomicResults.updateAndGet(SuiteResultTask(result, loggers) +: _)
     val stats = Monoid[SuiteStats].mempty
     val suiteCounts =
       SuiteResult.suiteResultToSuiteState(result) match {
@@ -49,8 +54,8 @@ final class BoonTestStatusListener(atomicStats: AtomicReference[List[SuiteStats]
       ()
     }
 
-  override def suiteFailed(reason: String, error: Throwable): Unit = {
-    atomicResults.updateAndGet(SuiteFailureTask(reason, error) +: _)
+  override def suiteFailed(reason: String, error: Throwable, loggers: Array[Logger]): Unit = {
+    atomicResults.updateAndGet(SuiteFailureTask(reason, error, loggers) +: _)
     val stats = Monoid[SuiteStats].mempty
     val newStats = stats.copy(suites = stats.suites.copy(failed =stats.suites.failed + 1))
     val _ = atomicStats.updateAndGet(newStats +: _)

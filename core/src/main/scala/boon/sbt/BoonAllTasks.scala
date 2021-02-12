@@ -49,13 +49,11 @@ final class BoonAllTasks(val taskDef: TaskDef,
     er.suiteResultTry match {
       case Failure(error) =>
         handleEvent(createErrorEvent(er.task, error, er.timeTaken), eventHandler)
-        statusLister.suiteFailed(s"could not load class: ${taskDef.fullyQualifiedName}", error)
-        // logError(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
+        statusLister.suiteFailed(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
       case Success(suiteResult) =>
         handleEvent(
           createEvent[SuiteResult](er.task, suiteResultToStatus, suiteResult, er.timeTaken), eventHandler)
-        statusLister.suiteResult(suiteResult)
-        // logResult(SuiteOutput.toSuiteOutput(suiteResult), loggers)
+        statusLister.suiteResult(suiteResult, loggers)
     }
   }
 
@@ -72,18 +70,4 @@ final class BoonAllTasks(val taskDef: TaskDef,
       case SuiteState.Passed => Status.Success
       case SuiteState.Failed => Status.Failure
     }
-
-
-  // private def logResult(suiteOutput: SuiteOutput, loggers: Array[Logger]): Unit = {
-  //   loggers.foreach { log =>
-  //     printer(ColourOutput.fromBoolean(log.ansiCodesSupported), log.info(_), suiteOutput)
-  //   }
-  // }
-
-  // private def logError(message: String, error: Throwable, loggers: Array[Logger]): Unit = {
-  //   loggers.foreach{ l =>
-  //     l.error(message)
-  //     l.trace(error)
-  //   }
-  // }
 }

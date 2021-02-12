@@ -2,6 +2,7 @@ package boon.sbt
 
 import sbt.testing.Runner
 import sbt.testing.Task
+import sbt.testing.Logger
 import sbt.testing.TaskDef
 
 import boon.printers.SimplePrinter
@@ -15,8 +16,8 @@ import boon.Monoid
 import java.util.concurrent.atomic.AtomicReference
 
 sealed trait TaskResult
-case class SuiteResultTask(result: SuiteResult) extends TaskResult
-case class SuiteFailureTask(message: String, error: Throwable) extends TaskResult
+case class SuiteResultTask(result: SuiteResult, loggers: Array[Logger]) extends TaskResult
+case class SuiteFailureTask(message: String, error: Throwable, loggers: Array[Logger]) extends TaskResult
 
 
 final class BoonRunner(
@@ -48,27 +49,31 @@ final class BoonRunner(
 
   //use default printer for now, change to use from args
   override def tasks(list: Array[TaskDef]): Array[Task] = {
-    list.foreach(t => println(t.fullyQualifiedName))
-    list.map(new BoonTask2(_, classLoader, new BoonTestStatusListener(statsVecAtomic, taskResultsVecAtomic)))
+      list.map(new BoonTask2(_, classLoader, new BoonTestStatusListener(statsVecAtomic, taskResultsVecAtomic)))
   }
 
   private def logResults(): Unit = {
     val printer = createPrinter(args)
     val results = taskResultsVecAtomic.get
     results.foreach {
-      case SuiteResultTask(result)          => logValidSuite(printer, SuiteOutput.toSuiteOutput(result))
-      case SuiteFailureTask(message, error) => logSuiteError(message, error)
+      case SuiteResultTask(result, loggers)          => logValidSuite(loggers, printer, SuiteOutput.toSuiteOutput(result))
+      case SuiteFailureTask(message, error, loggers) => logSuiteError(loggers, message, error)
     }
   }
 
 
-  private def logValidSuite(printer: BoonPrinter, suiteOutput: SuiteOutput): Unit = {
-    printer.print(ColourOutput.fromBoolean(true), println(_), suiteOutput)
+  private def logValidSuite(loggers: Array[Logger], printer: BoonPrinter, suiteOutput: SuiteOutput): Unit = {
+    loggers.foreach { logger =>
+      printer.print(ColourOutput.fromBoolean(true), logger.info(_), suiteOutput)
+    }
+
   }
 
-  private def logSuiteError(message: String, error: Throwable): Unit = {
-    Console.err.println(message)
-    Console.err.println(error)
+  private def logSuiteError(loggers: Array[Logger], message: String, error: Throwable): Unit = {
+    loggers.foreach { logger =>
+     logger.error(message)
+     logger.trace(error)
+    }
   }
 
   override def done(): String = {
