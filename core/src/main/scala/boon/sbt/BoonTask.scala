@@ -8,8 +8,6 @@ import sbt.testing.Status
 
 import boon.Boon
 import boon.model.SuiteState
-import boon.printers.ColourOutput
-import boon.result.SuiteOutput
 import boon.model.SuiteResult
 
 import boon.sbt.Event.createEvent
@@ -22,18 +20,16 @@ import scala.util.Success
 import scala.util.Try
 
 final class BoonTask(val taskDef: TaskDef,
-                         cl: ClassLoader,
-                         printer: (ColourOutput, String => Unit, SuiteOutput) => Unit,
-                         statusLister: TestStatusListener) extends Task {
+                          cl: ClassLoader,
+                          statusLister: TestStatusListener) extends Task {
 
   def tags(): Array[String] = Array.empty
 
   def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
-      val suiteTry = loadSuite(taskDef.fullyQualifiedName, cl)
-      val startTime = System.currentTimeMillis()
-      val suiteResultTry = suiteTry.flatMap[SuiteResult](suite => Try(Boon.runSuiteLike(suite)))
-      val endTime = System.currentTimeMillis()
-      val timeTaken = endTime - startTime
+      val suiteTry                    = loadSuite(taskDef.fullyQualifiedName, cl)
+      val (timeTaken, suiteResultTry) = runTimed { () =>
+        suiteTry.flatMap[SuiteResult](suite => Try(Boon.runSuiteLike(suite)))
+      }
 
       suiteResultTry match {
         case Failure(error) =>
@@ -41,11 +37,20 @@ final class BoonTask(val taskDef: TaskDef,
           statusLister.suiteFailed(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
         case Success(suiteResult) =>
           handleEvent(
-            createEvent[SuiteResult](taskDef, suiteResultToStatus, suiteResult, timeTaken), eventHandler)
+            createEvent[SuiteResult](taskDef, suiteResultToStatus, suiteResult, timeTaken), eventHandler
+          )
           statusLister.suiteResult(suiteResult, loggers)
       }
 
       Array.empty
+  }
+
+  private def runTimed[A](toRun: () => A): (Long, A) = {
+      val startTime = System.currentTimeMillis()
+      val result    = toRun()
+      val endTime   = System.currentTimeMillis()
+      val timeTaken = endTime - startTime
+      (timeTaken, result)
   }
 
   private def suiteResultToStatus(sr: SuiteResult): Status =

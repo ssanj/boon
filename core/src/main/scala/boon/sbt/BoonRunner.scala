@@ -49,7 +49,7 @@ final class BoonRunner(
 
   //use default printer for now, change to use from args
   override def tasks(list: Array[TaskDef]): Array[Task] = {
-      list.map(new BoonTask2(_, classLoader, new BoonTestStatusListener(statsVecAtomic, taskResultsVecAtomic)))
+      list.map(new BoonTask(_, classLoader, new BoonTestStatusListener(statsVecAtomic, taskResultsVecAtomic)))
   }
 
   private def logResults(): Unit = {
@@ -64,7 +64,7 @@ final class BoonRunner(
 
   private def logValidSuite(loggers: Array[Logger], printer: BoonPrinter, suiteOutput: SuiteOutput): Unit = {
     loggers.foreach { logger =>
-      printer.print(ColourOutput.fromBoolean(true), logger.info(_), suiteOutput)
+      printer.print(ColourOutput.fromBoolean(logger.ansiCodesSupported()), logger.info(_), suiteOutput)
     }
 
   }
