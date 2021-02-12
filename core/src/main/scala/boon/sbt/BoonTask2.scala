@@ -8,8 +8,6 @@ import sbt.testing.Status
 
 import boon.Boon
 import boon.model.SuiteState
-import boon.printers.ColourOutput
-import boon.result.SuiteOutput
 import boon.model.SuiteResult
 
 import boon.sbt.Event.createEvent
@@ -21,10 +19,9 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-final class BoonTask(val taskDef: TaskDef,
-                         cl: ClassLoader,
-                         printer: (ColourOutput, String => Unit, SuiteOutput) => Unit,
-                         statusLister: TestStatusListener) extends Task {
+final class BoonTask2(val taskDef: TaskDef,
+                          cl: ClassLoader,
+                          statusLister: TestStatusListener) extends Task {
 
   def tags(): Array[String] = Array.empty
 
@@ -39,10 +36,12 @@ final class BoonTask(val taskDef: TaskDef,
         case Failure(error) =>
           handleEvent(createErrorEvent(taskDef, error, timeTaken), eventHandler)
           statusLister.suiteFailed(s"could not load class: ${taskDef.fullyQualifiedName}", error)
+          // logError(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
         case Success(suiteResult) =>
           handleEvent(
             createEvent[SuiteResult](taskDef, suiteResultToStatus, suiteResult, timeTaken), eventHandler)
           statusLister.suiteResult(suiteResult)
+          // logResult(SuiteOutput.toSuiteOutput(suiteResult), loggers)
       }
 
       Array.empty
@@ -53,4 +52,18 @@ final class BoonTask(val taskDef: TaskDef,
       case SuiteState.Passed => Status.Success
       case SuiteState.Failed => Status.Failure
     }
+
+
+  // private def logResult(suiteOutput: SuiteOutput, loggers: Array[Logger]): Unit = {
+  //   loggers.foreach { log =>
+  //     printer(ColourOutput.fromBoolean(log.ansiCodesSupported), log.info(_), suiteOutput)
+  //   }
+  // }
+
+  // private def logError(message: String, error: Throwable, loggers: Array[Logger]): Unit = {
+  //   loggers.foreach{ l =>
+  //     l.error(message)
+  //     l.trace(error)
+  //   }
+  // }
 }

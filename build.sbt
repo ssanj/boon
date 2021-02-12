@@ -10,7 +10,7 @@ ThisBuild / scalaVersion := scala213
 
 lazy val commonSettings = Seq(
   organization := "net.ssanj",
-  version := "1.0.3",
+  version := "1.1.0",
   licenses ++= Seq(("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0"))),
   scalacOptions ++= Seq(
                       "-encoding", "utf-8",

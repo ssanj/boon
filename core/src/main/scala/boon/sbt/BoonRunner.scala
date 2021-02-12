@@ -6,10 +6,18 @@ import sbt.testing.TaskDef
 
 import boon.printers.SimplePrinter
 import boon.printers.BoonPrinter
+import boon.printers.ColourOutput
 import boon.model.stats.SuiteStats
+import boon.model.SuiteResult
+import boon.result.SuiteOutput
 import boon.Monoid
 
 import java.util.concurrent.atomic.AtomicReference
+
+sealed trait TaskResult
+case class SuiteResultTask(result: SuiteResult) extends TaskResult
+case class SuiteFailureTask(message: String, error: Throwable) extends TaskResult
+
 
 final class BoonRunner(
   val args: Array[String],
@@ -18,6 +26,8 @@ final class BoonRunner(
   extends Runner {
 
   private val statsVecAtomic = new AtomicReference[List[SuiteStats]](List.empty[SuiteStats])
+
+  private val taskResultsVecAtomic = new AtomicReference[List[TaskResult]](List.empty[TaskResult])
 
   private def createDefaultPrinter: BoonPrinter = SimplePrinter
 
@@ -29,20 +39,41 @@ final class BoonRunner(
     }, identity _)
   }
 
-  //use default printer for now, change to use from args
-  override def tasks(list: Array[TaskDef]): Array[Task] = {
-    val printer: BoonPrinter = args match {
+  private def createPrinter(options: Array[String]): BoonPrinter = {
+    options match {
       case Array("-P", printerClass) => createCustomPrinter(printerClass)
       case _ => createDefaultPrinter
     }
+  }
 
-    list
-      .headOption
-      .map(new BoonAllTasks(_, list, classLoader, printer.print, new BoonTestStatusListener(statsVecAtomic)))
-      .toArray
+  //use default printer for now, change to use from args
+  override def tasks(list: Array[TaskDef]): Array[Task] = {
+    list.foreach(t => println(t.fullyQualifiedName))
+    list.map(new BoonTask2(_, classLoader, new BoonTestStatusListener(statsVecAtomic, taskResultsVecAtomic)))
+  }
+
+  private def logResults(): Unit = {
+    val printer = createPrinter(args)
+    val results = taskResultsVecAtomic.get
+    results.foreach {
+      case SuiteResultTask(result)          => logValidSuite(printer, SuiteOutput.toSuiteOutput(result))
+      case SuiteFailureTask(message, error) => logSuiteError(message, error)
+    }
+  }
+
+
+  private def logValidSuite(printer: BoonPrinter, suiteOutput: SuiteOutput): Unit = {
+    printer.print(ColourOutput.fromBoolean(true), println(_), suiteOutput)
+  }
+
+  private def logSuiteError(message: String, error: Throwable): Unit = {
+    Console.err.println(message)
+    Console.err.println(error)
   }
 
   override def done(): String = {
+
+    logResults()
 
     import math.max
 

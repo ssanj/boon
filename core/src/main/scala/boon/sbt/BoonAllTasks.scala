@@ -49,13 +49,13 @@ final class BoonAllTasks(val taskDef: TaskDef,
     er.suiteResultTry match {
       case Failure(error) =>
         handleEvent(createErrorEvent(er.task, error, er.timeTaken), eventHandler)
-        statusLister.suiteFailed(error.getMessage)
-        logError(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
+        statusLister.suiteFailed(s"could not load class: ${taskDef.fullyQualifiedName}", error)
+        // logError(s"could not load class: ${taskDef.fullyQualifiedName}", error, loggers)
       case Success(suiteResult) =>
         handleEvent(
           createEvent[SuiteResult](er.task, suiteResultToStatus, suiteResult, er.timeTaken), eventHandler)
         statusLister.suiteResult(suiteResult)
-        logResult(SuiteOutput.toSuiteOutput(suiteResult), loggers)
+        // logResult(SuiteOutput.toSuiteOutput(suiteResult), loggers)
     }
   }
 
@@ -74,16 +74,16 @@ final class BoonAllTasks(val taskDef: TaskDef,
     }
 
 
-  private def logResult(suiteOutput: SuiteOutput, loggers: Array[Logger]): Unit = {
-    loggers.foreach { log =>
-      printer(ColourOutput.fromBoolean(log.ansiCodesSupported), log.info(_), suiteOutput)
-    }
-  }
+  // private def logResult(suiteOutput: SuiteOutput, loggers: Array[Logger]): Unit = {
+  //   loggers.foreach { log =>
+  //     printer(ColourOutput.fromBoolean(log.ansiCodesSupported), log.info(_), suiteOutput)
+  //   }
+  // }
 
-  private def logError(message: String, error: Throwable, loggers: Array[Logger]): Unit = {
-    loggers.foreach{ l =>
-      l.error(message)
-      l.trace(error)
-    }
-  }
+  // private def logError(message: String, error: Throwable, loggers: Array[Logger]): Unit = {
+  //   loggers.foreach{ l =>
+  //     l.error(message)
+  //     l.trace(error)
+  //   }
+  // }
 }
