@@ -1,4 +1,4 @@
-//stage artifacts before publishing
-bintrayReleaseOnPublish in ThisBuild := false
+// //stage artifacts before publishing
+// bintrayReleaseOnPublish in ThisBuild := false
 
-bintrayPackageLabels := Seq("scala", "test")
+// bintrayPackageLabels := Seq("scala", "test")
