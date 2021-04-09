@@ -34,6 +34,8 @@ lazy val commonSettings = Seq(
                       "-language:higherKinds"
   ),
 
+  sonatypeCredentialHost := "s01.oss.sonatype.org",
+
   scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 )
 
